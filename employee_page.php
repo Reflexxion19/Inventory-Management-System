@@ -6,7 +6,7 @@ if(!isset($_SESSION['email'])) {
     exit();
 }
 
-if($_SESSION['role'] != 'admin'){
+if($_SESSION['role'] != 'employee'){
     header("Location: index.php");
     exit();
 }
@@ -18,11 +18,11 @@ if($_SESSION['role'] != 'admin'){
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administratoriaus Puslapis</title>
-    <link rel="stylesheet" href="css/admin_page.css">
+    <title>Naudotojo Puslapis</title>
+    <link rel="stylesheet" href="css/employee_page.css">
 </head>
-<body>
-
+<body style="background: #fff;">
+    
     <div class="nav-bar">
         <div class="nav-logo">
             <a class="logo" href="admin_page.php">
@@ -31,18 +31,15 @@ if($_SESSION['role'] != 'admin'){
         </div>
 
         <div class="nav-items">
-            <a class="nav-btn" href="admin_page.php">PAGRINDINIS</a>
+            <a class="nav-btn" href="#">PAGRINDINIS</a>
             <a class="nav-btn" href="#">PASKOLOS</a>
-            <a class="nav-btn" href="#">INVENTORIUS</a>
-            <a class="nav-btn" href="#">NAUDOTOJAI</a>
-            <a class="nav-btn" href="#">PRAŠYMAI</a>
             <a class="nav-btn" href="logout.php">ATSIJUNGTI</a>
         </div>
     </div>
 
     <div class="box">
         <h1>Sveiki, <span><?= $_SESSION['name']; ?></span></h1>
-        <p>Tai yra <span>administratoriaus</span> puslapis</p>
+        <p>Tai yra <span>darbuotojo</span> puslapis</p>
         <button onclick="window.location.href='logout.php'">Atsijungti</button>
     </div>
 
