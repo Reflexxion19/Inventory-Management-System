@@ -9,9 +9,9 @@
 
 body {
     display: flex;
+    min-height: 100vh;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
     background: linear-gradient(to right, #e2e2e2, #c9d6ff);
     color: #333;
 }
@@ -93,22 +93,4 @@ p a:hover {
     color: #a42834;
     text-align: center;
     margin-bottom: 20px;
-}
-
-h1 {
-    font-size: 50px;
-}
-
-span {
-    color: #7494ec;
-}
-
-.box p {
-    font-size: 22px;
-}
-
-.box button {
-    display: block;
-    width: 300px;
-    margin: 0 auto;
 }
