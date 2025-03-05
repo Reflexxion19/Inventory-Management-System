@@ -1,5 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
 
+:root {
+    --tertiary-color: #ecd223;
+    --tertiary-color-hover: #d6ba00;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -12,7 +17,7 @@ body {
     min-height: 100vh;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(to right, #e2e2e2, #c9d6ff);
+    background: linear-gradient(to right, #e2e2e2, #fff4b0);
     color: #333;
 }
 
@@ -55,7 +60,7 @@ input {
 button {
     width: 100%;
     padding: 12px;
-    background: #7494ec;
+    background: var(--tertiary-color);
     border-radius: 6px;
     border: none;
     cursor: pointer;
@@ -67,7 +72,7 @@ button {
 }
 
 button:hover {
-    background: #6884d3;
+    background: var(--tertiary-color-hover);
 }
 
 p {
@@ -77,7 +82,7 @@ p {
 }
 
 p a {
-    color: #7494ec;
+    color: var(--tertiary-color);
     text-decoration: none;
 }
 

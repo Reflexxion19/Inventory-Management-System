@@ -23,20 +23,21 @@ if($_SESSION['role'] != 'student'){
 </head>
 <body style="background: #fff;">
     
-    <div class="nav-bar">
-        <div class="nav-logo">
-            <a class="logo" href="admin_page.php">
-                <img src="images/logo.png" alt="Logo">
-            </a>
-        </div>
+    <nav>
+        <input type="checkbox" id="check">
+        <label for="check" class="checkbtn">
+            <i class="fa-solid fa-bars"></i>
+        </label>
 
-        <div class="nav-items">
-            <a class="nav-btn" href="admin_page.php">PAGRINDINIS</a>
-            <a class="nav-btn" href="#">PASKOLOS</a>
-            <a class="nav-btn" href="#">PILDYTI PRAŠYMĄ</a>
-            <a class="nav-btn" href="logout.php">ATSIJUNGTI</a>
-        </div>
-    </div>
+        <label class="logo">KTU IVS</label>
+        
+        <ul>
+            <li><a class="active" href="admin_page.php">PAGRINDINIS</a></li>
+            <li><a href="#">PASKOLOS</a></li>
+            <li><a href="#">PILDYTI PRAŠYMĄ</a></li>
+            <li><a href="logout.php">ATSIJUNGTI</a></li>
+        </ul>
+    </nav>
 
     <div class="box">
         <h1>Sveiki, <span><?= $_SESSION['name']; ?></span></h1>
