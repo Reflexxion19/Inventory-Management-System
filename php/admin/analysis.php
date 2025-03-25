@@ -24,11 +24,16 @@ if($_SESSION['role'] != 'admin'){
     <title>Analizė</title>
     <link rel="stylesheet" href="../../css/header.css">
     <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/footer.css">
     <script src="../../js/header.js"></script>
 </head>
 <body>
     
-    
+    <div class="container">
+
+    </div>
 
 </body>
 </html>
+
+<?php include '../../footer.php'; ?>

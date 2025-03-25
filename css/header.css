@@ -1,3 +1,12 @@
+:root {
+    --main-color: #6884d3;
+    --accent-color: #fff;
+    --tertiary-color: #7494ec;
+    --tretiary-color-hover: #6884d3;
+    --nav-menu-color: #313131;
+    --nav-bar-height: 60px;
+}
+
 /*#region Nav Bar*/
 nav {
     display: flex;
@@ -32,12 +41,12 @@ nav ul li a {
     text-decoration: none;
 }
 
-a.active {
+nav ul li a.active {
     padding: 5px;
     border: var(--accent-color) 2px solid;
 }
 
-a:hover {
+nav ul li a:hover {
     padding: 5px;
     border: var(--accent-color) 2px solid;
     color: var(--accent-color);
@@ -86,7 +95,7 @@ a:hover {
         font-size: 20px;
     }
 
-    a.active,a:hover {
+    nav ul li a.active, nav ul li a:hover {
         border: none;
         color: var(--tertiary-color);
     }

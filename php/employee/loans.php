@@ -24,6 +24,7 @@ if($_SESSION['role'] != 'employee'){
     <title>Paskolos</title>
     <link rel="stylesheet" href="../../css/header.css">
     <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/footer.css">
     <script src="../../js/header.js"></script>
 </head>
 <body>
@@ -32,3 +33,5 @@ if($_SESSION['role'] != 'employee'){
 
 </body>
 </html>
+
+<?php include '../../footer.php'; ?>
