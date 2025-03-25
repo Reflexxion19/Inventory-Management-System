@@ -8,7 +8,7 @@
             <i class="fa-solid fa-bars"></i>
         </label>
 
-        <label class="logo">AS</label>
+        <label class="logo">KTU IVS</label>
         
         <ul>
             <li><a href="add_product.php">Inventorius</a></li>
