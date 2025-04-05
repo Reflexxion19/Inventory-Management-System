@@ -22,10 +22,11 @@ if($_SESSION['role'] != 'admin'){
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventorius</title>
-    <link rel="stylesheet" href="../../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../css/mdb.min.css">
     <link rel="stylesheet" href="../../css/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
     <script defer src="../../js/bootstrap.bundle.min.js"></script>
+    <script defer src="../../js/mdb.umd.min.js"></script>
     <script defer src="../../js/header.js"></script>
 </head>
 <body>
@@ -40,6 +41,20 @@ if($_SESSION['role'] != 'admin'){
             </div>
         </div>
 
+        <div class="row my-3 d-flex justify-content-end">
+            <div class="col-12">
+                <div class="input-group">
+                    <div class="form-outline" data-mdb-input-init>
+                        <input type="search" id="form1" class="form-control" />
+                        <label class="form-label" for="form1">Ieškoti</label>
+                    </div>
+                    <button type="button" class="btn btn-primary" data-mdb-ripple-init>
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div class="row">
             <div class="col">
                 <table class="table">
@@ -47,7 +62,7 @@ if($_SESSION['role'] != 'admin'){
                         <tr>
                             <th scope="col">Pavadinimas</th>
                             <th scope="col" class="col-2">Statusas</th>
-                            <th scope="col" class="col-2">Veiksmai</th>
+                            <th scope="col" class="col-3">Veiksmai</th>
                         </tr>
                     </thead>
                     <tbody class="table-group-divider">
