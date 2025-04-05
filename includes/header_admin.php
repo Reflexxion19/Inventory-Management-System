@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head></head>
+<body>
+    <nav class="navbar navbar-dark navbar-expand-lg bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">KTU IVS</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarText">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="inventory.php">Inventorius</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="loans.php">Paskolos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="users.php">Naudotojai</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="loan_requests.php">Paskolos Prašymai</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="analysis.php">Analizė</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../php_login_register/logout.php">Atsijungti</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</body>
+</html>

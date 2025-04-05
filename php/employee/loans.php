@@ -7,14 +7,14 @@ if(!isset($_SESSION['email'])) {
     exit();
 }
 
-if($_SESSION['role'] != 'employee'){
+if($_SESSION['role'] != 'employee' && $_SESSION['role']!= 'admin'){
     header("Location: ../../index.php");
     exit();
 }
 
 ?>
 
-<?php include '../header/header_employee.php'; ?>
+<?php include '../../includes/header_employee.php'; ?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -22,16 +22,18 @@ if($_SESSION['role'] != 'employee'){
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Paskolos</title>
-    <link rel="stylesheet" href="../../css/header.css">
+    <link rel="stylesheet" href="../../css/bootstrap.min.css">
     <link rel="stylesheet" href="../../css/style.css">
-    <link rel="stylesheet" href="../../css/footer.css">
-    <script src="../../js/header.js"></script>
+    <script defer src="../../js/bootstrap.bundle.min.js"></script>
+    <script defer src="../../js/header.js"></script>
 </head>
 <body>
     
-    
+    <div class="container">
+        
+    </div>
 
 </body>
 </html>
 
-<?php include '../../footer.php'; ?>
+<?php include '../../includes/footer_employee.php'; ?>
