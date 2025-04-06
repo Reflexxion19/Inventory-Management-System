@@ -87,7 +87,7 @@ if (isset($_POST['login'])) {
 
             // Tikrinama ar vartotojas turi admin, employee ar student rolę
             if ($user['role'] === 'admin') {
-                header("Location: ../php/admin/analysis.php");
+                header("Location: ../php/admin/inventory.php");
             } elseif ($user['role'] === 'employee') {
                 header("Location: ../php/employee/loans.php");
             } elseif ($user['role'] === 'student') {
