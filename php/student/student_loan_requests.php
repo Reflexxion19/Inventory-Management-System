@@ -27,6 +27,7 @@ if($_SESSION['role'] != 'student'){
     <script defer src="../../js/bootstrap.bundle.min.js"></script>
     <script defer src="../../js/mdb.umd.min.js"></script>
     <script defer src="../../js/header.js"></script>
+    <script defer src="../../js/search.js"></script>
 </head>
 <body>
     <div class="container-md min-vh-100">
@@ -34,7 +35,7 @@ if($_SESSION['role'] != 'student'){
             <div class="col-12">
                 <div class="input-group">
                     <div class="form-outline" data-mdb-input-init>
-                        <input type="search" id="form1" class="form-control" />
+                        <input type="search" id="search-box" class="form-control" onkeyup="myFunction()"/>
                         <label class="form-label" for="form1">Ieškoti</label>
                     </div>
                     <button type="button" class="btn btn-success mx-1" onClick="document.location.href='create_loan_request.php'">SUKURTI PRAŠYMĄ</button>
@@ -44,7 +45,7 @@ if($_SESSION['role'] != 'student'){
 
         <div class="row">
             <div class="col">
-                <table class="table">
+                <table class="table" id="table">
                     <thead>
                         <tr>
                             <th scope="col">Pavadinimas</th>
