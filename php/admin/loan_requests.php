@@ -81,10 +81,16 @@ if($_SESSION['role'] != 'admin'){
                                 </div>
                             </div>
                             <div class="row">
+                                <div class="mb-3">
+                                    <label for="textArea" class="form-label">Pastabos</label>
+                                    <textarea class="form-control text-secondary" id="textArea" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="row">
                                 <div class="col d-flex justify-content-end">
-                                    <button type="button" class="btn btn-success mx-1"><i class="bi bi-check" style="font-size: 20px;"></i></button>
-                                    <button type="button" class="btn btn-danger mx-1"><i class="bi bi-x" style="font-size: 20px;"></i></button>
-                                    <button type="button" class="btn btn-warning mx-1">REDAGUOTI</button>
+                                    <button type="button" class="btn btn-success mx-1">PATVIRTINTI</button>
+                                    <button type="button" class="btn btn-danger mx-1">ATMESTI</button>
+                                    <button type="button" class="btn btn-warning mx-1">PATEIKTI PASTABĄ</button>
                                 </div>
                             </div>
                         </div>
@@ -139,10 +145,16 @@ if($_SESSION['role'] != 'admin'){
                                 </div>
                             </div>
                             <div class="row">
+                                <div class="mb-3">
+                                    <label for="textArea" class="form-label">Pastabos</label>
+                                    <textarea class="form-control text-secondary" id="textArea" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="row">
                                 <div class="col d-flex justify-content-end">
-                                    <button type="button" class="btn btn-success mx-1"><i class="bi bi-check" style="font-size: 20px;"></i></button>
-                                    <button type="button" class="btn btn-danger mx-1"><i class="bi bi-x" style="font-size: 20px;"></i></button>
-                                    <button type="button" class="btn btn-warning mx-1">REDAGUOTI</button>
+                                    <button type="button" class="btn btn-success mx-1">PATVIRTINTI</button>
+                                    <button type="button" class="btn btn-danger mx-1">ATMESTI</button>
+                                    <button type="button" class="btn btn-warning mx-1">PATEIKTI PASTABĄ</button>
                                 </div>
                             </div>
                         </div>
@@ -197,10 +209,16 @@ if($_SESSION['role'] != 'admin'){
                                 </div>
                             </div>
                             <div class="row">
+                                <div class="mb-3">
+                                    <label for="textArea" class="form-label">Pastabos</label>
+                                    <textarea class="form-control text-secondary" id="textArea" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="row">
                                 <div class="col d-flex justify-content-end">
-                                    <button type="button" class="btn btn-success mx-1"><i class="bi bi-check" style="font-size: 20px;"></i></button>
-                                    <button type="button" class="btn btn-danger mx-1"><i class="bi bi-x" style="font-size: 20px;"></i></button>
-                                    <button type="button" class="btn btn-warning mx-1">REDAGUOTI</button>
+                                    <button type="button" class="btn btn-success mx-1">PATVIRTINTI</button>
+                                    <button type="button" class="btn btn-danger mx-1">ATMESTI</button>
+                                    <button type="button" class="btn btn-warning mx-1">PATEIKTI PASTABĄ</button>
                                 </div>
                             </div>
                         </div>

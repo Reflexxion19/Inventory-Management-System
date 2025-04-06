@@ -43,6 +43,8 @@ if($_SESSION['role'] != 'admin'){
                 <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
                     <div class="row my-5 d-flex justify-content-center">
                         <div class="col-6 mb-3">
+                            <h3 class="d-flex justify-content-center">Atrakinti Talpyklą</h3>
+
                             <label for="identification_code" class="form-label">Identifikacinis kodas</label>
                             <input type="email" class="form-control mb-3" id="identification_code" placeholder="Pvz.: 321654898798756654">
 
@@ -55,6 +57,8 @@ if($_SESSION['role'] != 'admin'){
                 <div class="tab-pane fade" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
                     <div class="row my-5 d-flex justify-content-center">
                         <div class="col-6 mb-3">
+                            <h3 class="d-flex justify-content-center">Grąžinti Inventorių</h3>
+
                             <label for="identification_code" class="form-label">Identifikacinis kodas</label>
                             <input type="email" class="form-control mb-3" id="identification_code" placeholder="Pvz.: 321654898798756654">
 

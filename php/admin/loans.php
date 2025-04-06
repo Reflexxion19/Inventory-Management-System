@@ -31,26 +31,14 @@ if($_SESSION['role'] != 'admin'){
 </head>
 <body>
     <div class="container-md min-vh-100">
-        <div class="row my-5">
-            <div class="col">
-                <div class="col-1 border border-4 rounded border-primary d-flex justify-content-center">
-                    <a href="loan_inventory.php">
-                        <i class="bi bi-plus text-primary" style="font-size: 70px;"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div class="row my-3 d-flex justify-content-end">
+    <div class="row mt-5 mb-3 d-flex justify-content-end">
             <div class="col-12">
                 <div class="input-group">
                     <div class="form-outline" data-mdb-input-init>
                         <input type="search" id="form1" class="form-control" />
                         <label class="form-label" for="form1">Ieškoti</label>
                     </div>
-                    <button type="button" class="btn btn-primary" data-mdb-ripple-init>
-                        <i class="bi bi-search"></i>
-                    </button>
+                    <button type="button" class="btn btn-success mx-1" onClick="document.location.href='loan_inventory.php'">PASISKOLINTI INVENTORIŲ</button>
                 </div>
             </div>
         </div>
@@ -68,19 +56,19 @@ if($_SESSION['role'] != 'admin'){
                         <tr>
                             <td>Name1</td>
                             <td>
-                                <button type="button" onClick="document.location.href='return_inventory.php'" class="btn btn-primary">GRĄŽINTI</button>
+                                <button type="button" onClick="document.location.href='return_inventory.php'" class="btn btn-danger">GRĄŽINTI</button>
                             </td>
                         </tr>
                         <tr>
                             <td>Name2</td>
                             <td>
-                                <button type="button" onClick="document.location.href='return_inventory.php'" class="btn btn-primary">GRĄŽINTI</button>
+                                <button type="button" onClick="document.location.href='return_inventory.php'" class="btn btn-danger">GRĄŽINTI</button>
                             </td>
                         </tr>
                         <tr>
                             <td>Name3</td>
                             <td>
-                                <button type="button" onClick="document.location.href='return_inventory.php'" class="btn btn-primary">GRĄŽINTI</button>
+                                <button type="button" onClick="document.location.href='return_inventory.php'" class="btn btn-danger">GRĄŽINTI</button>
                             </td>
                         </tr>
                     </tbody>

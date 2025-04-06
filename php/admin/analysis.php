@@ -30,13 +30,13 @@ if($_SESSION['role'] != 'admin'){
 <body>
     
     <div class="container-md min-vh-100">
-        <div class="d-flex justify-content-center">
-            <canvas class="my-5 h-75 w-75" id="acquisitions"></canvas>
+        <div class="d-flex justify-content-center w-100" style="height:75vh">
+            <canvas class="my-5" id="acquisitions"></canvas>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script type="module" src="charts/test.js"></script>
+    <script type="module" src="charts/monthly_loans.js"></script>
 </body>
 </html>
 

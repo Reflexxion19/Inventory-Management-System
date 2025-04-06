@@ -38,9 +38,6 @@ if($_SESSION['role'] != 'admin'){
                         <input type="search" id="form1" class="form-control" />
                         <label class="form-label" for="form1">Ieškoti</label>
                     </div>
-                    <button type="button" class="btn btn-primary" data-mdb-ripple-init>
-                        <i class="bi bi-search"></i>
-                    </button>
                 </div>
             </div>
         </div>

@@ -31,26 +31,14 @@ if($_SESSION['role'] != 'admin'){
 </head>
 <body>
     <div class="container-md min-vh-100">
-        <div class="row my-5">
-            <div class="col">
-                <div class="col-1 border border-4 rounded border-primary d-flex justify-content-center">
-                    <a href="add_inventory.php">
-                        <i class="bi bi-plus text-primary" style="font-size: 70px;"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div class="row my-3 d-flex justify-content-end">
+        <div class="row mt-5 mb-3 d-flex justify-content-end">
             <div class="col-12">
                 <div class="input-group">
                     <div class="form-outline" data-mdb-input-init>
                         <input type="search" id="form1" class="form-control" />
                         <label class="form-label" for="form1">Ieškoti</label>
                     </div>
-                    <button type="button" class="btn btn-primary" data-mdb-ripple-init>
-                        <i class="bi bi-search"></i>
-                    </button>
+                    <button type="button" class="btn btn-success mx-1">PRIDĖTI INVENTORIŲ</button>
                 </div>
             </div>
         </div>
@@ -62,7 +50,8 @@ if($_SESSION['role'] != 'admin'){
                         <tr>
                             <th scope="col">Pavadinimas</th>
                             <th scope="col" class="col-2">Statusas</th>
-                            <th scope="col" class="col-3">Veiksmai</th>
+                            <th scope="col" class="col-1">Veiksmai</th>
+                            <th scope="col" class="col-1"></th>
                         </tr>
                     </thead>
                     <tbody class="table-group-divider">
@@ -70,7 +59,10 @@ if($_SESSION['role'] != 'admin'){
                             <td>Name1</td>
                             <td>PASISKOLINTAS</td>
                             <td>
-                                <button type="button" class="btn btn-primary">REDAGUOTI</button>
+                                <button type="button" class="btn btn-warning">REDAGUOTI</button>
+                                
+                            </td>
+                            <td>
                                 <button type="button" class="btn btn-danger"><i class="bi bi-trash"></i></button>
                             </td>
                         </tr>
@@ -78,7 +70,9 @@ if($_SESSION['role'] != 'admin'){
                             <td>Name2</td>
                             <td>LAISVAS</td>
                             <td>
-                                <button type="button" class="btn btn-primary">REDAGUOTI</button>
+                                <button type="button" class="btn btn-warning">REDAGUOTI</button>
+                            </td>
+                            <td>
                                 <button type="button" class="btn btn-danger"><i class="bi bi-trash"></i></button>
                             </td>
                         </tr>
@@ -86,7 +80,9 @@ if($_SESSION['role'] != 'admin'){
                             <td>Name3</td>
                             <td>PASISKOLINTAS</td>
                             <td>
-                                <button type="button" class="btn btn-primary">REDAGUOTI</button>
+                                <button type="button" class="btn btn-warning">REDAGUOTI</button>
+                            </td>
+                            <td>
                                 <button type="button" class="btn btn-danger"><i class="bi bi-trash"></i></button>
                             </td>
                         </tr>
