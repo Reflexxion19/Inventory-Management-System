@@ -4,7 +4,7 @@
 <body>
     <nav class="navbar navbar-dark navbar-expand-lg bg-primary">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">KTU IVS</a>
+            <a class="navbar-brand" href="student_loans.php">KTU IVS</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
