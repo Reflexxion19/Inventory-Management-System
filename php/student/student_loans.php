@@ -25,14 +25,45 @@ if($_SESSION['role'] != 'student'){
     <link rel="stylesheet" href="../../css/mdb.min.css">
     <link rel="stylesheet" href="../../css/style.css">
     <script defer src="../../js/bootstrap.bundle.min.js"></script>
+    <script defer src="../../js/mdb.umd.min.js"></script>
     <script defer src="../../js/header.js"></script>
 </head>
 <body>
-    
-    <div class="container">
-        
-    </div>
+<div class="container-md min-vh-100">
+    <div class="row mt-5 mb-3 d-flex justify-content-end">
+            <div class="col-12">
+                <div class="input-group">
+                    <div class="form-outline" data-mdb-input-init>
+                        <input type="search" id="form1" class="form-control" />
+                        <label class="form-label" for="form1">Ieškoti</label>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <div class="row">
+            <div class="col">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Pavadinimas</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        <tr>
+                            <td>Name1</td>
+                        </tr>
+                        <tr>
+                            <td>Name2</td>
+                        </tr>
+                        <tr>
+                            <td>Name3</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
 

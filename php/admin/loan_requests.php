@@ -51,8 +51,13 @@ if($_SESSION['role'] != 'admin'){
                                 </div>
                                 <div class="col-6 mb-3">
                                     <div class="row">
-                                        <div class="col d-flex justify-content-center">
-                                            <label class="form-label">Laikotarpis</label>
+                                        <div class="col d-flex">
+                                            <label class="form-label" for="start_date">Pradžios data</label>
+                                        </div>
+                                        <div class="col-1 d-flex">
+                                        </div>
+                                        <div class="col d-flex">
+                                            <label class="form-label" for="end_date">Pabaigos data</label>
                                         </div>
                                     </div>
                                     <div class="row">
@@ -115,8 +120,13 @@ if($_SESSION['role'] != 'admin'){
                                 </div>
                                 <div class="col-6 mb-3">
                                     <div class="row">
-                                        <div class="col d-flex justify-content-center">
-                                            <label class="form-label">Laikotarpis</label>
+                                    <div class="col d-flex">
+                                            <label class="form-label" for="start_date">Pradžios data</label>
+                                        </div>
+                                        <div class="col-1 d-flex">
+                                        </div>
+                                        <div class="col d-flex">
+                                            <label class="form-label" for="end_date">Pabaigos data</label>
                                         </div>
                                     </div>
                                     <div class="row">
@@ -179,8 +189,13 @@ if($_SESSION['role'] != 'admin'){
                                 </div>
                                 <div class="col-6 mb-3">
                                     <div class="row">
-                                        <div class="col d-flex justify-content-center">
-                                            <label class="form-label">Laikotarpis</label>
+                                    <div class="col d-flex">
+                                            <label class="form-label" for="start_date">Pradžios data</label>
+                                        </div>
+                                        <div class="col-1 d-flex">
+                                        </div>
+                                        <div class="col d-flex">
+                                            <label class="form-label" for="end_date">Pabaigos data</label>
                                         </div>
                                     </div>
                                     <div class="row">
