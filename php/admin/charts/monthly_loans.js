@@ -1,18 +1,20 @@
 (async function() {
   const data = [
-    { month: 'Sausis', count: 1 },
-    { month: 'Vasaris', count: 2 },
-    { month: 'Kovas', count: 3 },
-    { month: 'Balandis', count: 4 },
-    { month: 'Gegužė', count: 5 },
-    { month: 'Birželis', count: 6 },
-    { month: 'Liepa', count: 7 },
-    { month: 'Rugpjūtis', count: 8 },
-    { month: 'Rugsėjis', count: 9 },
-    { month: 'Spalis', count: 10 },
-    { month: 'Lapkritis', count: 11 },
-    { month: 'Gruodis', count: 12 }
+    { month: 'Sausis', count: monthlyLoans[0] },
+    { month: 'Vasaris', count: monthlyLoans[1] },
+    { month: 'Kovas', count: monthlyLoans[2] },
+    { month: 'Balandis', count: monthlyLoans[3] },
+    { month: 'Gegužė', count: monthlyLoans[4] },
+    { month: 'Birželis', count: monthlyLoans[5] },
+    { month: 'Liepa', count: monthlyLoans[6] },
+    { month: 'Rugpjūtis', count: monthlyLoans[7] },
+    { month: 'Rugsėjis', count: monthlyLoans[8] },
+    { month: 'Spalis', count: monthlyLoans[9] },
+    { month: 'Lapkritis', count: monthlyLoans[10] },
+    { month: 'Gruodis', count: monthlyLoans[11] }
   ];
+
+  let title = "Inventoriaus paskolos".concat(" ", year, " ", "m.");
 
   new Chart(
     document.getElementById('acquisitions'),
@@ -34,7 +36,7 @@
           },
           title: {
             display: true,
-            text: 'Inventoriaus paskolos 2025 m.',
+            text: title,
             font: {
               size: 24
             }
@@ -45,7 +47,8 @@
               ticks: {
                   callback: function(value, index, ticks) {
                       return value + ' vnt.';
-                  }
+                  },
+                  stepSize: 1
               }
           }
         }

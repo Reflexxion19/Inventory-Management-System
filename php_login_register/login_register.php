@@ -2,7 +2,7 @@
 
 session_save_path("/tmp");
 session_start();
-require_once '../config.php';
+require_once '../config/config.php';
 
 // Tikrinama ar vartotojas paspaudė registracijos mygtuką
 if (isset($_POST['register'])) {
@@ -14,6 +14,7 @@ if (isset($_POST['register'])) {
     $repeated_password = $_POST['repeated_password_register'];
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
+    $full_name = $name . " " . $surname;
     $pattern = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/';
 
     // Tikrinama ar vardas ir pavardė sudaryti tik iš raidžių
@@ -31,7 +32,7 @@ if (isset($_POST['register'])) {
                         $_SESSION['active_form'] ='register';
                     } else {
                         $conn->query("INSERT INTO users (name, email, password, role)
-                        VALUES ('$name', '$email', '$hashed_password', 'employee')");
+                        VALUES ('$full_name', '$email', '$hashed_password', 'employee')");
                     }
                 } elseif (stristr($email, '@ktu.edu') !== FALSE) {
                     if (strlen($academic_group) !== 0){
@@ -42,7 +43,7 @@ if (isset($_POST['register'])) {
                             $_SESSION['active_form'] ='register';
                         } else {
                             $conn->query("INSERT INTO users (name, email, password, role, academic_group)
-                            VALUES ('$name', '$email', '$hashed_password', 'student', '$academic_group')");
+                            VALUES ('$full_name', '$email', '$hashed_password', 'student', '$academic_group')");
                         }
                     } else {
                         $_SESSION['register_error'] = 'Akademinės grupės kodas negali būti tuščias!';
@@ -81,6 +82,7 @@ if (isset($_POST['login'])) {
         $user = $result->fetch_assoc();
         // Tikrinama ar slaptažodis atitinka duomenų bazėje esantį slaptažodį
         if (password_verify($password, $user['password'])) {
+            $_SESSION['user_id'] = $user['id'];
             $_SESSION['name'] = $user['name'];
             $_SESSION['email'] = $user['email'];
             $_SESSION['role'] = $user['role'];

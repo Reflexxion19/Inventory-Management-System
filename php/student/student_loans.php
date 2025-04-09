@@ -2,6 +2,8 @@
 
 session_save_path("/tmp");
 session_start();
+require_once '../../config/functions.php';
+
 if(!isset($_SESSION['email'])) {
     header("Location: ../../index.php");
     exit();
@@ -11,6 +13,8 @@ if($_SESSION['role'] != 'student'){
     header("Location: ../../index.php");
     exit();
 }
+
+$result = display_loans();
 
 ?>
 
@@ -27,7 +31,7 @@ if($_SESSION['role'] != 'student'){
     <script defer src="../../js/bootstrap.bundle.min.js"></script>
     <script defer src="../../js/mdb.umd.min.js"></script>
     <script defer src="../../js/header.js"></script>
-    <script defer src="../../js/search.js"></script>
+    <script defer src="../../js/search_table_1.js"></script>
 </head>
 <body>
 <div class="container-md min-vh-100">
@@ -51,15 +55,15 @@ if($_SESSION['role'] != 'student'){
                         </tr>
                     </thead>
                     <tbody class="table-group-divider">
+                    <?php
+                    while($row = mysqli_fetch_assoc($result)){
+                    ?>
                         <tr>
-                            <td>Name1</td>
+                            <td><?= $row['name']; ?></td>
                         </tr>
-                        <tr>
-                            <td>Name2</td>
-                        </tr>
-                        <tr>
-                            <td>Name3</td>
-                        </tr>
+                    <?php
+                    }
+                    ?>
                     </tbody>
                 </table>
             </div>

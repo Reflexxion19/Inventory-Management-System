@@ -2,6 +2,8 @@
 
 session_save_path("/tmp");
 session_start();
+require_once '../../config/functions.php';
+
 if(!isset($_SESSION['email'])) {
     header("Location: ../../index.php");
     exit();
@@ -11,6 +13,8 @@ if($_SESSION['role'] != 'admin'){
     header("Location: ../../index.php");
     exit();
 }
+
+$result = display_loans();
 
 ?>
 
@@ -28,7 +32,7 @@ if($_SESSION['role'] != 'admin'){
     <script defer src="../../js/bootstrap.bundle.min.js"></script>
     <script defer src="../../js/mdb.umd.min.js"></script>
     <script defer src="../../js/header.js"></script>
-    <script defer src="../../js/search.js"></script>
+    <script defer src="../../js/search_table_1.js"></script>
 </head>
 <body>
     <div class="container-md min-vh-100">
@@ -54,24 +58,16 @@ if($_SESSION['role'] != 'admin'){
                         </tr>
                     </thead>
                     <tbody class="table-group-divider">
+                    <?php
+                    while($row = mysqli_fetch_assoc($result)){
+                    ?>
                         <tr>
-                            <td>Name1</td>
-                            <td>
-                                <button type="button" onClick="document.location.href='return_inventory.php'" class="btn btn-danger">GRĄŽINTI</button>
-                            </td>
+                            <td><?= $row['name']; ?></td>
+                            <td><button type="button" onClick="document.location.href='return_inventory.php'" class="btn btn-danger">GRĄŽINTI</button></td>
                         </tr>
-                        <tr>
-                            <td>Name2</td>
-                            <td>
-                                <button type="button" onClick="document.location.href='return_inventory.php'" class="btn btn-danger">GRĄŽINTI</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Name3</td>
-                            <td>
-                                <button type="button" onClick="document.location.href='return_inventory.php'" class="btn btn-danger">GRĄŽINTI</button>
-                            </td>
-                        </tr>
+                    <?php
+                    }
+                    ?>
                     </tbody>
                 </table>
             </div>

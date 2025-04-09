@@ -2,6 +2,8 @@
 
 session_save_path("/tmp");
 session_start();
+require_once '../../config/functions.php';
+
 if(!isset($_SESSION['email'])) {
     header("Location: ../../index.php");
     exit();
@@ -11,6 +13,8 @@ if($_SESSION['role'] != 'admin'){
     header("Location: ../../index.php");
     exit();
 }
+
+$result = display_users();
 
 ?>
 
@@ -28,7 +32,7 @@ if($_SESSION['role'] != 'admin'){
     <script defer src="../../js/bootstrap.bundle.min.js"></script>
     <script defer src="../../js/mdb.umd.min.js"></script>
     <script defer src="../../js/header.js"></script>
-    <script defer src="../../js/search.js"></script>
+    <script defer src="../../js/search_w_role.js"></script>
 </head>
 <body>
     <div class="container-md min-vh-100">
@@ -53,49 +57,36 @@ if($_SESSION['role'] != 'admin'){
                         </tr>
                     </thead>
                     <tbody class="table-group-divider">
+                    <?php
+                    while($row = mysqli_fetch_assoc($result)){
+                    ?>
                         <tr>
-                            <td>Andrius Andriauskas</td>
+                            <td><?= $row['name']; ?></td>
                             <td>
                                 <div class="row">
                                     <div class="col-7">
                                         <select class="form-select" aria-label="Role select">
+                    <?php
+                        if($row['role'] == 'admin'){
+                    ?>
                                             <option selected value="admin">Administratorius</option>
                                             <option value="employee">Darbuotojas</option>
                                             <option value="student">Studentas</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-5">
-                                        <button type="button" class="btn btn-danger">Keisti rolę</button>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Tomas Tomauskas</td>
-                            <td>
-                                <div class="row">
-                                    <div class="col-7">
-                                        <select class="form-select" aria-label="Role select">
+                    <?php
+                        } elseif($row['role'] == 'employee'){
+                    ?>
                                             <option value="admin">Administratorius</option>
                                             <option selected value="employee">Darbuotojas</option>
                                             <option value="student">Studentas</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-5">
-                                        <button type="button" class="btn btn-danger">Keisti rolę</button>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Antanas Antanauskas</td>
-                            <td>
-                                <div class="row">
-                                    <div class="col-7">
-                                        <select class="form-select" aria-label="Role select">
+                    <?php
+                        } elseif($row['role'] == 'student'){
+                    ?>
                                             <option value="admin">Administratorius</option>
                                             <option value="employee">Darbuotojas</option>
                                             <option selected value="student">Studentas</option>
+                    <?php
+                        }
+                    ?>
                                         </select>
                                     </div>
                                     <div class="col-5">
@@ -104,6 +95,9 @@ if($_SESSION['role'] != 'admin'){
                                 </div>
                             </td>
                         </tr>
+                    <?php
+                    }
+                    ?>
                     </tbody>
                 </table>
             </div>
