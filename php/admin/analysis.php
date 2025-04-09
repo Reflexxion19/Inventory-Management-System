@@ -44,7 +44,7 @@ $loanYears = loan_years();
     <div class="container-md min-vh-100">
         <div class="row mt-5 mb-1">
             <div class="col-2">
-                <select class="form-select" aria-label="Year select" onchange="year_select()">
+                <select class="form-select" id="year_select" aria-label="Year select" onchange="year_select()">
                 <?php 
                     for($i = $loanYears[0]; $i <= $loanYears[1]; $i++){
                 ?>

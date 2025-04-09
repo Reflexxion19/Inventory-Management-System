@@ -45,8 +45,8 @@ if($_SESSION['role'] != 'employee'){
                         <div class="col-6 mb-3">
                             <h3 class="d-flex justify-content-center">Atrakinti Talpyklą</h3>
 
-                            <label for="identification_code" class="form-label">Identifikacinis kodas</label>
-                            <input type="email" class="form-control mb-3" id="identification_code" placeholder="Pvz.: 321654898798756654">
+                            <label for="identification_code_storage" class="form-label">Identifikacinis kodas</label>
+                            <input type="text" class="form-control mb-3" id="identification_code_storage" placeholder="Pvz.: 321654898798756654">
 
                             <div class="d-grid gap-2">
                                 <button type="submit" class="btn btn-primary">Atrakinti</button>
@@ -59,8 +59,8 @@ if($_SESSION['role'] != 'employee'){
                         <div class="col-6 mb-3">
                             <h3 class="d-flex justify-content-center">Grąžinti Inventorių</h3>
 
-                            <label for="identification_code" class="form-label">Identifikacinis kodas</label>
-                            <input type="email" class="form-control mb-3" id="identification_code" placeholder="Pvz.: 321654898798756654">
+                            <label for="identification_code_return" class="form-label">Identifikacinis kodas</label>
+                            <input type="text" class="form-control mb-3" id="identification_code_return" placeholder="Pvz.: 321654898798756654">
 
                             <div class="d-grid gap-2">
                                 <button type="submit" class="btn btn-primary">Grąžinti</button>

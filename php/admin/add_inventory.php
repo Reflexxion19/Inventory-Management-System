@@ -34,12 +34,12 @@ if($_SESSION['role'] != 'admin'){
             <form>
                 <div class="row">
                     <div class="col-6 mb-3">
-                        <label for="email" class="form-label">Pavadinimas</label>
-                        <input type="email" class="form-control" id="email" placeholder="Pvz.: Arduino UNO R3">
+                        <label for="inventory" class="form-label">Pavadinimas</label>
+                        <input type="text" class="form-control" id="inventory" placeholder="Pvz.: Arduino UNO R3">
                     </div>
                     <div class="col-6 mb-3">
-                        <label for="select" class="form-label">Vieta</label>
-                        <select class="form-select" id="select" aria-label="Location select">
+                        <label for="location_select" class="form-label">Vieta</label>
+                        <select class="form-select" id="location_select" aria-label="Location select">
                             <option selected>--Pasirinkti vietą--</option>
                             <option value="1">205-1</option>
                             <option value="2">205-2</option>
@@ -48,9 +48,19 @@ if($_SESSION['role'] != 'admin'){
                     </div>
                 </div>
                 <div class="row">
+                    <div class="col-6 mb-3">
+                        <label for="serial_number" class="form-label">Serijinis numeris</label>
+                        <input type="text" class="form-control" id="serial_number" placeholder="Pvz.: 6489878">
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label for="inventory_number" class="form-label">Inventoriaus numeris</label>
+                        <input type="text" class="form-control" id="inventory_number" placeholder="Pvz.: 1232165">
+                    </div>
+                </div>
+                <div class="row">
                     <div class="mb-3">
-                        <label for="textArea" class="form-label"></label>
-                        <textarea class="form-control" id="textArea" rows="5"></textarea>
+                        <label for="description" class="form-label">Aprašymas</label>
+                        <textarea class="form-control" id="description" rows="5"></textarea>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary">Submit</button>

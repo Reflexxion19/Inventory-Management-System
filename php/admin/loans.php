@@ -41,7 +41,7 @@ $result = display_loans();
                 <div class="input-group">
                     <div class="form-outline" data-mdb-input-init>
                         <input type="search" id="search-box" class="form-control" onkeyup="myFunction()"/>
-                        <label class="form-label" for="form1">Ieškoti</label>
+                        <label class="form-label" for="search-box">Ieškoti</label>
                     </div>
                     <button type="button" class="btn btn-success mx-1" onClick="document.location.href='loan_inventory.php'">PASISKOLINTI INVENTORIŲ</button>
                 </div>

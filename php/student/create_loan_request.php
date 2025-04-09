@@ -33,12 +33,12 @@ if($_SESSION['role'] != 'student'){
     <div class="container-md min-vh-100">
         <div class="row mt-5">
             <div class="col-3 mb-3">
-                <label for="email" class="form-label">Vardas Pavardė</label>
-                <input type="email" class="form-control" id="email" placeholder="Vardenis Pavardenis">
+                <label for="full_name" class="form-label">Vardas Pavardė</label>
+                <input type="text" class="form-control" id="full_name" placeholder="Vardenis Pavardenis">
             </div>
             <div class="col-3 mb-3">
-                <label for="email" class="form-label">Akademinė grupė</label>
-                <input type="email" class="form-control" id="email" placeholder="IFB-1">
+                <label for="academic_group" class="form-label">Akademinė grupė</label>
+                <input type="text" class="form-control" id="academic_group" placeholder="IFB-1">
             </div>
             <div class="col-6 mb-3">
                 <div class="row">
