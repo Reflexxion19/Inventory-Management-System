@@ -14,6 +14,18 @@ if($_SESSION['role'] != 'admin'){
     exit();
 }
 
+if (isset($_POST['request_approve'])) {
+    approveRequest($_POST['request_id']);
+}
+
+if (isset($_POST['request_reject'])) {
+    rejectRequest($_POST['request_id']);
+}
+
+if (isset($_POST['request_feedback'])) {
+    addFeedback($_POST['request_id']);
+}
+
 $result = display_loan_requests();
 $collapse_count = 0;
 $input_count = 0;
@@ -40,7 +52,26 @@ $expanded_check = true;
 </head>
 <body>
     <div class="container-md min-vh-100">
-        <div class="row mt-5 mb-3 d-flex justify-content-end">
+    <?php 
+    if($_SESSION['success_message'] != ""){
+    ?>
+        <div class="mt-3 alert alert-success" role="alert">
+            <?= $_SESSION['success_message'] ?>
+        </div>
+    <?php
+    }
+    ?>
+
+    <?php 
+    if($_SESSION['error_message'] != ""){
+    ?>
+        <div class="mt-3 alert alert-danger" role="alert">
+        <?= $_SESSION['error_message'] ?>
+        </div>
+    <?php
+    }
+    ?>
+        <div class="row <?php echo ($_SESSION['success_message'] === "" && $_SESSION['error_message'] === "") ? "mt-5" : "" ?> mb-3 d-flex justify-content-end">
             <div class="col-12">
                 <div class="input-group">
                     <div class="form-outline" data-mdb-input-init>
@@ -51,12 +82,12 @@ $expanded_check = true;
             </div>
         </div>
 
-        <div class="row my-5">
+        <div class="row">
             <div class="accordion" id="accordion">
             <?php
             while($row = mysqli_fetch_assoc($result)){
             ?>
-                <div class="accordion-item">
+                <div class="accordion-item" data-id="<?= $row['id'] ?>">
                     <h2 class="accordion-header">
                         <button class="accordion-button <?php if(!$expanded_check){echo 'collapsed';}?>" type="button" 
                         data-bs-toggle="collapse" data-bs-target="#collapse<?= $collapse_count ?>" 
@@ -126,9 +157,9 @@ $expanded_check = true;
                             </div>
                             <div class="row">
                                 <div class="col d-flex justify-content-end">
-                                    <button type="button" class="btn btn-success mx-1">PATVIRTINTI</button>
-                                    <button type="button" class="btn btn-danger mx-1">ATMESTI</button>
-                                    <button type="button" class="btn btn-warning ms-1">PATEIKTI PASTABĄ</button>
+                                    <button type="button" class="btn btn-success mx-1" onclick="approve()">PATVIRTINTI</button>
+                                    <button type="button" class="btn btn-danger mx-1" onclick="reject()">ATMESTI</button>
+                                    <button type="button" class="btn btn-warning ms-1" onclick="addFeedback()">PATEIKTI PASTABĄ</button>
                                 </div>
                             </div>
                         </div>
@@ -137,10 +168,87 @@ $expanded_check = true;
             <?php
                 $expanded_check = false;
             }
+            $_SESSION['success_message'] = "";
+            $_SESSION['error_message'] = "";
             ?>
             </div>
         </div>
     </div>
+    <script>
+        function approve() {
+            const accordion_item = event.target.closest(".accordion-item");
+
+            form = document.createElement("form");
+            form.method = "POST";
+            form.action = "loan_requests.php";
+
+            input_approve = document.createElement("input");
+            input_approve.type = "hidden";
+            input_approve.name = "request_approve";
+            input_approve.value = "";
+
+            input_id = document.createElement("input");
+            input_id.type = "hidden";
+            input_id.name = "request_id";
+            input_id.value = accordion_item.dataset.id;
+
+            form.appendChild(input_approve);
+            form.appendChild(input_id);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        function reject() {
+            const accordion_item = event.target.closest(".accordion-item");
+
+            form = document.createElement("form");
+            form.method = "POST";
+            form.action = "loan_requests.php";
+
+            input_reject = document.createElement("input");
+            input_reject.type = "hidden";
+            input_reject.name = "request_reject";
+            input_reject.value = "";
+
+            input_id = document.createElement("input");
+            input_id.type = "hidden";
+            input_id.name = "request_id";
+            input_id.value = accordion_item.dataset.id;
+
+            form.appendChild(input_reject);
+            form.appendChild(input_id);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        function addFeedback() {
+            const accordion_item = event.target.closest(".accordion-item");
+            const inputs = accordion_item.getElementsByTagName("input");
+            const textAreas = accordion_item.getElementsByTagName("textarea");
+
+            form = document.createElement("form");
+            form.method = "POST";
+            form.action = "loan_requests.php";
+
+            input_feedback = document.createElement("input");
+            input_feedback.type = "hidden";
+            input_feedback.name = "request_feedback";
+            input_feedback.value = "";
+
+            input_id = document.createElement("input");
+            input_id.type = "hidden";
+            input_id.name = "request_id";
+            input_id.value = accordion_item.dataset.id;
+
+            form.appendChild(input_feedback);
+            form.appendChild(input_id);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
 </body>
 </html>
 

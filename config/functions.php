@@ -63,9 +63,10 @@ function addInventory($name, $location, $serial_number, $inventory_number, $desc
 
     if($affected_rows > 0){
         header("Location: generated_sticker.php");
+        exit();
     } else{
         $_SESSION['error_message'] = "Inventoriaus pridėti nepavyko! Bandykite dar kartą!";
-        return;
+        exit();
     }
 }
 
@@ -95,7 +96,7 @@ function getInventoryById($inventory_id){
 
     $stmt = mysqli_prepare($conn, "SELECT *
                                     FROM inventory
-                                    WHERE id =?");
+                                    WHERE id = ?");
     mysqli_stmt_bind_param($stmt, "i", $inventory_id);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
@@ -108,7 +109,7 @@ function updateInventory($name, $location, $serial_number, $inventory_number, $d
     global $conn;
 
     $stmt = mysqli_prepare($conn, "UPDATE inventory
-                                    SET `name`=?, fk_inventory_location_id = ?, serial_number = ?, inventory_number = ?, `description` = ?
+                                    SET `name`= ?, fk_inventory_location_id = ?, serial_number = ?, inventory_number = ?, `description` = ?
                                     WHERE id = ?");
     mysqli_stmt_bind_param($stmt, "sisssi", $name, $location, $serial_number, $inventory_number, $description, $inventory_id);
     mysqli_stmt_execute($stmt);
@@ -123,10 +124,11 @@ function updateInventory($name, $location, $serial_number, $inventory_number, $d
         if($row['name'] === $name && $row['fk_inventory_location_id'] === $location && $row['serial_number'] === $serial_number && 
         $row['inventory_number'] === $inventory_number && $row['description'] === $description){
             $_SESSION['error_message'] = "Įrašyti duomenys atitinka jau esamus duomenis!";
-            return;
+            exit();
         }
 
         $_SESSION['error_message'] = "Inventoriaus atnaujinti nepavyko! Bandykite dar kartą!";
+        exit();
     }
 }
     #endregion
@@ -149,20 +151,23 @@ function deleteInventory($inventory_id, $name, $serial_number, $inventory_number
 
         unlink($sticker_path);
         header("Location: inventory.php");
+        exit();
     } else{
         $_SESSION['error_message'] = "Inventoriaus ištrinti nepavyko! Bandykite dar kartą!";
+        exit();
     }
 }
     #endregion
 #endregion
 
 #region Loans
+    #region Display Loans
 function display_loans(){
     global $conn;
     $user_id = $_SESSION['user_id'];
 
     // $stmt = mysqli_prepare($conn, "SELECT * FROM inventory_loan WHERE fk_user_id = ?");
-    $stmt = mysqli_prepare($conn, "SELECT *, inventory.name
+    $stmt = mysqli_prepare($conn, "SELECT inventory_loans.*, inventory.name
                                     FROM inventory_loans
                                     INNER JOIN inventory ON inventory_loans.fk_inventory_id = inventory.id
                                     WHERE fk_user_id = ?");
@@ -172,9 +177,11 @@ function display_loans(){
 
     return $result;
 }
+    #endregion
 #endregion
 
 #region Users
+    #region Display Users
 function display_users(){
     global $conn;
 
@@ -185,21 +192,183 @@ function display_users(){
 
     return $result;
 }
+    #endregion
+
+    #region Change Role
+function getUserById($user_id){
+    global $conn;
+
+    $stmt = mysqli_prepare($conn, "SELECT *
+                                    FROM users
+                                    WHERE id =?");
+    mysqli_stmt_bind_param($stmt, "i", $user_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($result);
+
+    return $row;
+}
+
+function changeRole($user_id, $role){
+    global $conn;
+
+    $stmt = mysqli_prepare($conn, "UPDATE users
+                                    SET `role` = ?
+                                    WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "si", $role, $user_id);
+    mysqli_stmt_execute($stmt);
+    $affected_rows = mysqli_stmt_affected_rows($stmt);
+
+    if($affected_rows > 0){
+        $_SESSION['success_message'] = "Naudotojo rolė atnaujinta sėkmingai!";
+        header("Location: users.php");
+        exit();
+    } else{
+        $row = getUserById($user_id);
+
+        if($row['role'] === $role){
+            $_SESSION['error_message'] = "Pasirinkta rolė atitinka jau esamą rolę!";
+        }
+
+        $_SESSION['error_message'] = "Rolės atnaujinti nepavyko! Bandykite dar kartą!";
+        exit();
+    }
+}
+    #endregion
 #endregion
 
 #region Admin Loan Requests
+    #region Display Requests
 function display_loan_requests(){
     global $conn;
 
-    $stmt = mysqli_prepare($conn, "SELECT *, users.name AS student_name, users.academic_group AS student_group, inventory.name AS inventory_name
+    $stmt = mysqli_prepare($conn, "SELECT loan_applications.*, users.name AS student_name, users.academic_group AS student_group, inventory.name AS inventory_name
                                     FROM loan_applications
                                     INNER JOIN users ON loan_applications.fk_user_id = users.id
-                                    INNER JOIN inventory ON loan_applications.fk_inventory_id = inventory.id");
+                                    INNER JOIN inventory ON loan_applications.fk_inventory_id = inventory.id
+                                    WHERE status = 'submitted' OR status = 'corrected'");
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
 
     return $result;
 }
+    #endregion
+
+    #region Request Actions
+function approveRequest($request_id){
+    global $conn;
+
+    $stmt = mysqli_prepare($conn, "UPDATE loan_applications
+                                    SET `status` = 'approved'
+                                    WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "i", $request_id);
+    mysqli_stmt_execute($stmt);
+    $affected_rows = mysqli_stmt_affected_rows($stmt);
+
+    if($affected_rows > 0){
+        $_SESSION['success_message'] = "Prašymas patvirtintas sėkmingai!";
+    } else{
+        $_SESSION['error_message'] = "Prašymo patvirtinti nepavyko! Bandykite dar kartą!";
+    }
+
+    header("Location: loan_requests.php");
+    exit();
+}
+
+function rejectRequest($request_id){
+    global $conn;
+
+    $stmt = mysqli_prepare($conn, "UPDATE loan_applications
+                                    SET `status` = 'rejected'
+                                    WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "i", $request_id);
+    mysqli_stmt_execute($stmt);
+    $affected_rows = mysqli_stmt_affected_rows($stmt);
+
+    if($affected_rows > 0){
+        $_SESSION['success_message'] = "Prašymas atmestas sėkmingai!";
+    } else{
+        $_SESSION['error_message'] = "Prašymo atmesti nepavyko! Bandykite dar kartą!";
+    }
+
+    header("Location: loan_requests.php");
+    exit();
+}
+
+function getLoanRequestByID($request_id){
+    global $conn;
+
+    $stmt = mysqli_prepare($conn, "SELECT users.email AS user_email, inventory.name AS inventory_name
+                                    FROM loan_applications
+                                    INNER JOIN users ON loan_applications.fk_user_id = users.id
+                                    INNER JOIN inventory ON loan_applications.fk_inventory_id = inventory.id
+                                    WHERE loan_applications.id = ?");
+    mysqli_stmt_bind_param($stmt, "i", $request_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($result);
+
+    return $row;
+}
+
+function addFeedback($request_id){
+    global $conn;
+
+    $conn->begin_transaction();
+
+    try{
+        $stmt = mysqli_prepare($conn, "UPDATE loan_applications
+                                    SET `status` = 'needs_correction'
+                                    WHERE id = ?");
+        mysqli_stmt_bind_param($stmt, "i", $request_id);
+        mysqli_stmt_execute($stmt);
+        $affected_rows = mysqli_stmt_affected_rows($stmt);
+
+        if($affected_rows > 0){
+            $row = getLoanRequestByID($request_id);
+            $mail_sent = sendMail($row['user_email'], $row['inventory_name']);
+
+            if($mail_sent){
+                $_SESSION['success_message'] = "Atsiliepimas išsiųstas sėkmingai!";
+                $conn->commit();
+                
+                header("Location: loan_requests.php");
+                exit();
+            }
+        }
+
+        $_SESSION['error_message'] = "Atsiliepimo išsiųsti nepavyko! Bandykite dar kartą!";
+        $conn->rollback();
+
+        header("Location: loan_requests.php");
+        exit();
+    } catch (Exception $e) {
+        $_SESSION['error_message'] = "Atsiliepimo išsiųsti nepavyko! Bandykite dar kartą!";
+        $conn->rollback();
+
+        header("Location: loan_requests.php");
+        exit();
+    }
+}
+
+function sendMail($recipient, $inventory){
+    $headers = "From: KTUIVS reflexxion.usage@gmail.com";
+    $to = "tankiuks9@gmail.com"; // PAKEISTI Į $recipient!!!
+    $subject = "Pasikeitė jūsų paskolos prašymo statusas sistemoje KTUIVS";
+
+    $message = "Sveiki,\n\n";
+    $message .= "Pasikeitė jūsų inventoriaus (" . $inventory . ") paskolos prašymo statusas. Inventoriaus paskolos prašymo statusą galite patikrinti prisijungę prie savo KTUIVS paskyros.\n\n";
+    $message .= "Nebandykite atsakyti į šią žinutę. Tai yra automatinis pranešimas.\n\n";
+    $message .= "Pagarbiai,\n";
+    $message .= "KTUIVS";
+
+    if(mail($to, $subject, $message, $headers)){
+        return true;
+    } else{
+        return false;
+    }
+}
+    #endregion
 #endregion
 
 #region Student Loan Requests
@@ -207,7 +376,7 @@ function display_student_loan_requests(){
     global $conn;
     $user_id = $_SESSION['user_id'];
 
-    $stmt = mysqli_prepare($conn, "SELECT *, users.name AS student_name, users.academic_group AS student_group, inventory.name AS inventory_name
+    $stmt = mysqli_prepare($conn, "SELECT loan_applications.*, users.name AS student_name, users.academic_group AS student_group, inventory.name AS inventory_name
                                     FROM loan_applications
                                     INNER JOIN users ON loan_applications.fk_user_id = users.id
                                     INNER JOIN inventory ON loan_applications.fk_inventory_id = inventory.id

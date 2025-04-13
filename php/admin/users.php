@@ -14,7 +14,13 @@ if($_SESSION['role'] != 'admin'){
     exit();
 }
 
+if (isset($_POST['user_id'])) {
+    changeRole($_POST['user_id'], $_POST['user_role']);
+}
+
 $result = display_users();
+
+
 
 ?>
 
@@ -36,7 +42,28 @@ $result = display_users();
 </head>
 <body>
     <div class="container-md min-vh-100">
-        <div class="row mt-5 mb-3 d-flex justify-content-end">
+    <?php 
+    if($_SESSION['success_message'] != ""){
+    ?>
+        <div class="mt-3 alert alert-success" role="alert">
+            <?= $_SESSION['success_message'] ?>
+        </div>
+    <?php
+    $_SESSION['success_message'] = "";
+    }
+    ?>
+
+    <?php 
+    if($_SESSION['error_message'] != ""){
+    ?>
+        <div class="mt-3 alert alert-danger" role="alert">
+        <?= $_SESSION['error_message'] ?>
+        </div>
+    <?php
+    $_SESSION['error_message'] = "";
+    }
+    ?>
+        <div class="row <?php echo ($_SESSION['success_message'] === "" && $_SESSION['error_message'] === "") ? "mt-5" : "" ?> mb-3 d-flex justify-content-end">
             <div class="col-12">
                 <div class="input-group">
                     <div class="form-outline" data-mdb-input-init>
@@ -60,12 +87,12 @@ $result = display_users();
                     <?php
                     while($row = mysqli_fetch_assoc($result)){
                     ?>
-                        <tr>
+                        <tr data-id="<?= $row['id'] ?>">
                             <td><?= $row['name']; ?></td>
                             <td>
                                 <div class="row">
                                     <div class="col-7">
-                                        <select class="form-select" aria-label="Role select">
+                                        <select class="form-select" aria-label="Role select" name="role_select">
                     <?php
                         if($row['role'] == 'admin'){
                     ?>
@@ -90,7 +117,7 @@ $result = display_users();
                                         </select>
                                     </div>
                                     <div class="col-5">
-                                        <button type="button" class="btn btn-danger">Keisti rolę</button>
+                                        <button type="button" class="btn btn-danger" name="change_role" onclick="changeRole()">Keisti rolę</button>
                                     </div>
                                 </div>
                             </td>
@@ -103,6 +130,32 @@ $result = display_users();
             </div>
         </div>
     </div>
+    <script>
+        function changeRole() {
+            const row = event.target.closest("tr");
+            const cells = row.getElementsByTagName("td");
+
+            form = document.createElement("form");
+            form.method = "POST";
+            form.action = "users.php";
+
+            input_id = document.createElement("input");
+            input_id.type = "hidden";
+            input_id.name = "user_id";
+            input_id.value = row.dataset.id;
+
+            input_role = document.createElement("input");
+            input_role.type = "hidden";
+            input_role.name = "user_role";
+            input_role.value = cells[1].getElementsByTagName("select")[0].value;
+
+            form.appendChild(input_id);
+            form.appendChild(input_role);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
 </body>
 </html>
 

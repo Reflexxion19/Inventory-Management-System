@@ -42,7 +42,7 @@ $path = "../../images/qr_codes/";
 <body>
     <div class="container-md min-vh-100">
     <?php 
-    if($_SESSION['success_message'] != null){
+    if($_SESSION['success_message'] != ""){
     ?>
         <div class="mt-3 alert alert-success" role="alert">
             <?= $_SESSION['success_message'] ?>
@@ -52,7 +52,7 @@ $path = "../../images/qr_codes/";
     ?>
 
     <?php 
-    if($_SESSION['error_message'] != null){
+    if($_SESSION['error_message'] != ""){
     ?>
         <div class="mt-3 alert alert-danger" role="alert">
         <?= $_SESSION['error_message'] ?>
@@ -109,9 +109,9 @@ $path = "../../images/qr_codes/";
                             <td><button type="button" class="btn btn-danger"><i class="bi bi-trash"></i></button></td>
                         </tr>
                     <?php
+                    }
                     $_SESSION['success_message'] = "";
                     $_SESSION['error_message'] = "";
-                    }
                     ?>
                     </tbody>
                 </table>
