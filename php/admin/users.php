@@ -80,7 +80,7 @@ $result = display_users();
                     <thead>
                         <tr>
                             <th scope="col">Naudotojas</th>
-                            <th scope="col" class="col-4">Rolė</th>
+                            <th scope="col">Rolė</th>
                         </tr>
                     </thead>
                     <tbody class="table-group-divider">
