@@ -87,6 +87,10 @@ if (isset($_POST['login'])) {
             $_SESSION['email'] = $user['email'];
             $_SESSION['role'] = $user['role'];
 
+            // Inicijuojami reikalingi sesijos kintamieji
+            $_SESSION['success_message'] = "";
+            $_SESSION['error_message'] = "";
+
             // Tikrinama ar vartotojas turi admin, employee ar student rolę
             if ($user['role'] === 'admin') {
                 header("Location: ../php/admin/inventory.php");

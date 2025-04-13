@@ -128,7 +128,7 @@ $expanded_check = true;
                                 <div class="col d-flex justify-content-end">
                                     <button type="button" class="btn btn-success mx-1">PATVIRTINTI</button>
                                     <button type="button" class="btn btn-danger mx-1">ATMESTI</button>
-                                    <button type="button" class="btn btn-warning mx-1">PATEIKTI PASTABĄ</button>
+                                    <button type="button" class="btn btn-warning ms-1">PATEIKTI PASTABĄ</button>
                                 </div>
                             </div>
                         </div>

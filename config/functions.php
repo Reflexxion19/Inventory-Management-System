@@ -1,7 +1,23 @@
 <?php
 
 require_once 'config.php';
+require_once __DIR__ . '/../phpqrcode/qrlib.php';
 
+#region Inventory
+    #region Locations
+function getLocations(){
+    global $conn;
+
+    $stmt = mysqli_prepare($conn, "SELECT *
+                                    FROM inventory_locations");
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    return $result;
+}
+    #endregion
+
+    #region Inventory Status
 function display_inventory(){
     global $conn;
 
@@ -12,6 +28,7 @@ function display_inventory(){
 
     return $result;
 }
+
 
 function check_inventory_availability($inventory_id){
     global $conn;
@@ -29,7 +46,117 @@ function check_inventory_availability($inventory_id){
 
     return true;
 }
+    #endregion
 
+    #region Add Inventory
+function addInventory($name, $location, $serial_number, $inventory_number, $description){
+    global $conn;
+    
+    $sticker_path = generateSticker($name, $serial_number, $inventory_number);
+
+    $stmt = mysqli_prepare($conn, "INSERT INTO inventory(`name`, fk_inventory_location_id, serial_number, 
+                                                        inventory_number, `description`, sticker_path)
+                                    VALUES(?, ?, ?, ?, ?, ?)");
+    mysqli_stmt_bind_param($stmt, "sissss", $name, $location, $serial_number, $inventory_number, $description, $sticker_path);
+    mysqli_stmt_execute($stmt);
+    $affected_rows = mysqli_stmt_affected_rows($stmt);
+
+    if($affected_rows > 0){
+        header("Location: generated_sticker.php");
+    } else{
+        $_SESSION['error_message'] = "Inventoriaus pridėti nepavyko! Bandykite dar kartą!";
+        return;
+    }
+}
+
+function generateSticker($name, $serial_number, $inventory_number){
+    $path = __DIR__. '/../images/qr_codes/';
+    $file_path = $path . clean($name) . "_" . clean($serial_number) . "_" . clean($inventory_number) . '.png';
+    $file = clean($name) . "_" . clean($serial_number) . "_" . clean($inventory_number) . '.png';
+    $_SESSION['generated_sticker'] = $file;
+
+    $data = $name . "__" . $serial_number . "__" . $inventory_number;
+
+    QRcode::png($data, $file_path, QR_ECLEVEL_M, 256, 2);
+
+    return $file;
+}
+
+function clean($string) {
+    $string = str_replace(' ', '_', $string); // Replaces all spaces with hyphens.
+ 
+    return preg_replace('/[^A-Za-z0-9\-]/', '-', $string); // Removes special chars.
+ }
+    #endregion
+
+    #region Edit Inventory
+function getInventoryById($inventory_id){
+    global $conn;
+
+    $stmt = mysqli_prepare($conn, "SELECT *
+                                    FROM inventory
+                                    WHERE id =?");
+    mysqli_stmt_bind_param($stmt, "i", $inventory_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($result);
+
+    return $row;
+}
+
+function updateInventory($name, $location, $serial_number, $inventory_number, $description, $inventory_id){
+    global $conn;
+
+    $stmt = mysqli_prepare($conn, "UPDATE inventory
+                                    SET `name`=?, fk_inventory_location_id = ?, serial_number = ?, inventory_number = ?, `description` = ?
+                                    WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "sisssi", $name, $location, $serial_number, $inventory_number, $description, $inventory_id);
+    mysqli_stmt_execute($stmt);
+    $affected_rows = mysqli_stmt_affected_rows($stmt);
+
+    if($affected_rows > 0){
+        $_SESSION['success_message'] = "Inventorius atnaujintas sėkmingai!";
+        header("Location: inventory.php");  
+    } else{
+        $row = getInventoryById($inventory_id);
+
+        if($row['name'] === $name && $row['fk_inventory_location_id'] === $location && $row['serial_number'] === $serial_number && 
+        $row['inventory_number'] === $inventory_number && $row['description'] === $description){
+            $_SESSION['error_message'] = "Įrašyti duomenys atitinka jau esamus duomenis!";
+            return;
+        }
+
+        $_SESSION['error_message'] = "Inventoriaus atnaujinti nepavyko! Bandykite dar kartą!";
+    }
+}
+    #endregion
+
+    #region Delete Inventory
+function deleteInventory($inventory_id, $name, $serial_number, $inventory_number){
+    global $conn;
+
+    $stmt = mysqli_prepare($conn, "DELETE FROM inventory
+                                    WHERE id=?");
+    mysqli_stmt_bind_param($stmt, "i", $inventory_id);
+    mysqli_stmt_execute($stmt);
+    $affected_rows = mysqli_stmt_affected_rows($stmt);
+
+    if($affected_rows > 0){
+        $_SESSION['success_message'] = "Inventorius ištrintas sėkmingai!";
+
+        $path = __DIR__. '/../images/qr_codes/';
+        $sticker_path = $path . clean($name) . "_" . clean($serial_number) . "_" . clean($inventory_number) . '.png';
+
+        unlink($sticker_path);
+        header("Location: inventory.php");
+    } else{
+        $_SESSION['error_message'] = "Inventoriaus ištrinti nepavyko! Bandykite dar kartą!";
+    }
+}
+    #endregion
+#endregion
+
+#region Loans
 function display_loans(){
     global $conn;
     $user_id = $_SESSION['user_id'];
@@ -45,7 +172,9 @@ function display_loans(){
 
     return $result;
 }
+#endregion
 
+#region Users
 function display_users(){
     global $conn;
 
@@ -56,7 +185,9 @@ function display_users(){
 
     return $result;
 }
+#endregion
 
+#region Admin Loan Requests
 function display_loan_requests(){
     global $conn;
 
@@ -69,7 +200,9 @@ function display_loan_requests(){
 
     return $result;
 }
+#endregion
 
+#region Student Loan Requests
 function display_student_loan_requests(){
     global $conn;
     $user_id = $_SESSION['user_id'];
@@ -85,7 +218,9 @@ function display_student_loan_requests(){
 
     return $result;
 }
+#endregion
 
+#region Analysis
 function loan_years(){
     global $conn;
     $year = array_fill(0, 2, 0); // 12 reikšmių mąsyvas pripildytas nuliais
@@ -199,5 +334,6 @@ function calculate_year_loans_by_month($year){
 
     return $month;
 }
+#endregion
 
 ?>
