@@ -387,7 +387,23 @@ function unlockStorage($storage_id_code){
         $row = selectStorageByIdCodeParams($name);
 
         if($row){
+            $data =  array(
+                'name' => $name,
+                'data' => "test"
+            );
 
+            $str = http_build_query($data);
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, "http://localhost/bakalauras/php/admin/test.php");
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $str);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+            $output = curl_exec($ch);
+            curl_close($ch);
+
+            $_SESSION['error_message'] = $output;
 
             echo "<script>
                     window.addEventListener('load', (event) => {
