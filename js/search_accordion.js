@@ -4,7 +4,7 @@ document.getElementById("search-box").addEventListener("input", function (e) {
     }
 });
 
-function myFunction() {
+function search() {
     input = document.getElementById("search-box");
     filter = input.value.toUpperCase();
     accordion = document.getElementById("accordion");

@@ -26,7 +26,7 @@ $path = "../../images/qr_codes/";
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sugeneruotas Kodas</title>
     <link rel="stylesheet" href="../../css/mdb.min.css">
-    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
     <script defer src="../../js/bootstrap.bundle.min.js"></script>
     <script defer src="../../js/header.js"></script>
 </head>

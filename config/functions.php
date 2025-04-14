@@ -17,8 +17,8 @@ function getLocations(){
 }
     #endregion
 
-    #region Inventory Status
-function display_inventory(){
+    #region Display Inventory
+function displayInventory(){
     global $conn;
 
     $stmt = mysqli_prepare($conn, "SELECT * 
@@ -29,8 +29,7 @@ function display_inventory(){
     return $result;
 }
 
-
-function check_inventory_availability($inventory_id){
+function checkInventoryAvailability($inventory_id){
     global $conn;
 
     $stmt = mysqli_prepare($conn, "SELECT *
@@ -45,6 +44,17 @@ function check_inventory_availability($inventory_id){
     }
 
     return true;
+}
+
+function displayStorage(){
+    global $conn;
+
+    $stmt = mysqli_prepare($conn, "SELECT *
+                                    FROM inventory_locations");
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    return $result;
 }
     #endregion
 
@@ -105,30 +115,58 @@ function getInventoryById($inventory_id){
     return $row;
 }
 
+function deleteSticker($inventory_id){
+    global $conn;
+
+    $stmt = mysqli_prepare($conn, "SELECT *
+                                FROM inventory
+                                WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "i", $inventory_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($result);
+
+    $path = __DIR__. '/../images/qr_codes/';
+    $sticker_path = $path . clean($row['name']) . "_" . clean($row['serial_number']) . "_" . clean($row['inventory_number']) . '.png';
+    if(!unlink($sticker_path)){
+        return false;
+    }
+
+    return true;
+}
+
 function updateInventory($name, $location, $serial_number, $inventory_number, $description, $inventory_id){
     global $conn;
 
-    $stmt = mysqli_prepare($conn, "UPDATE inventory
-                                    SET `name`= ?, fk_inventory_location_id = ?, serial_number = ?, inventory_number = ?, `description` = ?
-                                    WHERE id = ?");
-    mysqli_stmt_bind_param($stmt, "sisssi", $name, $location, $serial_number, $inventory_number, $description, $inventory_id);
-    mysqli_stmt_execute($stmt);
-    $affected_rows = mysqli_stmt_affected_rows($stmt);
+    if(deleteSticker($inventory_id)){
+        $sticker_path = generateSticker($name, $serial_number, $inventory_number);
 
-    if($affected_rows > 0){
-        $_SESSION['success_message'] = "Inventorius atnaujintas sėkmingai!";
-        header("Location: inventory.php");  
-    } else{
-        $row = getInventoryById($inventory_id);
+        $stmt = mysqli_prepare($conn, "UPDATE inventory
+                                        SET `name`= ?, fk_inventory_location_id = ?, serial_number = ?, inventory_number = ?, `description` = ?, sticker_path = ?
+                                        WHERE id = ?");
+        mysqli_stmt_bind_param($stmt, "sissssi", $name, $location, $serial_number, $inventory_number, $description, $sticker_path, $inventory_id);
+        mysqli_stmt_execute($stmt);
+        $affected_rows = mysqli_stmt_affected_rows($stmt);
 
-        if($row['name'] === $name && $row['fk_inventory_location_id'] === $location && $row['serial_number'] === $serial_number && 
-        $row['inventory_number'] === $inventory_number && $row['description'] === $description){
-            $_SESSION['error_message'] = "Įrašyti duomenys atitinka jau esamus duomenis!";
+        if($affected_rows > 0){
+            $_SESSION['success_message'] = "Inventorius atnaujintas sėkmingai!";
+            header("Location: inventory.php");
             exit();
-        }
+        } else{
+            $row = getInventoryById($inventory_id);
 
+            if($row['name'] === $name && $row['fk_inventory_location_id'] === $location && $row['serial_number'] === $serial_number && 
+            $row['inventory_number'] === $inventory_number && $row['description'] === $description){
+                $_SESSION['error_message'] = "Įrašyti duomenys atitinka jau esamus duomenis!";
+                return;
+            }
+
+            $_SESSION['error_message'] = "Inventoriaus atnaujinti nepavyko! Bandykite dar kartą!";
+            return;
+        }
+    } else{
         $_SESSION['error_message'] = "Inventoriaus atnaujinti nepavyko! Bandykite dar kartą!";
-        exit();
+        return;
     }
 }
     #endregion
@@ -158,7 +196,139 @@ function deleteInventory($inventory_id, $name, $serial_number, $inventory_number
     }
 }
     #endregion
-#endregion
+
+    #region Add Storage
+function generateStorageSticker($name){
+    $path = __DIR__. '/../images/qr_codes/';
+    $file_path = $path . clean($name) . '.png';
+    $file = clean($name) . '.png';
+    $_SESSION['generated_sticker'] = $file;
+
+    $data = $name;
+
+    QRcode::png($data, $file_path, QR_ECLEVEL_M, 256, 2);
+
+    return $file;
+}
+
+function addStorage($name, $description){
+    global $conn;
+
+    $sticker_path = generateStorageSticker($name);
+
+    $stmt = mysqli_prepare($conn, "INSERT INTO inventory_locations(`name`, `description`, sticker_path)
+                                    VALUES(?, ?, ?)");
+    mysqli_stmt_bind_param($stmt, "sss", $name, $description, $sticker_path);
+    mysqli_stmt_execute($stmt);
+    $affected_rows = mysqli_stmt_affected_rows($stmt);
+
+    if($affected_rows > 0){
+        $_SESSION['success_message'] = "Talpykla pridėta sėkmingai!";
+        header("Location: inventory.php");
+        exit();
+    } else{
+        $_SESSION['error_message'] = "Talpyklos pridėti nepavyko! Bandykite dar kartą!";
+        exit();
+    }
+}
+    #endregion
+    
+    #region Edit Storage
+function getStorageById($storage_id){
+    global $conn;
+
+    $stmt = mysqli_prepare($conn, "SELECT *
+                                    FROM inventory_locations
+                                    WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "i", $storage_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($result);
+
+    return $row;
+}
+
+function deleteStorageSticker($storage_id){
+    global $conn;
+
+    $stmt = mysqli_prepare($conn, "SELECT *
+                                FROM inventory_locations
+                                WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "i", $storage_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($result);
+
+    $path = __DIR__. '/../images/qr_codes/';
+    $sticker_path = $path . clean($row['name']) . '.png';
+    if(!unlink($sticker_path)){
+        return false;
+    }
+
+    return true;
+}
+
+function updateStorage($name, $description, $storage_id){
+    global $conn;
+
+    if(deleteStorageSticker($storage_id)){
+        $sticker_path = generateStorageSticker($name);
+
+        $stmt = mysqli_prepare($conn, "UPDATE inventory_locations
+                                        SET `name`= ?, `description` = ?, sticker_path = ?
+                                        WHERE id = ?");
+        mysqli_stmt_bind_param($stmt, "sssi", $name, $description, $sticker_path, $storage_id);
+        mysqli_stmt_execute($stmt);
+        $affected_rows = mysqli_stmt_affected_rows($stmt);
+
+        if($affected_rows > 0){
+            $_SESSION['success_message'] = "Talpykla atnaujinta sėkmingai!";
+            header("Location: inventory.php");
+            exit();
+        } else{
+            $row = getStorageById($storage_id);
+
+            if($row['name'] === $name && $row['description'] === $description){
+                $_SESSION['error_message'] = "Įrašyti duomenys atitinka jau esamus duomenis!";
+                return;
+            }
+
+            $_SESSION['error_message'] = "Talpyklos atnaujinti nepavyko! Bandykite dar kartą!";
+            return;
+        }
+    } else{
+        $_SESSION['error_message'] = "Talpyklos atnaujinti nepavyko! Bandykite dar kartą!";
+        return;
+    }
+}
+    #endregion
+
+    #region Delete Storage
+function deleteStorage($storage_id, $name){
+    global $conn;
+
+    $stmt = mysqli_prepare($conn, "DELETE FROM inventory_locations
+                                    WHERE id=?");
+    mysqli_stmt_bind_param($stmt, "i", $storage_id);
+    mysqli_stmt_execute($stmt);
+    $affected_rows = mysqli_stmt_affected_rows($stmt);
+
+    if($affected_rows > 0){
+        $_SESSION['success_message'] = "Talpykla ištrinta sėkmingai!";
+
+        $path = __DIR__. '/../images/qr_codes/';
+        $sticker_path = $path . clean($name) . '.png';
+
+        unlink($sticker_path);
+        header("Location: inventory.php");
+        exit();
+    } else{
+        $_SESSION['error_message'] = "Talpyklos ištrinti nepavyko! Bandykite dar kartą!";
+        exit();
+    }
+}
+    #endregion
+    #endregion
 
 #region Loans
     #region Display Loans
@@ -177,6 +347,23 @@ function display_loans(){
 
     return $result;
 }
+    #endregion
+
+    #region Loan Actions
+function unlockStorage(){
+
+}
+        #region Add Loan
+function loanInventory($inventory_id, $user_id){
+    global $conn;
+}
+        #endregion
+
+        #region Return Loan
+function returnInventory($inventory_id, $user_id){
+    global $conn;
+}
+        #endregion
     #endregion
 #endregion
 

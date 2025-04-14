@@ -54,7 +54,6 @@ $path = "../../images/qr_codes/";
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
     <script defer src="../../js/bootstrap.bundle.min.js"></script>
     <script defer src="../../js/header.js"></script>
-    <script defer src="../../js/edit_fields.js"></script>
 </head>
 <body>
     <div class="container-md min-vh-100">
@@ -114,6 +113,31 @@ $path = "../../images/qr_codes/";
             </form>
         </div>
     </div>
+    <script>
+        function enableFields(option) {
+            form = document.getElementById("form");
+            inputs = form.getElementsByTagName("input");
+            select = document.getElementById("location_select");
+            textArea = document.getElementById("description");
+
+            for (i = 0; i < inputs.length; i++) {
+                inputs[i].disabled = !option;
+            }
+
+            select.disabled = !option;
+            textArea.disabled = !option;
+
+            if(option) {
+                document.getElementsByName("edit_inventory")[0].style.display = "none";
+                document.getElementsByName("update_inventory")[0].style.display = "unset";
+                document.getElementsByName("cancel_inventory")[0].style.display = "unset";
+            } else {
+                document.getElementsByName("edit_inventory")[0].style.display = "unset";
+                document.getElementsByName("update_inventory")[0].style.display = "none";
+                document.getElementsByName("cancel_inventory")[0].style.display = "none";
+            }
+        }
+    </script>
 </body>
 </html>
 
