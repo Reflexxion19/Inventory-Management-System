@@ -43,7 +43,7 @@ $expanded_check = true;
             <div class="col-12">
                 <div class="input-group">
                     <div class="form-outline" data-mdb-input-init>
-                        <input type="search" id="search-box" class="form-control" onkeyup="myFunction()"/>
+                        <input type="search" id="search-box" class="form-control" onkeyup="search()"/>
                         <label class="form-label" for="search-box">Ieškoti</label>
                     </div>
                     <button type="button" class="btn btn-success mx-1" onClick="document.location.href='create_loan_request.php'">SUKURTI PRAŠYMĄ</button>

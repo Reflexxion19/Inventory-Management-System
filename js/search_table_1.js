@@ -1,6 +1,6 @@
 document.getElementById("search-box").addEventListener("input", function (e) {
     if (this.value === "") {
-        myFunction();
+        search();
     }
 });
 
