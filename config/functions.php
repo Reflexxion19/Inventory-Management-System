@@ -88,7 +88,7 @@ function generateSticker($name, $serial_number, $inventory_number){
 
     $data = $name . "__" . $serial_number . "__" . $inventory_number;
 
-    QRcode::png($data, $file_path, QR_ECLEVEL_M, 256, 2);
+    QRcode::png($data, $file_path, QR_ECLEVEL_Q, 256, 4);
 
     return $file;
 }
@@ -206,7 +206,7 @@ function generateStorageSticker($name){
 
     $data = $name;
 
-    QRcode::png($data, $file_path, QR_ECLEVEL_M, 256, 2);
+    QRcode::png($data, $file_path, QR_ECLEVEL_Q, 256, 4);
 
     return $file;
 }
@@ -336,11 +336,10 @@ function display_loans(){
     global $conn;
     $user_id = $_SESSION['user_id'];
 
-    // $stmt = mysqli_prepare($conn, "SELECT * FROM inventory_loan WHERE fk_user_id = ?");
     $stmt = mysqli_prepare($conn, "SELECT inventory_loans.*, inventory.name
                                     FROM inventory_loans
                                     INNER JOIN inventory ON inventory_loans.fk_inventory_id = inventory.id
-                                    WHERE fk_user_id = ?");
+                                    WHERE fk_user_id = ? && `status` = 'Borrowed'");
     mysqli_stmt_bind_param($stmt, "i", $user_id);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
@@ -350,18 +349,165 @@ function display_loans(){
     #endregion
 
     #region Loan Actions
-function unlockStorage(){
-
-}
-        #region Add Loan
-function loanInventory($inventory_id, $user_id){
+function selectInventoryByIdCodeParams($name, $serial_number, $inventory_number){
     global $conn;
+
+    $stmt = mysqli_prepare($conn, "SELECT *
+                                        FROM inventory
+                                        WHERE name = ? AND serial_number = ? AND inventory_number = ?");
+    mysqli_stmt_bind_param($stmt, "sss", $name, $serial_number, $inventory_number);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($result);
+
+    return $row;
+}
+
+        #region Unlock Storage
+function selectStorageByIdCodeParams($name){
+    global $conn;
+
+    $stmt = mysqli_prepare($conn, "SELECT *
+                                    FROM inventory_locations
+                                    WHERE name = ?");
+    mysqli_stmt_bind_param($stmt, "s", $name);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($result);
+
+    return $row;
+}
+
+function unlockStorage($storage_id_code){
+    $parsed = explode("__", $storage_id_code);
+
+    if(count($parsed) === 1){
+        $name = $parsed[0];
+
+        $row = selectStorageByIdCodeParams($name);
+
+        if($row){
+
+
+            echo "<script>
+                    window.addEventListener('load', (event) => {
+                        if(document.getElementById('loan-tab')){
+                            document.getElementById('loan-tab').click();
+                        } else if (document.getElementById('return-tab')){
+                            document.getElementById('return-tab').click();
+                        }
+                    });
+                </script>";
+        }
+    } else{
+       $_SESSION['error_message'] = "Identifikacinis kodas neteisingas!";
+       return; 
+    }
+}
+        #endregion
+
+        #region Add Loan
+function checkIfInventoryLoaned($inventory_id){
+    global $conn;
+    
+    $stmt = mysqli_prepare($conn, "SELECT *
+                                    FROM inventory_loans
+                                    WHERE fk_inventory_id = ? AND `status` = 'Borrowed'");
+    mysqli_stmt_bind_param($stmt, "i", $inventory_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($result);
+
+    if($row){
+        return true;
+    } else{
+        return false;
+    }
+}
+
+function loanInventory($loan_id_code, $user_id){
+    global $conn;
+
+    $parsed = explode("__", $loan_id_code);
+
+    if(count($parsed) === 3){
+        $name = $parsed[0];
+        $serial_number = $parsed[1];
+        $inventory_number = $parsed[2];
+
+        $row = selectInventoryByIdCodeParams($name, $serial_number, $inventory_number);
+        
+        if($row){
+            if(checkIfInventoryLoaned($row['id'])){
+                $_SESSION['error_message'] = "Inventorius jau paskolintas!";
+                return;
+            } else{
+                $stmt = mysqli_prepare($conn, "INSERT INTO inventory_loans(fk_user_id, fk_inventory_id, 
+                                                        return_until_date, `status`)
+                                                VALUES(?, ?, ?, 'Borrowed')");
+                mysqli_stmt_bind_param($stmt, "iis", $user_id, $row['id'], date("Y-m-d", strtotime("+1 month")));
+                mysqli_stmt_execute($stmt);
+                $affected_rows = mysqli_stmt_affected_rows($stmt);
+
+                if($affected_rows > 0){
+                    $_SESSION['success_message'] = "Inventoriaus paskola užregistruota!";
+                    header("Location: loans.php");
+                    exit();
+                } else{
+                    $_SESSION['error_message'] = "Inventoriaus paskolos užregistruoti nepavyko! Bandykite dar kartą!";
+                    return;
+                }
+            }
+        } else{
+            $_SESSION['error_message'] = "Identifikacinis kodas neteisingas!";
+            return;
+        }
+    } else{
+        $_SESSION['error_message'] = "Identifikacinis kodas neteisingas!";
+        return;
+    }
 }
         #endregion
 
         #region Return Loan
-function returnInventory($inventory_id, $user_id){
+function returnInventory($return_id_code, $user_id){
     global $conn;
+
+    $parsed = explode("__", $return_id_code);
+
+    if(count($parsed) === 3){
+        $name = $parsed[0];
+        $serial_number = $parsed[1];
+        $inventory_number = $parsed[2];
+
+        $row = selectInventoryByIdCodeParams($name, $serial_number, $inventory_number);
+
+        if($row){
+            $date = date("Y-m-d");
+
+            $stmt = mysqli_prepare($conn, "UPDATE inventory_loans
+                                            SET `status` = 'Returned', return_date = ?
+                                            WHERE fk_user_id = ? AND fk_inventory_id = ? AND `status` = 'Borrowed'");
+            mysqli_stmt_bind_param($stmt, "sii", $date, $user_id, $row['id']);
+            mysqli_stmt_execute($stmt);
+            $affected_rows = mysqli_stmt_affected_rows($stmt);
+
+            if($affected_rows > 0){
+                $_SESSION['success_message'] = "Inventoriaus grąžinimas užregistruotas!";
+                header("Location: loans.php");
+                exit();
+            } else{
+                $_SESSION['error_message'] = "Inventoriaus grąžinimo užregistruoti nepavyko! Bandykite dar kartą!";
+                return;
+            }
+        } else{
+            $_SESSION['error_message'] = "Identifikacinis kodas neteisingas!";
+            return;
+        }
+    } else{
+        $_SESSION['error_message'] = "Identifikacinis kodas neteisingas!";
+        return;
+    }
 }
         #endregion
     #endregion
