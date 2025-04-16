@@ -387,18 +387,20 @@ function unlockStorage($storage_id_code){
         $row = selectStorageByIdCodeParams($name);
 
         if($row){
-            $data =  array(
-                'name' => $name,
-                'data' => "test"
-            );
+            $name = $row['name'];
+            $message = "Unlock";
 
-            $str = http_build_query($data);
+            $data = "name=". $name . "&message=". $message;
 
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, "http://localhost/bakalauras/php/admin/test.php");
+            curl_setopt($ch, CURLOPT_URL, "https://8dbb-158-129-21-117.ngrok-free.app/post");
             curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $str);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
             $output = curl_exec($ch);
             curl_close($ch);
@@ -451,6 +453,9 @@ function loanInventory($loan_id_code, $user_id){
         $serial_number = $parsed[1];
         $inventory_number = $parsed[2];
 
+        $date = date("Y-m-d");
+        $return_until_date = date("Y-m-d", strtotime("+1 month"));
+
         $row = selectInventoryByIdCodeParams($name, $serial_number, $inventory_number);
         
         if($row){
@@ -459,9 +464,9 @@ function loanInventory($loan_id_code, $user_id){
                 return;
             } else{
                 $stmt = mysqli_prepare($conn, "INSERT INTO inventory_loans(fk_user_id, fk_inventory_id, 
-                                                        return_until_date, `status`)
-                                                VALUES(?, ?, ?, 'Borrowed')");
-                mysqli_stmt_bind_param($stmt, "iis", $user_id, $row['id'], date("Y-m-d", strtotime("+1 month")));
+                                                        loan_date, return_until_date, `status`)
+                                                VALUES(?, ?, ?, ?, 'Borrowed')");
+                mysqli_stmt_bind_param($stmt, "iiss", $user_id, $row['id'], $date, $return_until_date);
                 mysqli_stmt_execute($stmt);
                 $affected_rows = mysqli_stmt_affected_rows($stmt);
 
