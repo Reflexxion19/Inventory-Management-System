@@ -136,7 +136,7 @@ $expanded_check = true;
                             </div>
                             <div class="row">
                                 <div class="mb-3">
-                                    <label for="text<?= $input_count ?>" class="form-label">Inventoriaus vienetas</label>
+                                    <label for="text<?= $input_count ?>" class="form-label">Inventoriaus pavadinimas</label>
                                     <input type="text" class="form-control" id="text<?= $input_count++ ?>" 
                                     placeholder="<?= $row['inventory_name'] ?>" disabled>
                                 </div>

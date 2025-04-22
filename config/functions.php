@@ -3,6 +3,14 @@
 require_once 'config.php';
 require_once __DIR__ . '/../phpqrcode/qrlib.php';
 
+$url = "https://a250-78-57-74-138.ngrok-free.app";
+
+function getURL(){
+    global $url;
+    
+    return $url;
+}
+
 #region Inventory
     #region Locations
 function getLocations(){
@@ -387,13 +395,22 @@ function unlockStorage($storage_id_code){
         $row = selectStorageByIdCodeParams($name);
 
         if($row){
-            $name = $row['name'];
-            $message = "Unlock";
+            $base64_public_key = "oNVejsrLG0P78GeRPs1gBnBHoqt4iVUXACTAAEh0iQU=";
+            $base64_private_key = "ExmYdMJSIHd1m8TUeJqrdiQANBLrxsCZbUqX2m0hlG8=";
+            $base64_encrypted_message = "Wii09qiTBG1daAjOXREf1aioy2a32dU1YLqpsH00/I7HXur5fQ8rXOoJ4u9MN54HXzu66XovfFizBy2k7TK+7HZ4+bLDLQw=";
 
-            $data = "name=". $name . "&message=". $message;
+            $url = "https://a250-78-57-74-138.ngrok-free.app";
+
+            $data_array = [
+                'type' => "auth_confirmation",
+                'message' => "unlock"
+            ];
+
+            $data = http_build_query($data_array);
+            echo $data;
 
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, "https://8dbb-158-129-21-117.ngrok-free.app/post");
+            curl_setopt($ch, CURLOPT_URL, $url . "/post");
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
             curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
@@ -859,4 +876,105 @@ function calculate_year_loans_by_month($year){
 }
 #endregion
 
+#region Crypto
+function generateRandomKeyPair() {
+    $keypair = sodium_crypto_box_keypair();
+
+    $public_key = sodium_crypto_box_publickey($keypair);
+    $private_key = sodium_crypto_box_secretkey($keypair);
+
+    return [
+        'public_key' => $public_key,
+        'private_key' => $private_key
+    ];
+}
+
+function generateRandomString() {
+    $length = 10;
+
+    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $charactersLength = strlen($characters);
+    $randomString = '';
+    for ($i = 0; $i < $length; $i++) {
+        $randomString .= $characters[random_int(0, $charactersLength - 1)];
+    }
+
+    return $randomString;
+}
+
+function encryptMessage($microcontroller_public_key, $server_private_key, $message) {
+    // echo "Public Key (Base64):" . base64_encode($microcontroller_public_key) . "|||";
+    // echo "Private Key (Base64):" . base64_encode($server_private_key) . "|||";
+
+    $microcontroller_public_key = base64_decode($microcontroller_public_key);
+    $server_private_key = base64_decode($server_private_key);
+
+    $keypair = sodium_crypto_box_keypair_from_secretkey_and_publickey($server_private_key, $microcontroller_public_key);
+
+    $nonce = random_bytes(SODIUM_CRYPTO_BOX_NONCEBYTES);
+
+    $ciphertext = sodium_crypto_box($message, $nonce, $keypair);
+    $encrypted_message = base64_encode($nonce . $ciphertext);
+
+    // echo "Encrypted Message (Base64):" . $encrypted_message . "|||";
+
+    return $encrypted_message;
+}
+
+function decryptMessage($microcontroller_base64_public_key, $server_base64_private_key, $base64_encrypted_message) {
+    $microcontroller_public_key = base64_decode($microcontroller_base64_public_key);
+    $server_private_key = base64_decode($server_base64_private_key);
+    $encrypted_message = base64_decode($base64_encrypted_message);
+
+    $keypair = sodium_crypto_box_keypair_from_secretkey_and_publickey($server_private_key, $microcontroller_public_key);
+
+    $nonce = substr($encrypted_message, 0, SODIUM_CRYPTO_BOX_NONCEBYTES);
+    $ciphertext = substr($encrypted_message, SODIUM_CRYPTO_BOX_NONCEBYTES);
+
+    $decrypted = sodium_crypto_box_open($ciphertext, $nonce, $keypair);
+
+    if ($decrypted === false) {
+        echo "Decryption failed! Possible reasons:\n";
+        echo "- Message was tampered with\n";
+        echo "- Wrong keys used\n";
+        echo "- Corrupted message\n";
+    } else {
+        echo "Successfully decrypted message:\n";
+        echo $decrypted . "\n";
+    }
+}
+
+function send_data($data_array) {
+    global $url;
+
+    $data = http_build_query($data_array);
+    echo $data;
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url . "/post");
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+    $output = curl_exec($ch);
+    curl_close($ch);
+}
+
+function storeRandomStringInDB($device_name, $randomString) {
+    global $conn;
+
+    $stmt = mysqli_prepare($conn, "INSERT INTO device_authentication_messages (device_name, `message`)
+                                    VALUES (?, ?)");
+    mysqli_stmt_bind_param($stmt, "ss", $device_name, $randomString);
+    if (mysqli_stmt_execute($stmt)) {
+       return true; 
+    } else {
+        return false;
+    }
+}
+#endregion
 ?>
