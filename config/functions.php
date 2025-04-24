@@ -3,11 +3,15 @@
 require_once 'config.php';
 require_once __DIR__ . '/../phpqrcode/qrlib.php';
 
-$url = "https://a250-78-57-74-138.ngrok-free.app";
+$url = "https://14af-78-57-74-138.ngrok-free.app";
+
+$server_base64_private_key = "A9W3gD35zDgBQ82cjKggeQKhGRMmanNxbxKk4AsTrV0=";
+$server_base64_public_key = "PGpRqXf8riutWHtYgQyxxj2FvHTvTioHPbjIxrCevhw=";
+
+$microcontroller_base64_public_key = "u+AdOsd/h5hciL74wRpUNsyMw3tWw1ZhcQh090Dq0Ew=";
 
 function getURL(){
     global $url;
-    
     return $url;
 }
 
@@ -395,44 +399,24 @@ function unlockStorage($storage_id_code){
         $row = selectStorageByIdCodeParams($name);
 
         if($row){
-            $base64_public_key = "oNVejsrLG0P78GeRPs1gBnBHoqt4iVUXACTAAEh0iQU=";
-            $base64_private_key = "ExmYdMJSIHd1m8TUeJqrdiQANBLrxsCZbUqX2m0hlG8=";
-            $base64_encrypted_message = "Wii09qiTBG1daAjOXREf1aioy2a32dU1YLqpsH00/I7HXur5fQ8rXOoJ4u9MN54HXzu66XovfFizBy2k7TK+7HZ4+bLDLQw=";
-
-            $url = "https://a250-78-57-74-138.ngrok-free.app";
+            global $url;
 
             $data_array = [
                 'type' => "auth_confirmation",
                 'message' => "unlock"
             ];
 
-            $data = http_build_query($data_array);
-            echo $data;
+            $output = send_data($data_array);
 
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url . "/post");
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-
-            $output = curl_exec($ch);
-            curl_close($ch);
-
-            $_SESSION['error_message'] = $output;
-
-            echo "<script>
-                    window.addEventListener('load', (event) => {
-                        if(document.getElementById('loan-tab')){
-                            document.getElementById('loan-tab').click();
-                        } else if (document.getElementById('return-tab')){
-                            document.getElementById('return-tab').click();
-                        }
-                    });
-                </script>";
+            // echo "<script>
+            //         window.addEventListener('load', (event) => {
+            //             if(document.getElementById('loan-tab')){
+            //                 document.getElementById('loan-tab').click();
+            //             } else if (document.getElementById('return-tab')){
+            //                 document.getElementById('return-tab').click();
+            //             }
+            //         });
+            //     </script>";
         }
     } else{
        $_SESSION['error_message'] = "Identifikacinis kodas neteisingas!";
@@ -602,6 +586,44 @@ function changeRole($user_id, $role){
         }
 
         $_SESSION['error_message'] = "Rolės atnaujinti nepavyko! Bandykite dar kartą!";
+        header("Location: users.php");
+        exit();
+    }
+}
+    #endregion
+
+    #region Public Private Keys
+function adminPrivatePublicKeys($user_id){
+    global $server_base64_public_key;
+    global $conn;
+
+    $keypair = generateRandomKeyPair();
+
+    $public_key = $keypair['public_key'];
+    $private_key = $keypair['private_key'];
+    
+    $base64_public_key = base64_encode($public_key);
+    $base64_private_key = base64_encode($private_key);
+
+    $encrypted_base64_private_key = encryptMessage($server_base64_public_key, $base64_private_key);
+
+    $stmt = mysqli_prepare($conn, "UPDATE users
+                                    SET public_key = ?, private_key = ?
+                                    WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "ssi", $base64_public_key, $encrypted_base64_private_key, $user_id);
+    mysqli_stmt_execute($stmt);
+    $affected_rows = mysqli_stmt_affected_rows($stmt);
+
+    if($affected_rows > 0){
+        return [
+            'public_key' => $base64_public_key,
+            'private_key' => $base64_private_key
+        ];
+        header("Location: users.php");
+        exit();
+    } else{
+        $_SESSION['error_message'] = "Nepavyko sugeneruoti privataus/viešo raktų poros! Bandykite dar kartą!";
+        header("Location: users.php");
         exit();
     }
 }
@@ -610,14 +632,70 @@ function changeRole($user_id, $role){
 
 #region Admin Loan Requests
     #region Display Requests
-function display_loan_requests(){
+function display_loan_requests_submitted(){
     global $conn;
 
     $stmt = mysqli_prepare($conn, "SELECT loan_applications.*, users.name AS student_name, users.academic_group AS student_group, inventory.name AS inventory_name
                                     FROM loan_applications
                                     INNER JOIN users ON loan_applications.fk_user_id = users.id
                                     INNER JOIN inventory ON loan_applications.fk_inventory_id = inventory.id
-                                    WHERE status = 'submitted' OR status = 'corrected'");
+                                    WHERE status = 'submitted'");
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    return $result;
+}
+
+function display_loan_requests_corrected(){
+    global $conn;
+
+    $stmt = mysqli_prepare($conn, "SELECT loan_applications.*, users.name AS student_name, users.academic_group AS student_group, inventory.name AS inventory_name
+                                    FROM loan_applications
+                                    INNER JOIN users ON loan_applications.fk_user_id = users.id
+                                    INNER JOIN inventory ON loan_applications.fk_inventory_id = inventory.id
+                                    WHERE status = 'corrected'");
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    return $result;
+}
+
+function display_loan_requests_needs_correction(){
+    global $conn;
+
+    $stmt = mysqli_prepare($conn, "SELECT loan_applications.*, users.name AS student_name, users.academic_group AS student_group, inventory.name AS inventory_name
+                                    FROM loan_applications
+                                    INNER JOIN users ON loan_applications.fk_user_id = users.id
+                                    INNER JOIN inventory ON loan_applications.fk_inventory_id = inventory.id
+                                    WHERE status = 'needs_correction'");
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    return $result;
+}
+
+function display_loan_requests_accepted(){
+    global $conn;
+
+    $stmt = mysqli_prepare($conn, "SELECT loan_applications.*, users.name AS student_name, users.academic_group AS student_group, inventory.name AS inventory_name
+                                    FROM loan_applications
+                                    INNER JOIN users ON loan_applications.fk_user_id = users.id
+                                    INNER JOIN inventory ON loan_applications.fk_inventory_id = inventory.id
+                                    WHERE status = 'accepted'");
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    return $result;
+}
+
+function display_loan_requests_rejected(){
+    global $conn;
+
+    $stmt = mysqli_prepare($conn, "SELECT loan_applications.*, users.name AS student_name, users.academic_group AS student_group, inventory.name AS inventory_name
+                                    FROM loan_applications
+                                    INNER JOIN users ON loan_applications.fk_user_id = users.id
+                                    INNER JOIN inventory ON loan_applications.fk_inventory_id = inventory.id
+                                    WHERE status = 'rejected'");
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
 
@@ -685,7 +763,7 @@ function getLoanRequestByID($request_id){
 function addFeedback($request_id){
     global $conn;
 
-    $conn->begin_transaction();
+    mysqli_begin_transaction($conn);
 
     try{
         $stmt = mysqli_prepare($conn, "UPDATE loan_applications
@@ -701,7 +779,7 @@ function addFeedback($request_id){
 
             if($mail_sent){
                 $_SESSION['success_message'] = "Atsiliepimas išsiųstas sėkmingai!";
-                $conn->commit();
+                mysqli_commit($conn);
                 
                 header("Location: loan_requests.php");
                 exit();
@@ -709,13 +787,13 @@ function addFeedback($request_id){
         }
 
         $_SESSION['error_message'] = "Atsiliepimo išsiųsti nepavyko! Bandykite dar kartą!";
-        $conn->rollback();
+        mysqli_rollback($conn);
 
         header("Location: loan_requests.php");
         exit();
     } catch (Exception $e) {
         $_SESSION['error_message'] = "Atsiliepimo išsiųsti nepavyko! Bandykite dar kartą!";
-        $conn->rollback();
+        mysqli_rollback($conn);
 
         header("Location: loan_requests.php");
         exit();
@@ -743,6 +821,7 @@ function sendMail($recipient, $inventory){
 #endregion
 
 #region Student Loan Requests
+    #region Display Requests
 function display_student_loan_requests(){
     global $conn;
     $user_id = $_SESSION['user_id'];
@@ -758,6 +837,114 @@ function display_student_loan_requests(){
 
     return $result;
 }
+
+function inventoryCount(){
+    global $conn;
+
+    $stmt = mysqli_prepare($conn, "SELECT COUNT(*) FROM inventory");
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    return $result;
+}
+    #endregion
+
+    #region Create Request
+function createApplication($inventory_id, $start_date, $end_date, $additional_comments){
+    global $conn;
+
+    if($start_date !== "" && $end_date !== ""){
+        $stmt = mysqli_prepare($conn, "INSERT INTO loan_applications(fk_user_id, fk_inventory_id, `start_date`, end_date,
+                                                                additional_comments, `status`)
+                                        VALUES(?, ?, ?, ?, ?, 'submitted')");
+        mysqli_stmt_bind_param($stmt, "iisss", $_SESSION['user_id'], $inventory_id, $start_date, $end_date, $additional_comments);
+        mysqli_stmt_execute($stmt);
+        $affected_rows = mysqli_stmt_affected_rows($stmt);
+
+        if($affected_rows > 0){
+            $_SESSION['success_message'] = "Prašymas užregistruotas sėkmingai!";
+            header("Location: student_loan_requests.php");
+            exit();
+        } else{
+            $_SESSION['error_message'] = "Inventoriaus pridėti nepavyko! Bandykite dar kartą!";
+            return;
+        }
+    } else{
+        $_SESSION['error_message'] = "Pasirinkite datą!";
+        return;
+    }
+}
+    #endregion
+
+    #region Update Request
+function getLoanApplicationById($application_id){
+    global $conn;
+
+    $stmt = mysqli_prepare($conn, "SELECT *
+                                    FROM loan_applications
+                                    WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "i", $application_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($result);
+
+    return $row;
+}
+
+function updateRequest($application_id, $start_date, $end_date, $inventory_id, $additional_comments){
+    global $conn;
+
+    $row = getLoanApplicationById($application_id);
+
+    mysqli_begin_transaction($conn);
+
+    $stmt = mysqli_prepare($conn, "UPDATE loan_applications
+                                    SET fk_inventory_id = ?, `start_date` = ?, end_date = ?, 
+                                        additional_comments = ?, `status` = 'corrected'
+                                    WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "isssi", $inventory_id, $start_date, $end_date, $additional_comments, $application_id);
+    mysqli_stmt_execute($stmt);
+    $affected_rows = mysqli_stmt_affected_rows($stmt);
+
+    if($affected_rows > 0){
+        if($row['start_date'] === $start_date && $row['end_date'] === $end_date && $row['fk_inventory_id'] == $inventory_id && 
+            $row['additional_comments'] === $additional_comments){
+            $_SESSION['error_message'] = "Įrašyti duomenys atitinka jau esamus duomenis!";
+            mysqli_rollback($conn);
+            return;
+        }
+
+        mysqli_commit($conn);
+        $_SESSION['success_message'] = "Inventorius atnaujintas sėkmingai!";
+        header("Location: student_loan_requests.php");
+        exit();
+    } else{
+        $_SESSION['error_message'] = "Inventoriaus atnaujinti nepavyko! Bandykite dar kartą!";
+        return;
+    }
+}
+    #endregion
+
+    #region Delete Request
+function cancelRequest($application_id){
+    global $conn;
+
+    $stmt = mysqli_prepare($conn, "DELETE FROM loan_applications
+                                    WHERE id =?");
+    mysqli_stmt_bind_param($stmt, "i", $application_id);
+    mysqli_stmt_execute($stmt);
+    $affected_rows = mysqli_stmt_affected_rows($stmt);
+
+    if($affected_rows > 0){
+        $_SESSION['success_message'] = "Prašymas atšauktas sėkmingai!";
+        header("Location: student_loan_requests.php");
+        exit();
+    } else{
+        $_SESSION['error_message'] = "Prašymo atšaukti nepavyko! Bandykite dar kartą!";
+        return;
+    }
+}
+    #endregion
 #endregion
 
 #region Analysis
@@ -877,6 +1064,21 @@ function calculate_year_loans_by_month($year){
 #endregion
 
 #region Crypto
+function getPrivateKey(){
+    global $server_base64_private_key;
+    return $server_base64_private_key;
+}
+
+function getPublicKey(){
+    global $server_base64_public_key;
+    return $server_base64_public_key;
+}
+
+function getPublicKeyMc(){
+    global $microcontroller_base64_public_key;
+    return $microcontroller_base64_public_key;
+}
+
 function generateRandomKeyPair() {
     $keypair = sodium_crypto_box_keypair();
 
@@ -902,53 +1104,80 @@ function generateRandomString() {
     return $randomString;
 }
 
-function encryptMessage($microcontroller_public_key, $server_private_key, $message) {
-    // echo "Public Key (Base64):" . base64_encode($microcontroller_public_key) . "|||";
-    // echo "Private Key (Base64):" . base64_encode($server_private_key) . "|||";
+// function encryptMessage($microcontroller_public_key, $server_private_key, $message) {
+//     // echo "Public Key (Base64):" . base64_encode($microcontroller_public_key) . "|||";
+//     // echo "Private Key (Base64):" . base64_encode($server_private_key) . "|||";
 
-    $microcontroller_public_key = base64_decode($microcontroller_public_key);
-    $server_private_key = base64_decode($server_private_key);
+//     $microcontroller_public_key = base64_decode($microcontroller_public_key);
+//     $server_private_key = base64_decode($server_private_key);
 
-    $keypair = sodium_crypto_box_keypair_from_secretkey_and_publickey($server_private_key, $microcontroller_public_key);
+//     $keypair = sodium_crypto_box_keypair_from_secretkey_and_publickey($server_private_key, $microcontroller_public_key);
 
-    $nonce = random_bytes(SODIUM_CRYPTO_BOX_NONCEBYTES);
+//     $nonce = random_bytes(SODIUM_CRYPTO_BOX_NONCEBYTES);
 
-    $ciphertext = sodium_crypto_box($message, $nonce, $keypair);
-    $encrypted_message = base64_encode($nonce . $ciphertext);
+//     $ciphertext = sodium_crypto_box($message, $nonce, $keypair);
+//     $encrypted_message = base64_encode($nonce . $ciphertext);
 
-    // echo "Encrypted Message (Base64):" . $encrypted_message . "|||";
+//     // echo "Encrypted Message (Base64):" . $encrypted_message . "|||";
+
+//     return $encrypted_message;
+// }
+
+// function decryptMessage($microcontroller_base64_public_key, $server_base64_private_key, $base64_encrypted_message) {
+//     $microcontroller_public_key = base64_decode($microcontroller_base64_public_key);
+//     $server_private_key = base64_decode($server_base64_private_key);
+//     $encrypted_message = base64_decode($base64_encrypted_message);
+
+//     $keypair = sodium_crypto_box_keypair_from_secretkey_and_publickey($server_private_key, $microcontroller_public_key);
+
+//     $nonce = substr($encrypted_message, 0, SODIUM_CRYPTO_BOX_NONCEBYTES);
+//     $ciphertext = substr($encrypted_message, SODIUM_CRYPTO_BOX_NONCEBYTES);
+
+//     $decrypted = sodium_crypto_box_open($ciphertext, $nonce, $keypair);
+
+//     if ($decrypted === false) {
+//         echo "Decryption failed! Possible reasons:\n";
+//         echo "- Message was tampered with\n";
+//         echo "- Wrong keys used\n";
+//         echo "- Corrupted message\n";
+//     }
+
+//     return $decrypted;
+// }
+
+function encryptMessage($recipient_base64_public_key, $message) {
+    $recipient_public_key = base64_decode($recipient_base64_public_key);
+
+    $ciphertext = sodium_crypto_box_seal($message, $recipient_public_key);
+
+    $encrypted_message = base64_encode($ciphertext);
 
     return $encrypted_message;
 }
 
-function decryptMessage($microcontroller_base64_public_key, $server_base64_private_key, $base64_encrypted_message) {
-    $microcontroller_public_key = base64_decode($microcontroller_base64_public_key);
-    $server_private_key = base64_decode($server_base64_private_key);
+function decryptMessage($sender_base64_private_key, $sender_base64_public_key, $base64_encrypted_message) {
+    $sender_private_key = base64_decode($sender_base64_private_key);
+    $sender_public_key = base64_decode($sender_base64_public_key);
     $encrypted_message = base64_decode($base64_encrypted_message);
 
-    $keypair = sodium_crypto_box_keypair_from_secretkey_and_publickey($server_private_key, $microcontroller_public_key);
+    $keypair = sodium_crypto_box_keypair_from_secretkey_and_publickey($sender_private_key, $sender_public_key);
 
-    $nonce = substr($encrypted_message, 0, SODIUM_CRYPTO_BOX_NONCEBYTES);
-    $ciphertext = substr($encrypted_message, SODIUM_CRYPTO_BOX_NONCEBYTES);
-
-    $decrypted = sodium_crypto_box_open($ciphertext, $nonce, $keypair);
+    $decrypted = sodium_crypto_box_seal_open($encrypted_message, $keypair);
 
     if ($decrypted === false) {
         echo "Decryption failed! Possible reasons:\n";
         echo "- Message was tampered with\n";
         echo "- Wrong keys used\n";
         echo "- Corrupted message\n";
-    } else {
-        echo "Successfully decrypted message:\n";
-        echo $decrypted . "\n";
     }
+
+    return $decrypted;
 }
 
 function send_data($data_array) {
     global $url;
 
     $data = http_build_query($data_array);
-    echo $data;
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url . "/post");
@@ -962,6 +1191,37 @@ function send_data($data_array) {
 
     $output = curl_exec($ch);
     curl_close($ch);
+
+    return $output;
+}
+
+function adminCardData(){
+    global $sender_base64_private_key;
+    $sender_private_key = base64_decode($sender_base64_private_key);
+
+    $message = "admin";
+
+    $keypair = generateRandomKeyPair();
+    $public_key_admin = $keypair['public_key'];
+    $private_key_admin = $keypair['private_key'];
+
+    $keypair = sodium_crypto_box_keypair_from_secretkey_and_publickey($sender_private_key, $public_key_admin);
+
+    $nonce = random_bytes(SODIUM_CRYPTO_BOX_NONCEBYTES);
+
+    $ciphertext = sodium_crypto_box($message, $nonce, $keypair);
+    $encrypted_message = base64_encode($nonce . $ciphertext);
+
+    return $encrypted_message;
+}
+
+function removeRandomStringRecord($device_name){
+    global $conn;
+
+    $stmt = mysqli_prepare($conn, "DELETE FROM device_authentication_messages
+                                    WHERE device_name = ?");
+    mysqli_stmt_bind_param($stmt, "s", $device_name);
+    mysqli_stmt_execute($stmt);
 }
 
 function storeRandomStringInDB($device_name, $randomString) {
@@ -975,6 +1235,26 @@ function storeRandomStringInDB($device_name, $randomString) {
     } else {
         return false;
     }
+}
+
+function getRandomStringFromDB($device_name) {
+    global $conn;
+    $message = "";
+
+    $stmt = mysqli_prepare($conn, "SELECT * FROM device_authentication_messages
+                                    WHERE device_name = ?
+                                    ORDER BY id DESC");
+    mysqli_stmt_bind_param($stmt, "s", $device_name);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    if ($row = mysqli_fetch_assoc($result)) {
+        $message = $row['message'];
+    }
+
+    removeRandomStringRecord($device_name);
+
+    return $message;
 }
 #endregion
 ?>

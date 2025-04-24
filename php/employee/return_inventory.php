@@ -2,6 +2,7 @@
 
 session_save_path("/tmp");
 session_start();
+require_once '../../config/functions.php';
 
 if(!isset($_SESSION['email'])) {
     header("Location: ../../index.php");
@@ -11,6 +12,17 @@ if(!isset($_SESSION['email'])) {
 if($_SESSION['role'] != 'employee'){
     header("Location: ../../index.php");
     exit();
+}
+
+if (!isset($_SESSION['return_inventory_tab_state'])) {
+    $_SESSION['return_inventory_tab_state'] = "open_storage";
+}
+
+if(isset($_POST['return'])){
+    $return_id_code = $_POST['return_id_code'];
+    $user_id = $_SESSION['user_id'];
+
+    returnInventory($return_id_code, $user_id);
 }
 
 $tab1 = "storage-tab";
@@ -36,20 +48,34 @@ $input2 = "identification_code_return";
     <script defer src="../../js/header.js"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <script defer src="../../js/qr_barcode_reader.js"></script>
+    <script defer src="../../js/state.js"></script>
 </head>
 <body>
     <div class="container-md min-vh-100">
-        <div class="row my-5">
+    <?php 
+    if($_SESSION['error_message'] != ""){
+    ?>
+        <div class="mt-3 alert alert-danger" role="alert">
+        <?= $_SESSION['error_message'] ?>
+        </div>
+    <?php
+    }
+    ?>
+        <div class="row <?php echo ($_SESSION['error_message'] === "") ? "mt-5" : "" ?> mb-3 d-flex justify-content-end">
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active border-primary border-2" id="storage-tab" data-bs-toggle="tab" data-bs-target="#storage-tab-pane" type="button" role="tab" aria-controls="storage-tab-pane" aria-selected="true">Atrakinti Talpyklą</button>
+                    <button class="nav-link <?php echo ($_SESSION['return_inventory_tab_state'] === "open_storage") ? "active" : "" ?> border-primary border-2" 
+                    id="storage-tab" data-bs-toggle="tab" data-bs-target="#storage-tab-pane" type="button" role="tab" aria-controls="storage-tab-pane" 
+                    aria-selected="true" onclick="saveState('return_inventory_tab_state', 'open_storage')">Atrakinti Talpyklą</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link border-primary border-2" id="return-tab" data-bs-toggle="tab" data-bs-target="#return-tab-pane" type="button" role="tab" aria-controls="return-tab-pane" aria-selected="false">Grąžinti Inventorių</button>
+                    <button class="nav-link <?php echo ($_SESSION['return_inventory_tab_state'] === "return_inventory") ? "active" : "" ?> border-primary border-2" 
+                    id="return-tab" data-bs-toggle="tab" data-bs-target="#return-tab-pane" type="button" role="tab" aria-controls="return-tab-pane" 
+                    aria-selected="false" onclick="saveState('return_inventory_tab_state', 'return_inventory')">Grąžinti Inventorių</button>
                 </li>
             </ul>
             <div class="tab-content border border-2 rounded-bottom border-primary" id="myTabContent">
-                <div class="tab-pane fade show active" id="storage-tab-pane" role="tabpanel" aria-labelledby="storage-tab" tabindex="0">
+                <div class="tab-pane fade <?php echo ($_SESSION['return_inventory_tab_state'] === "open_storage") ? "show active" : "" ?>" id="storage-tab-pane" role="tabpanel" aria-labelledby="storage-tab" tabindex="0">
                     <div class="row my-5 d-flex justify-content-center">
                         <div class="col-12 mb-3">
                             <h3 class="d-flex justify-content-center">Atrakinti Talpyklą</h3>
@@ -65,24 +91,28 @@ $input2 = "identification_code_return";
                         </div>
                     </div>
                 </div>
-                <div class="tab-pane fade" id="return-tab-pane" role="tabpanel" aria-labelledby="return-tab" tabindex="0">
+                <div class="tab-pane fade <?php echo ($_SESSION['return_inventory_tab_state'] === "return_inventory") ? "show active" : "" ?>" id="return-tab-pane" role="tabpanel" aria-labelledby="return-tab" tabindex="0">
                     <div class="row my-5 d-flex justify-content-center">
                         <div class="col-12 mb-3">
-                            <h3 class="d-flex justify-content-center">Grąžinti Inventorių</h3>
+                            <form method="post">
+                                <h3 class="d-flex justify-content-center">Grąžinti Inventorių</h3>
 
-                            <div class="my-3" id="reader-ret"></div>
+                                <div class="my-3" id="reader-ret"></div>
 
-                            <label for="identification_code_return" class="form-label">Identifikacinis kodas</label>
-                            <input type="text" class="form-control mb-3" id="identification_code_return" placeholder="Pvz.: 321654898798756654">
+                                <label for="identification_code_return" class="form-label">Identifikacinis kodas</label>
+                                <input type="text" class="form-control mb-3" id="identification_code_return" placeholder="Pvz.: 321654898798756654" 
+                                name="return_id_code">
 
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary">Grąžinti</button>
-                            </div>
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary" name="return">Grąžinti</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        <?php $_SESSION['error_message'] = ""; ?>
     </div>
     <script>
         const tab1 = <?php echo json_encode($tab1); ?>;

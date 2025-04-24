@@ -14,13 +14,20 @@ if($_SESSION['role'] != 'admin'){
     exit();
 }
 
-if (isset($_POST['user_id'])) {
+if (isset($_POST['user_id']) && isset($_POST['user_role'])){
     changeRole($_POST['user_id'], $_POST['user_role']);
 }
 
+$keypair = [
+    'public_key' => "",
+    'private_key' => ""
+];
+
+if (isset($_POST['user_id'])){
+    $keypair = adminPrivatePublicKeys($_POST['user_id']);
+}
+
 $result = display_users();
-
-
 
 ?>
 
@@ -116,7 +123,14 @@ $result = display_users();
                                         </select>
                                     </div>
                                     <div class="col-5">
-                                        <button type="button" class="btn btn-danger" name="change_role" onclick="changeRole()">Keisti rolę</button>
+                                        <button type="button" class="btn btn-success" name="change_role" onclick="changeRole()">Keisti rolę</button>
+                                    <?php
+                                        if($row['role'] == 'admin'){
+                                    ?>
+                                        <button type="button" class="btn btn-danger" name="change_role" onclick="generateKeypair()">Generuoti v/p raktų porą</button>
+                                    <?php
+                                        }
+                                    ?>
                                     </div>
                                 </div>
                             </td>
@@ -154,6 +168,35 @@ $result = display_users();
             document.body.appendChild(form);
             form.submit();
         }
+
+        function generateKeypair() {
+            if(confirm("Ar tikrai norite generuoti naujus privatųjį/viešąjį raktus?")) {
+                const row = event.target.closest("tr");
+                const cells = row.getElementsByTagName("td");
+
+                form = document.createElement("form");
+                form.method = "POST";
+                form.action = "users.php";
+
+                input_id = document.createElement("input");
+                input_id.type = "hidden";
+                input_id.name = "user_id";
+                input_id.value = row.dataset.id;
+
+                form.appendChild(input_id);
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
+        var private_key = <?php echo json_encode($keypair['private_key'], JSON_HEX_TAG); ?>;
+        var public_key = <?php echo json_encode($keypair['public_key'], JSON_HEX_TAG); ?>;
+
+        if(private_key != "" && public_key != ""){
+            alert("Privatusis raktas: " + private_key + "\nViešasis raktas: " + public_key);
+        }
+
     </script>
 </body>
 </html>

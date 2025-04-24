@@ -15,4 +15,8 @@ if(isset($_POST['return_inventory_tab_state'])) {
     $_SESSION['return_inventory_tab_state'] = $_POST['return_inventory_tab_state'];
 }
 
+if(isset($_POST['loan_requests_tab_state'])) {
+    $_SESSION['loan_requests_tab_state'] = $_POST['loan_requests_tab_state'];
+}
+
 ?>

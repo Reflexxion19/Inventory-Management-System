@@ -35,7 +35,26 @@ $result = display_loans();
 </head>
 <body>
     <div class="container-md min-vh-100">
-        <div class="row mt-5 mb-3 d-flex justify-content-end">
+    <?php 
+    if($_SESSION['success_message'] != ""){
+    ?>
+        <div class="mt-3 alert alert-success" role="alert">
+            <?= $_SESSION['success_message'] ?>
+        </div>
+    <?php
+    }
+    ?>
+
+    <?php 
+    if($_SESSION['error_message'] != ""){
+    ?>
+        <div class="mt-3 alert alert-danger" role="alert">
+        <?= $_SESSION['error_message'] ?>
+        </div>
+    <?php
+    }
+    ?>
+        <div class="row <?php echo ($_SESSION['success_message'] === "" && $_SESSION['error_message'] === "") ? "mt-5" : "" ?> mb-3 d-flex justify-content-end">
             <div class="col-12">
                 <div class="input-group">
                     <div class="form-outline" data-mdb-input-init>
@@ -66,6 +85,8 @@ $result = display_loans();
                         </tr>
                     <?php
                     }
+                    $_SESSION['success_message'] = "";
+                    $_SESSION['error_message'] = "";
                     ?>
                     </tbody>
                 </table>
