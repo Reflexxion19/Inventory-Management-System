@@ -27,7 +27,7 @@ if (isset($_POST['request_reject'])) {
 }
 
 if (isset($_POST['request_feedback'])) {
-    addFeedback($_POST['request_id']);
+    addFeedback($_POST['request_id'], $_POST['feedback']);
 }
 
 $result_submitted = display_loan_requests_submitted();
@@ -144,12 +144,12 @@ $expanded_check = true;
                                                 <div class="col-3 mb-3">
                                                     <label for="text<?= $input_count ?>" class="form-label">Vardas Pavardė</label>
                                                     <input type="text" class="form-control" id="text<?= $input_count++ ?>" 
-                                                    placeholder="<?= $row['student_name'] ?>" disabled>
+                                                    value="<?= $row['student_name'] ?>" disabled>
                                                 </div>
                                                 <div class="col-3 mb-3">
                                                     <label for="text<?= $input_count ?>" class="form-label">Akademinė grupė</label>
                                                     <input type="text" class="form-control" id="text<?= $input_count++ ?>" 
-                                                    placeholder="<?= $row['student_group'] ?>" disabled>
+                                                    value="<?= $row['student_group'] ?>" disabled>
                                                 </div>
                                                 <div class="col-6 mb-3">
                                                     <div class="row">
@@ -165,14 +165,14 @@ $expanded_check = true;
                                                     <div class="row">
                                                         <div class="col">
                                                             <input type="text" class="form-control" id="date_start<?= $date_input_count1++ ?>" 
-                                                            placeholder="<?= $row['start_date'] ?>" disabled>
+                                                            value="<?= $row['start_date'] ?>" disabled>
                                                         </div>
                                                         <div class="col-1 d-flex justify-content-center align-items-center">
                                                             <i class="bi bi-dash"></i>
                                                         </div>
                                                         <div class="col">
                                                             <input type="text" class="form-control" id="date_end<?= $date_input_count2++ ?>" 
-                                                            placeholder="<?= $row['end_date'] ?>" disabled>
+                                                            value="<?= $row['end_date'] ?>" disabled>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -181,7 +181,7 @@ $expanded_check = true;
                                                 <div class="mb-3">
                                                     <label for="text<?= $input_count ?>" class="form-label">Inventoriaus pavadinimas</label>
                                                     <input type="text" class="form-control" id="text<?= $input_count++ ?>" 
-                                                    placeholder="<?= $row['inventory_name'] ?>" disabled>
+                                                    value="<?= $row['inventory_name'] ?>" disabled>
                                                 </div>
                                             </div>
                                             <div class="row">
@@ -242,12 +242,12 @@ $expanded_check = true;
                                                 <div class="col-3 mb-3">
                                                     <label for="text<?= $input_count ?>" class="form-label">Vardas Pavardė</label>
                                                     <input type="text" class="form-control" id="text<?= $input_count++ ?>" 
-                                                    placeholder="<?= $row['student_name'] ?>" disabled>
+                                                    value="<?= $row['student_name'] ?>" disabled>
                                                 </div>
                                                 <div class="col-3 mb-3">
                                                     <label for="text<?= $input_count ?>" class="form-label">Akademinė grupė</label>
                                                     <input type="text" class="form-control" id="text<?= $input_count++ ?>" 
-                                                    placeholder="<?= $row['student_group'] ?>" disabled>
+                                                    value="<?= $row['student_group'] ?>" disabled>
                                                 </div>
                                                 <div class="col-6 mb-3">
                                                     <div class="row">
@@ -263,14 +263,14 @@ $expanded_check = true;
                                                     <div class="row">
                                                         <div class="col">
                                                             <input type="text" class="form-control" id="date_start<?= $date_input_count1++ ?>" 
-                                                            placeholder="<?= $row['start_date'] ?>" disabled>
+                                                            value="<?= $row['start_date'] ?>" disabled>
                                                         </div>
                                                         <div class="col-1 d-flex justify-content-center align-items-center">
                                                             <i class="bi bi-dash"></i>
                                                         </div>
                                                         <div class="col">
                                                             <input type="text" class="form-control" id="date_end<?= $date_input_count2++ ?>" 
-                                                            placeholder="<?= $row['end_date'] ?>" disabled>
+                                                            value="<?= $row['end_date'] ?>" disabled>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -279,7 +279,7 @@ $expanded_check = true;
                                                 <div class="mb-3">
                                                     <label for="text<?= $input_count ?>" class="form-label">Inventoriaus pavadinimas</label>
                                                     <input type="text" class="form-control" id="text<?= $input_count++ ?>" 
-                                                    placeholder="<?= $row['inventory_name'] ?>" disabled>
+                                                    value="<?= $row['inventory_name'] ?>" disabled>
                                                 </div>
                                             </div>
                                             <div class="row">
@@ -340,12 +340,12 @@ $expanded_check = true;
                                                 <div class="col-3 mb-3">
                                                     <label for="text<?= $input_count ?>" class="form-label">Vardas Pavardė</label>
                                                     <input type="text" class="form-control" id="text<?= $input_count++ ?>" 
-                                                    placeholder="<?= $row['student_name'] ?>" disabled>
+                                                    value="<?= $row['student_name'] ?>" disabled>
                                                 </div>
                                                 <div class="col-3 mb-3">
                                                     <label for="text<?= $input_count ?>" class="form-label">Akademinė grupė</label>
                                                     <input type="text" class="form-control" id="text<?= $input_count++ ?>" 
-                                                    placeholder="<?= $row['student_group'] ?>" disabled>
+                                                    value="<?= $row['student_group'] ?>" disabled>
                                                 </div>
                                                 <div class="col-6 mb-3">
                                                     <div class="row">
@@ -361,14 +361,14 @@ $expanded_check = true;
                                                     <div class="row">
                                                         <div class="col">
                                                             <input type="text" class="form-control" id="date_start<?= $date_input_count1++ ?>" 
-                                                            placeholder="<?= $row['start_date'] ?>" disabled>
+                                                            value="<?= $row['start_date'] ?>" disabled>
                                                         </div>
                                                         <div class="col-1 d-flex justify-content-center align-items-center">
                                                             <i class="bi bi-dash"></i>
                                                         </div>
                                                         <div class="col">
                                                             <input type="text" class="form-control" id="date_end<?= $date_input_count2++ ?>" 
-                                                            placeholder="<?= $row['end_date'] ?>" disabled>
+                                                            value="<?= $row['end_date'] ?>" disabled>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -377,7 +377,7 @@ $expanded_check = true;
                                                 <div class="mb-3">
                                                     <label for="text<?= $input_count ?>" class="form-label">Inventoriaus pavadinimas</label>
                                                     <input type="text" class="form-control" id="text<?= $input_count++ ?>" 
-                                                    placeholder="<?= $row['inventory_name'] ?>" disabled>
+                                                    value="<?= $row['inventory_name'] ?>" disabled>
                                                 </div>
                                             </div>
                                             <div class="row">
@@ -438,12 +438,12 @@ $expanded_check = true;
                                                 <div class="col-3 mb-3">
                                                     <label for="text<?= $input_count ?>" class="form-label">Vardas Pavardė</label>
                                                     <input type="text" class="form-control" id="text<?= $input_count++ ?>" 
-                                                    placeholder="<?= $row['student_name'] ?>" disabled>
+                                                    value="<?= $row['student_name'] ?>" disabled>
                                                 </div>
                                                 <div class="col-3 mb-3">
                                                     <label for="text<?= $input_count ?>" class="form-label">Akademinė grupė</label>
                                                     <input type="text" class="form-control" id="text<?= $input_count++ ?>" 
-                                                    placeholder="<?= $row['student_group'] ?>" disabled>
+                                                    value="<?= $row['student_group'] ?>" disabled>
                                                 </div>
                                                 <div class="col-6 mb-3">
                                                     <div class="row">
@@ -459,14 +459,14 @@ $expanded_check = true;
                                                     <div class="row">
                                                         <div class="col">
                                                             <input type="text" class="form-control" id="date_start<?= $date_input_count1++ ?>" 
-                                                            placeholder="<?= $row['start_date'] ?>" disabled>
+                                                            value="<?= $row['start_date'] ?>" disabled>
                                                         </div>
                                                         <div class="col-1 d-flex justify-content-center align-items-center">
                                                             <i class="bi bi-dash"></i>
                                                         </div>
                                                         <div class="col">
                                                             <input type="text" class="form-control" id="date_end<?= $date_input_count2++ ?>" 
-                                                            placeholder="<?= $row['end_date'] ?>" disabled>
+                                                            value="<?= $row['end_date'] ?>" disabled>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -475,7 +475,7 @@ $expanded_check = true;
                                                 <div class="mb-3">
                                                     <label for="text<?= $input_count ?>" class="form-label">Inventoriaus pavadinimas</label>
                                                     <input type="text" class="form-control" id="text<?= $input_count++ ?>" 
-                                                    placeholder="<?= $row['inventory_name'] ?>" disabled>
+                                                    value="<?= $row['inventory_name'] ?>" disabled>
                                                 </div>
                                             </div>
                                             <div class="row">
@@ -536,12 +536,12 @@ $expanded_check = true;
                                                 <div class="col-3 mb-3">
                                                     <label for="text<?= $input_count ?>" class="form-label">Vardas Pavardė</label>
                                                     <input type="text" class="form-control" id="text<?= $input_count++ ?>" 
-                                                    placeholder="<?= $row['student_name'] ?>" disabled>
+                                                    value="<?= $row['student_name'] ?>" disabled>
                                                 </div>
                                                 <div class="col-3 mb-3">
                                                     <label for="text<?= $input_count ?>" class="form-label">Akademinė grupė</label>
                                                     <input type="text" class="form-control" id="text<?= $input_count++ ?>" 
-                                                    placeholder="<?= $row['student_group'] ?>" disabled>
+                                                    value="<?= $row['student_group'] ?>" disabled>
                                                 </div>
                                                 <div class="col-6 mb-3">
                                                     <div class="row">
@@ -557,14 +557,14 @@ $expanded_check = true;
                                                     <div class="row">
                                                         <div class="col">
                                                             <input type="text" class="form-control" id="date_start<?= $date_input_count1++ ?>" 
-                                                            placeholder="<?= $row['start_date'] ?>" disabled>
+                                                            value="<?= $row['start_date'] ?>" disabled>
                                                         </div>
                                                         <div class="col-1 d-flex justify-content-center align-items-center">
                                                             <i class="bi bi-dash"></i>
                                                         </div>
                                                         <div class="col">
                                                             <input type="text" class="form-control" id="date_end<?= $date_input_count2++ ?>" 
-                                                            placeholder="<?= $row['end_date'] ?>" disabled>
+                                                            value="<?= $row['end_date'] ?>" disabled>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -573,7 +573,7 @@ $expanded_check = true;
                                                 <div class="mb-3">
                                                     <label for="text<?= $input_count ?>" class="form-label">Inventoriaus pavadinimas</label>
                                                     <input type="text" class="form-control" id="text<?= $input_count++ ?>" 
-                                                    placeholder="<?= $row['inventory_name'] ?>" disabled>
+                                                    value="<?= $row['inventory_name'] ?>" disabled>
                                                 </div>
                                             </div>
                                             <div class="row">
@@ -671,18 +671,24 @@ $expanded_check = true;
             form.method = "POST";
             form.action = "loan_requests.php";
 
-            input_feedback = document.createElement("input");
-            input_feedback.type = "hidden";
-            input_feedback.name = "request_feedback";
-            input_feedback.value = "";
+            input_request_feedback = document.createElement("input");
+            input_request_feedback.type = "hidden";
+            input_request_feedback.name = "request_feedback";
+            input_request_feedback.value = "";
 
             input_id = document.createElement("input");
             input_id.type = "hidden";
             input_id.name = "request_id";
             input_id.value = accordion_item.dataset.id;
 
-            form.appendChild(input_feedback);
+            input_feedback = document.createElement("input");
+            input_feedback.type = "hidden";
+            input_feedback.name = "feedback";
+            input_feedback.value = textAreas[1].value;
+
+            form.appendChild(input_request_feedback);
             form.appendChild(input_id);
+            form.appendChild(input_feedback);
 
             document.body.appendChild(form);
             form.submit();

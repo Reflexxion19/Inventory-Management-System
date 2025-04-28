@@ -3,7 +3,7 @@
 require_once 'config.php';
 require_once __DIR__ . '/../phpqrcode/qrlib.php';
 
-$url = "https://14af-78-57-74-138.ngrok-free.app";
+$url = "https://3d2e-88-119-21-228.ngrok-free.app";
 
 $server_base64_private_key = "A9W3gD35zDgBQ82cjKggeQKhGRMmanNxbxKk4AsTrV0=";
 $server_base64_public_key = "PGpRqXf8riutWHtYgQyxxj2FvHTvTioHPbjIxrCevhw=";
@@ -760,16 +760,16 @@ function getLoanRequestByID($request_id){
     return $row;
 }
 
-function addFeedback($request_id){
+function addFeedback($request_id, $feedback){
     global $conn;
 
     mysqli_begin_transaction($conn);
 
     try{
         $stmt = mysqli_prepare($conn, "UPDATE loan_applications
-                                    SET `status` = 'needs_correction'
+                                    SET feedback = ?, `status` = 'needs_correction'
                                     WHERE id = ?");
-        mysqli_stmt_bind_param($stmt, "i", $request_id);
+        mysqli_stmt_bind_param($stmt, "si", $feedback, $request_id);
         mysqli_stmt_execute($stmt);
         $affected_rows = mysqli_stmt_affected_rows($stmt);
 
@@ -786,7 +786,7 @@ function addFeedback($request_id){
             }
         }
 
-        $_SESSION['error_message'] = "Atsiliepimo išsiųsti nepavyko! Bandykite dar kartą!";
+        $_SESSION['error_message'] = "Atsiliepimo išsiųsti nepavyko! Galbūt nepateikėte jokių naujų duomenų! Bandykite dar kartą!";
         mysqli_rollback($conn);
 
         header("Location: loan_requests.php");
