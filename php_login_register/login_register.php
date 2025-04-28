@@ -3,6 +3,7 @@
 session_save_path("/tmp");
 session_start();
 require_once '../config/config.php';
+require_once '../config/functions.php';
 
 // Tikrinama ar vartotojas paspaudė registracijos mygtuką
 if (isset($_POST['register'])) {
@@ -14,6 +15,9 @@ if (isset($_POST['register'])) {
     $repeated_password = $_POST['repeated_password_register'];
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
+    $email_parts = preg_split('/[.@]/', $email);
+    $verification_token = md5(uniqid(rand(), true));
+
     $full_name = $name . " " . $surname;
     $pattern = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/';
 
@@ -24,33 +28,71 @@ if (isset($_POST['register'])) {
             // Tikinama ar slaptažodžiai sutampa
             if ($password === $repeated_password) {
                 // Tikrinama ar el. pašto adresas yra išduotas KTU bei ar tai yra darbuotojo arba studento el. pašto adresas
-                if (stristr($email, '@ktu.lt') !== FALSE) {
-                    $checkEmail = $conn->query("SELECT email FROM users WHERE email = '$email'");
-                    // Tikrinama ar toks el. pašto adresas jau yra
-                    if ($checkEmail->num_rows > 0) {
-                        $_SESSION['register_error'] = 'Paskyra su tokiu el. paštu jau yra!';
-                        $_SESSION['active_form'] ='register';
-                    } else {
-                        $conn->query("INSERT INTO users (name, email, password, role)
-                        VALUES ('$full_name', '$email', '$hashed_password', 'employee')");
-                    }
-                } elseif (stristr($email, '@ktu.edu') !== FALSE) {
-                    if (strlen($academic_group) !== 0){
-                        $checkEmail = $conn->query("SELECT email FROM users WHERE email = '$email'");
+                if (count($email_parts) === 4) {
+                    if ($email_parts[2] === 'ktu' && $email_parts[3] === 'lt') {
+                        $stmt = mysqli_prepare($conn, "SELECT email 
+                                                        FROM users 
+                                                        WHERE email = ?");
+                        mysqli_stmt_bind_param($stmt, "s", $email);
+                        mysqli_stmt_execute($stmt);
+                        $result = mysqli_stmt_get_result($stmt);
+
                         // Tikrinama ar toks el. pašto adresas jau yra
-                        if ($checkEmail->num_rows > 0) {
-                            $_SESSION['register_error'] = 'Paskyra su tokiu el. paštu jau yra!';
+                        if (mysqli_num_rows($result) > 0) {
+                            $_SESSION['register_error'] = 'Paskyra su tokiu el. pašto adresu jau yra!';
                             $_SESSION['active_form'] ='register';
                         } else {
-                            $conn->query("INSERT INTO users (name, email, password, role, academic_group)
-                            VALUES ('$full_name', '$email', '$hashed_password', 'student', '$academic_group')");
+                            $stmt = mysqli_prepare($conn, "INSERT INTO users (`name`, email, `password`, `role`, verification_token)
+                                                            VALUES (?, ?, ?, 'employee', ?)");
+                            mysqli_stmt_bind_param($stmt, "ssss", $full_name, $email, $hashed_password, $verification_token);
+                            mysqli_stmt_execute($stmt);
+                            $affected_rows = mysqli_stmt_affected_rows($stmt);
+
+                            if ($affected_rows > 0) {
+                                $_SESSION['register_success'] = 'Paskyra sėkmingai sukurta!';
+                                $_SESSION['active_form'] ='login';
+                            }
+                        }
+                    } elseif ($email_parts[2] === 'ktu' && $email_parts[3] === 'edu') {
+                        if (strlen($academic_group) !== 0){
+                            $stmt = mysqli_prepare($conn, "SELECT email 
+                                                            FROM users 
+                                                            WHERE email = ?");
+                            mysqli_stmt_bind_param($stmt, "s", $email);
+                            mysqli_stmt_execute($stmt);
+                            $result = mysqli_stmt_get_result($stmt);
+
+                            // Tikrinama ar toks el. pašto adresas jau yra
+                            if (mysqli_num_rows($result) > 0) {
+                                $_SESSION['register_error'] = 'Paskyra su tokiu el. pašto adresu jau yra!';
+                                $_SESSION['active_form'] ='register';
+                            } else {
+                                $stmt = mysqli_prepare($conn, "INSERT INTO users (`name`, email, `password`, `role`, academic_group, verification_token)
+                                                                VALUES (?, ?, ?, 'student', ?, ?)");
+                                mysqli_stmt_bind_param($stmt, "sssss", $full_name, $email, $hashed_password, $academic_group, $verification_token);
+                                mysqli_stmt_execute($stmt);
+                                $affected_rows = mysqli_stmt_affected_rows($stmt);
+
+                                if ($affected_rows > 0) {
+                                    if(sendEmailVerificationMail($email, $verification_token)){
+                                        $_SESSION['register_success'] = 'Paskyra sėkmingai sukurta!';
+                                        $_SESSION['active_form'] ='login';
+                                    } else {
+                                        $_SESSION['register_error'] = 'Nepavyko išsiųsti el. pašto patvirtinimo laiško! Bandykite dar kartą arba susisiekite su sistemos administratoriumi!';
+                                        $_SESSION['active_form'] ='register';
+                                    }
+                                }
+                            }
+                        } else {
+                            $_SESSION['register_error'] = 'Akademinės grupės kodas negali būti tuščias!';
+                            $_SESSION['active_form'] ='register';
                         }
                     } else {
-                        $_SESSION['register_error'] = 'Akademinės grupės kodas negali būti tuščias!';
+                        $_SESSION['register_error'] = 'Priimtini tik KTU išduoti el. pašto adresai!';
                         $_SESSION['active_form'] ='register';
                     }
                 } else {
-                    $_SESSION['register_error'] = 'Priimtini tik KTU išduoti el. pašto adresai!';
+                    $_SESSION['register_error'] = 'El. pašto adresas turi atitikti KTU išduoto ilgojo el. pašto adreso formatą!';
                     $_SESSION['active_form'] ='register';
                 }
             } else {
@@ -76,10 +118,15 @@ if (isset($_POST['login'])) {
     $email = $_POST['email_login'];
     $password = $_POST['password_login'];
 
-    $result = $conn->query("SELECT * FROM users WHERE email = '$email'");
+    $stmt = mysqli_prepare($conn, "SELECT * 
+                                    FROM users 
+                                    WHERE email = '$email'");
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
     // Tikrinama ar el. pašto adresas yra duomenų bazėje
-    if($result->num_rows > 0) {
-        $user = $result->fetch_assoc();
+    if(mysqli_num_rows($result) > 0) {
+        $user = mysqli_fetch_assoc($result);
         // Tikrinama ar slaptažodis atitinka duomenų bazėje esantį slaptažodį
         if (password_verify($password, $user['password'])) {
             $_SESSION['user_id'] = $user['id'];
@@ -104,7 +151,7 @@ if (isset($_POST['login'])) {
         }
     }
 
-    $_SESSION['login_error'] = 'Incorrect email or password';
+    $_SESSION['login_error'] = 'Neteisingas el. pašto adresas arba slaptažodis!';
     $_SESSION['active_form'] = 'login';
     header("Location: ../index.php");
     exit();

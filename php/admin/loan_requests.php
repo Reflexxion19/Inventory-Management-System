@@ -492,13 +492,6 @@ $expanded_check = true;
                                                     rows="3" disabled><?= $row['feedback'] ?></textarea>
                                                 </div>
                                             </div>
-                                            <div class="row">
-                                                <div class="col d-flex justify-content-end">
-                                                    <button type="button" class="btn btn-success mx-1" onclick="approve()">PATVIRTINTI</button>
-                                                    <button type="button" class="btn btn-danger mx-1" onclick="reject()">ATMESTI</button>
-                                                    <button type="button" class="btn btn-warning ms-1" onclick="addFeedback()">PATEIKTI PASTABĄ</button>
-                                                </div>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -588,13 +581,6 @@ $expanded_check = true;
                                                     <label for="textArea<?= $input_count ?>" class="form-label">Pastabos</label>
                                                     <textarea class="form-control" id="textArea<?= $input_count++ ?>" 
                                                     rows="3" disabled><?= $row['feedback'] ?></textarea>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col d-flex justify-content-end">
-                                                    <button type="button" class="btn btn-success mx-1" onclick="approve()">PATVIRTINTI</button>
-                                                    <button type="button" class="btn btn-danger mx-1" onclick="reject()">ATMESTI</button>
-                                                    <button type="button" class="btn btn-warning ms-1" onclick="addFeedback()">PATEIKTI PASTABĄ</button>
                                                 </div>
                                             </div>
                                         </div>

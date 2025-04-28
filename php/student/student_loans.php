@@ -50,7 +50,7 @@ $result = display_loans();
                 <table class="table" id="table">
                     <thead>
                         <tr>
-                            <th scope="col">Pavadinimas</th>
+                            <th scope="col"><b>Pavadinimas</b></th>
                         </tr>
                     </thead>
                     <tbody class="table-group-divider">

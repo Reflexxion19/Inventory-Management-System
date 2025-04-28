@@ -86,7 +86,7 @@ $input2 = "identification_code_return";
                             <input type="text" class="form-control mb-3" id="identification_code_storage" placeholder="Pvz.: 321654898798756654">
 
                             <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary">Atrakinti</button>
+                                <button type="submit" class="btn btn-success">Atrakinti</button>
                             </div>
                         </div>
                     </div>
@@ -104,7 +104,7 @@ $input2 = "identification_code_return";
                                 name="return_id_code">
 
                                 <div class="d-grid gap-2">
-                                    <button type="submit" class="btn btn-primary" name="return">Grąžinti</button>
+                                    <button type="submit" class="btn btn-success" name="return">Grąžinti</button>
                                 </div>
                             </form>
                         </div>

@@ -3,16 +3,36 @@
 session_save_path("/tmp");
 session_start();
 
+if(isset($_SESSION['email']) && isset($_SESSION['role']) && $_SESSION['role'] == 'admin') {
+    header("Location: php/admin/inventory.php");
+    exit();
+}
+
+if(isset($_SESSION['email']) && isset($_SESSION['role']) && $_SESSION['role'] == 'employee') {
+    header("Location: php/employee/loans.php");
+    exit();
+}
+
+if(isset($_SESSION['email']) && isset($_SESSION['role']) && $_SESSION['role'] == 'student') {
+    header("Location: php/student/student_loans.php");
+    exit();
+}
+
 $errors = [
     'login' => $_SESSION['login_error'] ?? '',
     'register' => $_SESSION['register_error'] ?? ''
 ];
 $activeForm = $_SESSION['active_form'] ?? 'login';
+$verificationSuccess = $_SESSION['verification_success'] ?? '';
 
 session_unset();
 
 function showError($error) {
     return !empty($error) ? "<p class='error-message'>$error</p>" : '';
+}
+
+function showSuccess($success) {
+    return !empty($success) ? "<p class='success-message'>$success</p>" : '';
 }
 
 function isActiveForm($formName, $activeForm) {
@@ -37,6 +57,7 @@ function isActiveForm($formName, $activeForm) {
             <form action="php_login_register/login_register.php" method="post">
                 <h2>Prisijungti</h2>
                 <?= showError($errors['login']); ?>
+                <?= showSuccess($verificationSuccess); ?>
                 <input type="email" name="email_login" placeholder="El. paštas" pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$" required>
                 <input type="password" name="password_login" placeholder="Slaptažodis" required>
                 <button type="submit" name="login">Prisijungti</button>
@@ -51,7 +72,7 @@ function isActiveForm($formName, $activeForm) {
                 <input type="text" name="name" placeholder="Vardas" pattern=".{2,}$" required>
                 <input type="text" name="surname" placeholder="Pavardė" pattern=".{2,}$" required>
                 <input type="text" name="academic_group" placeholder="Akademinė grupė" pattern=".{3,}$">
-                <input type="email" name="email_register" placeholder="El. paštas" pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$" required>
+                <input type="email" name="email_register" placeholder="El. paštas" pattern="[a-z]+\.+[a-z]+@ktu+\.(edu|lt)$" required>
                 <input type="password" name="password_register" placeholder="Slaptažodis"
                     pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[#?!@$%^&*\-\[\]]).{8,}" id="password" required>
                 <input type="password" name="repeated_password_register" placeholder="Pakartokite slaptažodį" id="repeated_password" required>

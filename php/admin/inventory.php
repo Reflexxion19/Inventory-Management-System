@@ -103,12 +103,12 @@ $path = "../../images/qr_codes/";
                                 <table class="table" id="table-inventory">
                                     <thead>
                                         <tr>
-                                            <th scope="col">Pavadinimas</th>
-                                            <th scope="col">Serijinis Numeris</th>
-                                            <th scope="col">Inventoriaus Numeris</th>
-                                            <th scope="col">Statusas</th>
-                                            <th scope="col" class="col-1">Lipdukas</th>
-                                            <th scope="col" class="col-1">Veiksmai</th>
+                                            <th scope="col"><b>Pavadinimas</b></th>
+                                            <th scope="col"><b>Serijinis Numeris</b></th>
+                                            <th scope="col"><b>Inventoriaus Numeris</b></th>
+                                            <th scope="col"><b>Statusas</b></th>
+                                            <th scope="col" class="col-1"><b>Lipdukas</b></th>
+                                            <th scope="col" class="col-1"><b>Veiksmai</b></th>
                                         </tr>
                                     </thead>
                                     <tbody class="table-group-divider">
@@ -165,9 +165,9 @@ $path = "../../images/qr_codes/";
                                 <table class="table" id="table-storage">
                                     <thead>
                                         <tr>
-                                            <th scope="col">Pavadinimas</th>
-                                            <th scope="col" class="col-1">Lipdukas</th>
-                                            <th scope="col" class="col-1">Veiksmai</th>
+                                            <th scope="col"><b>Pavadinimas</b></th>
+                                            <th scope="col" class="col-1"><b>Lipdukas</b></th>
+                                            <th scope="col" class="col-1"><b>Veiksmai</b></th>
                                         </tr>
                                     </thead>
                                     <tbody class="table-group-divider">

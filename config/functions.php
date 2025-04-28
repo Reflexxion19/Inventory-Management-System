@@ -681,7 +681,7 @@ function display_loan_requests_accepted(){
                                     FROM loan_applications
                                     INNER JOIN users ON loan_applications.fk_user_id = users.id
                                     INNER JOIN inventory ON loan_applications.fk_inventory_id = inventory.id
-                                    WHERE status = 'accepted'");
+                                    WHERE status = 'approved'");
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
 
@@ -775,7 +775,7 @@ function addFeedback($request_id, $feedback){
 
         if($affected_rows > 0){
             $row = getLoanRequestByID($request_id);
-            $mail_sent = sendMail($row['user_email'], $row['inventory_name']);
+            $mail_sent = sendFeedbackMail($row['user_email'], $row['inventory_name']);
 
             if($mail_sent){
                 $_SESSION['success_message'] = "Atsiliepimas išsiųstas sėkmingai!";
@@ -797,24 +797,6 @@ function addFeedback($request_id, $feedback){
 
         header("Location: loan_requests.php");
         exit();
-    }
-}
-
-function sendMail($recipient, $inventory){
-    $headers = "From: KTUIVS reflexxion.usage@gmail.com";
-    $to = "tankiuks9@gmail.com"; // PAKEISTI Į $recipient!!!
-    $subject = "Pasikeitė jūsų paskolos prašymo statusas sistemoje KTUIVS";
-
-    $message = "Sveiki,\n\n";
-    $message .= "Pasikeitė jūsų inventoriaus (" . $inventory . ") paskolos prašymo statusas. Inventoriaus paskolos prašymo statusą galite patikrinti prisijungę prie savo KTUIVS paskyros.\n\n";
-    $message .= "Nebandykite atsakyti į šią žinutę. Tai yra automatinis pranešimas.\n\n";
-    $message .= "Pagarbiai,\n";
-    $message .= "KTUIVS";
-
-    if(mail($to, $subject, $message, $headers)){
-        return true;
-    } else{
-        return false;
     }
 }
     #endregion
@@ -1060,6 +1042,46 @@ function calculate_year_loans_by_month($year){
     }
 
     return $month;
+}
+#endregion
+
+#region Mail
+function sendEmailVerificationMail($recipient, $verification_token){
+    $headers = "From: KTUIVS reflexxion.usage@gmail.com";
+    $to = "tankiuks9@gmail.com"; // PAKEISTI Į $recipient!!!
+    $subject = "El. pašto adreso patvirtinimas KTUIVS";
+
+    $message = "Sveiki,\n\n";
+    $message .= "Sveikiname prisijungus prie KTUIVS sistemos.\n\n";
+    $message .= "Paspauskite ant nuorodos, jog patvirtintumėte savo elektroninio pašto adresą: https://ktuivs.reflexxion.lt/email_verification.php?token=$verification_token\n";
+    $message .= "Jeigu nesiregistravote prie sistemos KTUIVS, ignoruokite šį laišką.\n\n";
+    $message .= "Nebandykite atsakyti į šią žinutę. Tai yra automatinis pranešimas.\n\n";
+    $message .= "Pagarbiai,\n";
+    $message .= "KTUIVS";
+
+    if(mail($to, $subject, $message, $headers)){
+        return true;
+    } else{
+        return false;
+    }
+}
+
+function sendFeedbackMail($recipient, $inventory){
+    $headers = "From: KTUIVS reflexxion.usage@gmail.com";
+    $to = "tankiuks9@gmail.com"; // PAKEISTI Į $recipient!!!
+    $subject = "Pasikeitė jūsų paskolos prašymo statusas sistemoje KTUIVS";
+
+    $message = "Sveiki,\n\n";
+    $message .= "Pasikeitė jūsų inventoriaus (" . $inventory . ") paskolos prašymo statusas. Inventoriaus paskolos prašymo statusą galite patikrinti prisijungę prie savo KTUIVS paskyros.\n\n";
+    $message .= "Nebandykite atsakyti į šią žinutę. Tai yra automatinis pranešimas.\n\n";
+    $message .= "Pagarbiai,\n";
+    $message .= "KTUIVS";
+
+    if(mail($to, $subject, $message, $headers)){
+        return true;
+    } else{
+        return false;
+    }
 }
 #endregion
 

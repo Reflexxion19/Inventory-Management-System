@@ -94,7 +94,7 @@ $input2 = "identification_code_loan";
                                 name="unlock_storage_id_code"></input>
 
                                 <div class="d-grid gap-2">
-                                    <button type="submit" class="btn btn-primary" name="unlock_storage">Atrakinti</button>
+                                    <button type="submit" class="btn btn-success" name="unlock_storage">Atrakinti</button>
                                 </div>
                             </form>
                         </div>
@@ -113,7 +113,7 @@ $input2 = "identification_code_loan";
                                 name="loan_id_code"></input>
 
                                 <div class="d-grid gap-2">
-                                    <button type="submit" class="btn btn-primary" name="loan">Pasiskolinti</button>
+                                    <button type="submit" class="btn btn-success" name="loan">Pasiskolinti</button>
                                 </div>
                             </form>
                         </div>

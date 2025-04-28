@@ -79,7 +79,7 @@ $path = "../../images/qr_codes/";
                     <div class="col d-flex justify-content-end">
                         <button type="button" class="btn btn-warning mx-1" name="edit_storage" onclick="enableFields(true)">Redaguoti</button>
                         <button type="submit" class="btn btn-success mx-1" name="update_storage" style="display: none;">Atnaujinti</button>
-                        <button type="button" class="btn btn-danger mx-1" name="cancel_storage" style="display: none;" onclick="enableFields(false)">Atšaukti</button>
+                        <button type="button" class="btn btn-warning mx-1" name="cancel_storage" style="display: none;" onclick="enableFields(false)">Atšaukti</button>
                         <button type="submit" class="btn btn-danger ms-1" name="delete_storage"><i class="bi bi-trash"></i></button>
                     </div>
                 </div>

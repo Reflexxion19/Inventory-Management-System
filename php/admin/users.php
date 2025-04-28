@@ -85,8 +85,8 @@ $result = display_users();
                 <table class="table" id="table">
                     <thead>
                         <tr>
-                            <th scope="col">Naudotojas</th>
-                            <th scope="col">Rolė</th>
+                            <th scope="col"><b>Naudotojas</b></th>
+                            <th scope="col"><b>Rolė</b></th>
                         </tr>
                     </thead>
                     <tbody class="table-group-divider">
