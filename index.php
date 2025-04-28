@@ -59,7 +59,7 @@ function isActiveForm($formName, $activeForm) {
                 <?= showError($errors['login']); ?>
                 <?= showSuccess($verificationSuccess); ?>
                 <input type="email" name="email_login" placeholder="El. paštas" pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$" required>
-                <input type="password" name="password_login" placeholder="Slaptažodis" required>
+                <input type="password" name="password_login" placeholder="Slaptažodis" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[#?!@$%^&*\-\[\]]).{8,}" required>
                 <button type="submit" name="login">Prisijungti</button>
                 <p>Neturite paskyros? <a href="#" onclick="showForm('register-form')">Prisiregistruokite</a></p>
             </form>
