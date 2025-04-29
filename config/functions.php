@@ -711,6 +711,20 @@ function display_loan_requests_rejected(){
 
     return $result;
 }
+
+function display_loan_requests_finished(){
+    global $conn;
+
+    $stmt = mysqli_prepare($conn, "SELECT loan_applications.*, users.name AS student_name, users.academic_group AS student_group, inventory.name AS inventory_name
+                                    FROM loan_applications
+                                    INNER JOIN users ON loan_applications.fk_user_id = users.id
+                                    INNER JOIN inventory ON loan_applications.fk_inventory_id = inventory.id
+                                    WHERE status ='done'");
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    return $result;
+}
     #endregion
 
     #region Request Actions
