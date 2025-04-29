@@ -30,10 +30,18 @@ if (isset($_POST['request_feedback'])) {
     addFeedback($_POST['request_id'], $_POST['feedback']);
 }
 
+if (isset($_POST['register_loan'])) {
+    registerLoan($_POST['user_id'], $_POST['inventory_id']);
+}
+
+if (isset($_POST['register_return'])) {
+    registerReturn($_POST['request_id'], $_POST['inventory_id']);
+}
+
 $result_submitted = display_loan_requests_submitted();
 $result_corrected = display_loan_requests_corrected();
 $result_needs_correction = display_loan_requests_needs_correction();
-$result_accepted = display_loan_requests_accepted();
+$result_approved = display_loan_requests_approved();
 $result_rejected = display_loan_requests_rejected();
 $collapse_count = 0;
 $input_count = 0;
@@ -109,9 +117,9 @@ $expanded_check = true;
                     aria-selected="false" onclick="saveState('loan_requests_tab_state', 'needs_correction')">Reikalingas Pataisymas</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link <?php echo ($_SESSION['loan_requests_tab_state'] === "accepted") ? "active" : "" ?> border-primary border-2" 
-                    id="accepted-tab" data-bs-toggle="tab" data-bs-target="#accepted-tab-pane" type="button" role="tab" aria-controls="accepted-tab-pane" 
-                    aria-selected="false" onclick="saveState('loan_requests_tab_state', 'accepted')">Patvirtinti</button>
+                    <button class="nav-link <?php echo ($_SESSION['loan_requests_tab_state'] === "approved") ? "active" : "" ?> border-primary border-2" 
+                    id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved-tab-pane" type="button" role="tab" aria-controls="approved-tab-pane" 
+                    aria-selected="false" onclick="saveState('loan_requests_tab_state', 'approved')">Patvirtinti</button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link <?php echo ($_SESSION['loan_requests_tab_state'] === "rejected") ? "active" : "" ?> border-primary border-2" 
@@ -414,17 +422,17 @@ $expanded_check = true;
                         </div>
                     </div>
                 </div>
-                <div class="tab-pane fade <?php echo ($_SESSION['loan_requests_tab_state'] === "accepted") ? "show active" : "" ?>" id="accepted-tab-pane" 
-                    role="tabpanel" aria-labelledby="accepted-tab" tabindex="0">
+                <div class="tab-pane fade <?php echo ($_SESSION['loan_requests_tab_state'] === "approved") ? "show active" : "" ?>" id="approved-tab-pane" 
+                    role="tabpanel" aria-labelledby="approved-tab" tabindex="0">
                     <div class="row mt-3 d-flex justify-content-center">
                         <div class="col-12 mb-3">
                             <h3 class="d-flex justify-content-center">Patvirtinti prašymai</h3>
     
                             <div class="accordion" id="accordion">
                             <?php
-                            while($row = mysqli_fetch_assoc($result_accepted)){
+                            while($row = mysqli_fetch_assoc($result_approved)){
                             ?>
-                                <div class="accordion-item" data-id="<?= $row['id'] ?>">
+                                <div class="accordion-item" data-id="<?= $row['id'] ?>" data-user_id="<?= $row['fk_user_id'] ?>" data-inventory_id="<?= $row['fk_inventory_id'] ?>">
                                     <h2 class="accordion-header">
                                         <button class="accordion-button <?php if(!$expanded_check){echo 'collapsed';}?>" type="button" 
                                         data-bs-toggle="collapse" data-bs-target="#collapse<?= $collapse_count ?>" 
@@ -490,6 +498,21 @@ $expanded_check = true;
                                                     <label for="textArea<?= $input_count ?>" class="form-label">Pastabos</label>
                                                     <textarea class="form-control" id="textArea<?= $input_count++ ?>" 
                                                     rows="3" disabled><?= $row['feedback'] ?></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col d-flex justify-content-end">
+                                                <?php
+                                                    if($row['inventory_status'] === "Available"){
+                                                ?>
+                                                    <button type="button" class="btn btn-success mx-1" onclick="registerLoan()">UŽFIKSUOTI PASKOLĄ</button>
+                                                <?php
+                                                    } else {
+                                                ?>
+                                                    <button type="button" class="btn btn-danger mx-1" onclick="registerReturn()">UŽFIKSUOTI GRĄŽINIMĄ</button>
+                                                <?php
+                                                    }
+                                                ?>
                                                 </div>
                                             </div>
                                         </div>
@@ -678,6 +701,78 @@ $expanded_check = true;
 
             document.body.appendChild(form);
             form.submit();
+        }
+
+        function registerLoan() {
+            const accordion_item = event.target.closest(".accordion-item");
+
+            form = document.createElement("form");
+            form.method = "POST";
+            form.action = "loan_requests.php";
+
+            input_register_loan = document.createElement("input");
+            input_register_loan.type = "hidden";
+            input_register_loan.name = "register_loan";
+            input_register_loan.value = "";
+
+            input_user_id = document.createElement("input");
+            input_user_id.type = "hidden";
+            input_user_id.name = "user_id";
+            input_user_id.value = accordion_item.dataset.user_id;
+
+            input_inventory_id = document.createElement("input");
+            input_inventory_id.type = "hidden";
+            input_inventory_id.name = "inventory_id";
+            input_inventory_id.value = accordion_item.dataset.inventory_id;
+
+            form.appendChild(input_register_loan);
+            form.appendChild(input_user_id);
+            form.appendChild(input_inventory_id);
+
+            document.body.appendChild(form);
+
+            if(confirm("Ar tikrai norite užregistruoti paskolą?")){
+                form.submit();
+            }
+        }
+
+        function registerReturn() {
+            const accordion_item = event.target.closest(".accordion-item");
+
+            form = document.createElement("form");
+            form.method = "POST";
+            form.action = "loan_requests.php";
+
+            input_register_return = document.createElement("input");
+            input_register_return.type = "hidden";
+            input_register_return.name = "register_return";
+            input_register_return.value = "";
+
+            input_id = document.createElement("input");
+            input_id.type = "hidden";
+            input_id.name = "request_id";
+            input_id.value = accordion_item.dataset.id;
+
+            input_user_id = document.createElement("input");
+            input_user_id.type = "hidden";
+            input_user_id.name = "user_id";
+            input_user_id.value = accordion_item.dataset.user_id;
+
+            input_inventory_id = document.createElement("input");
+            input_inventory_id.type = "hidden";
+            input_inventory_id.name = "inventory_id";
+            input_inventory_id.value = accordion_item.dataset.inventory_id;
+
+            form.appendChild(input_register_return);
+            form.appendChild(input_id);
+            form.appendChild(input_user_id);
+            form.appendChild(input_inventory_id);
+
+            document.body.appendChild(form);
+            
+            if(confirm("Ar tikrai norite užregistruoti grąžinimą?")){
+                form.submit();
+            }
         }
     </script>
 </body>

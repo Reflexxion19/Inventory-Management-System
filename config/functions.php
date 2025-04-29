@@ -674,14 +674,24 @@ function display_loan_requests_needs_correction(){
     return $result;
 }
 
-function display_loan_requests_accepted(){
+function display_loan_requests_approved(){
     global $conn;
 
-    $stmt = mysqli_prepare($conn, "SELECT loan_applications.*, users.name AS student_name, users.academic_group AS student_group, inventory.name AS inventory_name
+    $stmt = mysqli_prepare($conn, "SELECT loan_applications.*, users.name AS student_name, users.academic_group AS student_group, inventory.name AS inventory_name,
+                                    CASE 
+                                        WHEN MAX(CASE
+                                            WHEN inventory_loans.status = 'Borrowed'
+                                            THEN 1
+                                            ELSE 0 END) = 1
+                                        THEN 'Borrowed'
+                                        ELSE 'Available' 
+                                    END AS inventory_status
                                     FROM loan_applications
                                     INNER JOIN users ON loan_applications.fk_user_id = users.id
                                     INNER JOIN inventory ON loan_applications.fk_inventory_id = inventory.id
-                                    WHERE status = 'approved'");
+                                    LEFT JOIN inventory_loans ON loan_applications.fk_inventory_id = inventory_loans.fk_inventory_id
+                                    WHERE loan_applications.status = 'approved'
+                                    GROUP BY loan_applications.id");
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
 
@@ -798,6 +808,65 @@ function addFeedback($request_id, $feedback){
         header("Location: loan_requests.php");
         exit();
     }
+}
+
+function registerLoan($user_id, $inventory_id){
+    global $conn;
+
+    $date = date("Y-m-d");
+    $return_until_date = date("Y-m-d", strtotime("+1 month"));
+
+    $stmt = mysqli_prepare($conn, "INSERT INTO inventory_loans(fk_user_id, fk_inventory_id, loan_date, return_until_date, `status`)
+                                    VALUES(?, ?, ?, ?, 'Borrowed')");
+    mysqli_stmt_bind_param($stmt, "iiss", $user_id, $inventory_id, $date, $return_until_date);
+    mysqli_stmt_execute($stmt);
+    $affected_rows = mysqli_stmt_affected_rows($stmt);
+
+    if($affected_rows > 0){
+        $_SESSION['success_message'] = "Inventoriaus paskola užregistruota!";
+    } else{
+        $_SESSION['error_message'] = "Inventoriaus paskolos užregistruoti nepavyko! Bandykite dar kartą!";
+    }
+
+    header("Location: loan_requests.php");
+    exit();
+}
+
+function registerReturn($id, $inventory_id){
+    global $conn;
+
+    $date = date("Y-m-d");
+
+    mysqli_begin_transaction($conn);
+
+    $stmt = mysqli_prepare($conn, "UPDATE inventory_loans
+                                    SET return_date = ?, `status` = 'Returned'
+                                    WHERE fk_inventory_id = ? AND `status` = 'Borrowed'");
+    mysqli_stmt_bind_param($stmt, "si", $date, $inventory_id);
+    mysqli_stmt_execute($stmt);
+    $affected_rows = mysqli_stmt_affected_rows($stmt);
+
+    if($affected_rows > 0){
+        $stmt = mysqli_prepare($conn, "UPDATE loan_applications
+                                        SET `status` = 'done'
+                                        WHERE id = ?");
+        mysqli_stmt_bind_param($stmt, "i", $id);
+        mysqli_stmt_execute($stmt);
+        $affected_rows = mysqli_stmt_affected_rows($stmt);
+
+        if($affected_rows > 0){
+            mysqli_commit($conn);
+            $_SESSION['success_message'] = "Inventoriaus grąžinimas užregistruotas!";
+        } else{
+            mysqli_rollback($conn);
+            $_SESSION['error_message'] = "Inventoriaus grąžinimo užregistruoti nepavyko! Bandykite dar kartą!";
+        }
+    } else{
+        $_SESSION['error_message'] = "Inventoriaus grąžinimo užregistruoti nepavyko! Bandykite dar kartą!";
+    }
+
+    header("Location: loan_requests.php");
+    exit();
 }
     #endregion
 #endregion
