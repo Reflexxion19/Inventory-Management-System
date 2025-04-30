@@ -23,7 +23,8 @@ $errors = [
     'register' => $_SESSION['register_error'] ?? ''
 ];
 $activeForm = $_SESSION['active_form'] ?? 'login';
-$verificationSuccess = $_SESSION['verification_success'] ?? '';
+$registration_success = $_SESSION['registration_success'] ?? '';
+$verification_success = $_SESSION['verification_success'] ?? '';
 
 session_unset();
 
@@ -54,27 +55,28 @@ function isActiveForm($formName, $activeForm) {
     
     <div class="container">
         <div class="form-box <?= isActiveForm('login', $activeForm); ?>" id="login-form">
-            <form action="php_login_register/login_register.php" method="post">
+            <form id = login_form action="php_login_register/login_register.php" method="post">
                 <h2>Prisijungti</h2>
                 <?= showError($errors['login']); ?>
-                <?= showSuccess($verificationSuccess); ?>
-                <input type="email" name="email_login" placeholder="El. paštas" pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$" required>
-                <input type="password" name="password_login" placeholder="Slaptažodis" /*pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[#?!@$%^&*\-\[\]]).{8,}"*/ required>
+                <?= showSuccess($registration_success); ?>
+                <?= showSuccess($verification_success); ?>
+                <input type="email" name="email_login" placeholder="El. paštas" id="email_login" required>
+                <input type="password" name="password_login" placeholder="Slaptažodis" id="password_login" required>
                 <button type="submit" name="login">Prisijungti</button>
                 <p>Neturite paskyros? <a href="#" onclick="showForm('register-form')">Prisiregistruokite</a></p>
             </form>
         </div>
 
         <div class="form-box <?= isActiveForm('register', $activeForm); ?>" id="register-form">
-            <form action="php_login_register/login_register.php" method="post">
+            <form id = registration_form action="php_login_register/login_register.php" method="post">
                 <h2>Prisiregistruoti</h2>
                 <?= showError($errors['register']); ?>
-                <input type="text" name="name" placeholder="Vardas" pattern=".{2,}$" required>
-                <input type="text" name="surname" placeholder="Pavardė" pattern=".{2,}$" required>
-                <input type="text" name="academic_group" placeholder="Akademinė grupė" pattern=".{3,}$">
-                <input type="email" name="email_register" placeholder="El. paštas" pattern="[a-z]+\.+[a-z]+@ktu+\.(edu|lt)$" required>
+                <input type="text" name="name" placeholder="Vardas" id="name" pattern="^[a-zA-ZąčęėįšųūžĄČĘĖĮŠŲŪŽ]+$" required>
+                <input type="text" name="surname" placeholder="Pavardė" id="surname" pattern="^[a-zA-ZąčęėįšųūžĄČĘĖĮŠŲŪŽ]+$" required>
+                <input type="text" name="academic_group" placeholder="Akademinė grupė" id="academic_group" pattern=".{3,}$">
+                <input type="email" name="email_register" placeholder="El. paštas" id="email_register" pattern="[a-z]+\.+[a-z]+@ktu+\.(edu|lt)$" required>
                 <input type="password" name="password_register" placeholder="Slaptažodis"
-                    pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[#?!@$%^&*\-\[\]]).{8,}" id="password" required>
+                    pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[#?!@$%^&*\-\[\]]).{8,}" id="password_register" required>
                 <input type="password" name="repeated_password_register" placeholder="Pakartokite slaptažodį" id="repeated_password" required>
                 <button type="submit" name="register">Prisiregistruoti</button>
                 <p>Jau turite paskyrą? <a href="#" onclick="showForm('login-form')">Prisijungti</a></p>

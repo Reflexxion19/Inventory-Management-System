@@ -20,9 +20,10 @@ if (isset($_POST['register'])) {
 
     $full_name = $name . " " . $surname;
     $pattern = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/';
+    $name_pattern = '/^[a-zA-ZąčęėįšųūžĄČĘĖĮŠŲŪŽ]+$/';
 
     // Tikrinama ar vardas ir pavardė sudaryti tik iš raidžių
-    if (ctype_alpha($name) && ctype_alpha($surname)) {
+    if (preg_match($name_pattern, $name) && preg_match($name_pattern, $surname)) {
         // Tikrinama ar slaptažodis sudarytas iš 8 simbolių ir turi bent vieną didžiąjąją raidę, mažąjąją raidę, skaičių ir specialų simbolį
         if (preg_match($pattern, $password)) {
             // Tikinama ar slaptažodžiai sutampa
@@ -49,8 +50,13 @@ if (isset($_POST['register'])) {
                             $affected_rows = mysqli_stmt_affected_rows($stmt);
 
                             if ($affected_rows > 0) {
-                                $_SESSION['register_success'] = 'Paskyra sėkmingai sukurta!';
-                                $_SESSION['active_form'] ='login';
+                                if(sendEmailVerificationMail($email, $verification_token)){
+                                    $_SESSION['registration_success'] = 'Paskyra sėkmingai sukurta! Elektroniniu paštu išsiųstas patvirtinimo laiškas!';
+                                    $_SESSION['active_form'] ='login';
+                                } else {
+                                    $_SESSION['register_error'] = 'Nepavyko išsiųsti el. pašto patvirtinimo laiško! Bandykite dar kartą arba susisiekite su sistemos administratoriumi!';
+                                    $_SESSION['active_form'] ='register';
+                                }
                             }
                         }
                     } elseif ($email_parts[2] === 'ktu' && $email_parts[3] === 'edu') {
@@ -75,7 +81,7 @@ if (isset($_POST['register'])) {
 
                                 if ($affected_rows > 0) {
                                     if(sendEmailVerificationMail($email, $verification_token)){
-                                        $_SESSION['register_success'] = 'Paskyra sėkmingai sukurta!';
+                                        $_SESSION['register_success'] = 'Paskyra sėkmingai sukurta! Elektroniniu paštu išsiųstas patvirtinimo laiškas!';
                                         $_SESSION['active_form'] ='login';
                                     } else {
                                         $_SESSION['register_error'] = 'Nepavyko išsiųsti el. pašto patvirtinimo laiško! Bandykite dar kartą arba susisiekite su sistemos administratoriumi!';

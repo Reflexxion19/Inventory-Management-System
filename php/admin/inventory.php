@@ -69,6 +69,24 @@ $path = "../../images/qr_codes/";
     <?php
     }
     ?>
+        <div class="modal fade" id="remove-confirmation-modal" tabindex="-1" aria-labelledby="remove-confirmation-modal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="remove-confirmation-modal-label"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" id="confirmation_btn">Taip</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ne</button>
+                </div>
+                </div>
+            </div>
+        </div>
+
         <div class="row <?php echo ($_SESSION['success_message'] === "" && $_SESSION['error_message'] === "") ? "mt-5" : "" ?> mb-3 d-flex justify-content-end">
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" role="presentation">
@@ -196,80 +214,144 @@ $path = "../../images/qr_codes/";
     </div>
     <script>
         function redirect(event) {
+            let row;
+            let row_data = {};
+
             if (event.target.id === "download" || event.target.id === "download_storage" || 
                 event.target.closest("#download") || event.target.closest("#download_storage")) {
                 return;
             } else if (event.target.closest("#btn")) {
-                if(confirm("Ar tikrai norite ištrinti šį inventoriaus vienetą?")) {
-                    const row = event.currentTarget;
-                    const cells = row.getElementsByTagName('td');
+                row = event.currentTarget;
+                row_data = {
+                    id: row.dataset.id,
+                    name: row.getElementsByTagName('td')[0].textContent,
+                    serial_number: row.getElementsByTagName('td')[1].textContent,
+                    inventory_number: row.getElementsByTagName('td')[2].textContent
+                };
 
-                    form = document.createElement("form");
-                    form.method = "POST";
-                    form.action = "inventory.php";
+                showRemoveInventoryModal(row_data).then((confirmed) => {
+                    if (confirmed) {
+                        const form = document.createElement("form");
+                        form.method = "POST";
+                        form.action = "inventory.php";
 
-                    input_delete = document.createElement('input');
-                    input_delete.type = "hidden";
-                    input_delete.name = "delete_inventory";
-                    input_delete.value = event.currentTarget.dataset.id;
+                        const input_delete = document.createElement('input');
+                        input_delete.type = "hidden";
+                        input_delete.name = "delete_inventory";
+                        input_delete.value = row_data.id;
 
-                    input_name = document.createElement('input');
-                    input_name.type = "hidden";
-                    input_name.name = "name";
-                    input_name.value = cells[0].textContent;
+                        const input_name = document.createElement('input');
+                        input_name.type = "hidden";
+                        input_name.name = "name";
+                        input_name.value = row_data.name;
 
-                    input_serial_number = document.createElement('input');
-                    input_serial_number.type = "hidden";
-                    input_serial_number.name = "serial_number";
-                    input_serial_number.value = cells[1].textContent;
+                        const input_serial_number = document.createElement('input');
+                        input_serial_number.type = "hidden";
+                        input_serial_number.name = "serial_number";
+                        input_serial_number.value = row_data.serial_number;
 
-                    input_inventory_number = document.createElement('input');
-                    input_inventory_number.type = "hidden";
-                    input_inventory_number.name = "inventory_number";
-                    input_inventory_number.value = cells[2].textContent;
+                        const input_inventory_number = document.createElement('input');
+                        input_inventory_number.type = "hidden";
+                        input_inventory_number.name = "inventory_number";
+                        input_inventory_number.value = row_data.inventory_number;
 
-                    form.appendChild(input_delete);
-                    form.appendChild(input_name);
-                    form.appendChild(input_serial_number);
-                    form.appendChild(input_inventory_number);
+                        form.appendChild(input_delete);
+                        form.appendChild(input_name);
+                        form.appendChild(input_serial_number);
+                        form.appendChild(input_inventory_number);
 
-                    document.body.appendChild(form);
-                    form.submit();
-                }
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                });
                 return;
             } else if (event.target.closest("#btn-storage")) {
-                if(confirm("Ar tikrai norite ištrinti šį talpyklos įrašą?")) {
-                    const row = event.currentTarget;
-                    const cells = row.getElementsByTagName('td');
+                row = event.currentTarget;
+                row_data = {
+                    id: row.dataset.id,
+                    name: row.getElementsByTagName('td')[0].textContent
+                };
 
-                    form = document.createElement("form");
-                    form.method = "POST";
-                    form.action = "inventory.php";
+                showRemoveStorageModal(row_data).then((confirmed) => {
+                    if (confirmed) {
+                // if(confirm("Ar tikrai norite ištrinti šį talpyklos įrašą?")) {
+                        const form = document.createElement("form");
+                        form.method = "POST";
+                        form.action = "inventory.php";
 
-                    input_delete = document.createElement('input');
-                    input_delete.type = "hidden";
-                    input_delete.name = "delete_storage";
-                    input_delete.value = event.currentTarget.dataset.id;
+                        const input_delete = document.createElement('input');
+                        input_delete.type = "hidden";
+                        input_delete.name = "delete_storage";
+                        input_delete.value = row_data.id;
 
-                    input_name = document.createElement('input');
-                    input_name.type = "hidden";
-                    input_name.name = "name";
-                    input_name.value = cells[0].textContent;
+                        const input_name = document.createElement('input');
+                        input_name.type = "hidden";
+                        input_name.name = "name";
+                        input_name.value = row_data.name;
 
-                    form.appendChild(input_delete);
-                    form.appendChild(input_name);
+                        form.appendChild(input_delete);
+                        form.appendChild(input_name);
 
-                    document.body.appendChild(form);
-                    form.submit();
-                }
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                });
                 return;
             }
 
-            if(event.target.closest("#inventory-tab-pane")){
+            if (event.target.closest("#inventory-tab-pane")) {
                 window.location.href = 'inventory_information.php?inventory_id=' + event.currentTarget.dataset.id;
-            } else if(event.target.closest("#storage-tab-pane")){
+            } else if(event.target.closest("#storage-tab-pane")) {
                 window.location.href = 'storage_information.php?storage_id=' + event.currentTarget.dataset.id;
             }
+        }
+
+        function showRemoveInventoryModal() {
+            return new Promise((resolve) => {
+                var storage_remove_modal = document.getElementById('remove-confirmation-modal');
+                storage_remove_modal.querySelector('h5').textContent = "Inventoriaus įrašo ištrynimo patvirtinimas";
+                storage_remove_modal.querySelector('.modal-body').textContent = "Ar tikrai norite ištrinti šį inventoriaus įrašą?";
+
+                const modal = new bootstrap.Modal(storage_remove_modal);
+                modal.show();
+
+                const confirm_button = document.getElementById('confirmation_btn');
+
+                confirm_button.addEventListener('click', function() {
+                    modal.hide();
+                    resolve(true);
+                });
+
+                const cancel_button = document.querySelector('.btn-secondary');
+                cancel_button.addEventListener('click', function() {
+                    modal.hide();
+                    resolve(false);
+                });
+            });
+        }
+
+        function showRemoveStorageModal() {
+            return new Promise((resolve) => {
+                var storage_remove_modal = document.getElementById('remove-confirmation-modal');
+                storage_remove_modal.querySelector('h5').textContent = "Talpyklos įrašo ištrynimo patvirtinimas";
+                storage_remove_modal.querySelector('.modal-body').textContent = "Ar tikrai norite ištrinti šį talpyklos įrašą?";
+
+                const modal = new bootstrap.Modal(storage_remove_modal);
+                modal.show();
+
+                const confirm_button = document.getElementById('confirmation_btn');
+
+                confirm_button.addEventListener('click', function() {
+                    modal.hide();
+                    resolve(true);
+                });
+
+                const cancel_button = document.querySelector('.btn-secondary');
+                cancel_button.addEventListener('click', function() {
+                    modal.hide();
+                    resolve(false);
+                });
+            });
         }
     </script>
 </body>

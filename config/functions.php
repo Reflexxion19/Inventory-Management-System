@@ -194,7 +194,7 @@ function deleteInventory($inventory_id, $name, $serial_number, $inventory_number
     $affected_rows = mysqli_stmt_affected_rows($stmt);
 
     if($affected_rows > 0){
-        $_SESSION['success_message'] = "Inventorius ištrintas sėkmingai!";
+        $_SESSION['success_message'] = "Inventoriaus įrašas ištrintas sėkmingai!";
 
         $path = __DIR__. '/../images/qr_codes/';
         $sticker_path = $path . clean($name) . "_" . clean($serial_number) . "_" . clean($inventory_number) . '.png';
@@ -203,7 +203,7 @@ function deleteInventory($inventory_id, $name, $serial_number, $inventory_number
         header("Location: inventory.php");
         exit();
     } else{
-        $_SESSION['error_message'] = "Inventoriaus ištrinti nepavyko! Bandykite dar kartą!";
+        $_SESSION['error_message'] = "Inventoriaus įrašo ištrinti nepavyko! Bandykite dar kartą!";
         exit();
     }
 }
@@ -326,7 +326,7 @@ function deleteStorage($storage_id, $name){
     $affected_rows = mysqli_stmt_affected_rows($stmt);
 
     if($affected_rows > 0){
-        $_SESSION['success_message'] = "Talpykla ištrinta sėkmingai!";
+        $_SESSION['success_message'] = "Talpyklos įrašas ištrintas sėkmingai!";
 
         $path = __DIR__. '/../images/qr_codes/';
         $sticker_path = $path . clean($name) . '.png';
@@ -335,7 +335,7 @@ function deleteStorage($storage_id, $name){
         header("Location: inventory.php");
         exit();
     } else{
-        $_SESSION['error_message'] = "Talpyklos ištrinti nepavyko! Bandykite dar kartą!";
+        $_SESSION['error_message'] = "Talpyklos įrašo ištrinti nepavyko! Bandykite dar kartą!";
         exit();
     }
 }
@@ -1130,8 +1130,8 @@ function calculate_year_loans_by_month($year){
 
 #region Mail
 function sendEmailVerificationMail($recipient, $verification_token){
-    $headers = "From: KTUIVS reflexxion.usage@gmail.com";
-    $to = "tankiuks9@gmail.com"; // PAKEISTI Į $recipient!!!
+    $headers = "From: KTUIVS <reflexxion.usage@gmail.com>";
+    $to = $recipient;
     $subject = "El. pašto adreso patvirtinimas KTUIVS";
 
     $message = "Sveiki,\n\n";
