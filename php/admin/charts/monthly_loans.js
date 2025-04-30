@@ -14,7 +14,7 @@
     { month: 'Gruodis', count: monthlyLoans[11] }
   ];
 
-  let title = "Inventoriaus paskolos".concat(" ", year, " ", "m.");
+  let title = "Inventoriaus panaudos".concat(" ", year, " ", "m.");
 
   new Chart(
     document.getElementById('acquisitions'),
@@ -24,7 +24,7 @@
         labels: data.map(row => row.month),
         datasets: [
           {
-            label: 'Inventoriaus paskolos (vnt.)',
+            label: 'Inventoriaus panaudos (vnt.)',
             data: data.map(row => row.count)
           }
         ]

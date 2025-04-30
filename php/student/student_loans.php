@@ -25,7 +25,7 @@ $result = display_loans();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paskolos</title>
+    <title>Išduotas Inventorius</title>
     <link rel="stylesheet" href="../../css/mdb.min.css">
     <script defer src="../../js/bootstrap.bundle.min.js"></script>
     <script defer src="../../js/mdb.umd.min.js"></script>

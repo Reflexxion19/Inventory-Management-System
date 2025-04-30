@@ -14,13 +14,13 @@
                         <a class="nav-link" href="inventory.php">Inventorius</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="loans.php">Paskolos</a>
+                        <a class="nav-link" href="loans.php">Išduotas Inventorius</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="users.php">Naudotojai</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="loan_requests.php">Paskolos Prašymai</a>
+                        <a class="nav-link" href="loan_requests.php">Panaudos Prašymai</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="analysis.php">Analizė</a>

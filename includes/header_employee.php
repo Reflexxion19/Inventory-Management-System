@@ -11,7 +11,7 @@
             <div class="collapse navbar-collapse" id="navbarText">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link" href="loans.php">Paskolos</a>
+                        <a class="nav-link" href="loans.php">Išduotas Inventorius</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="../../php_login_register/logout.php">Atsijungti</a>
