@@ -134,31 +134,37 @@ if (isset($_POST['login'])) {
     if(mysqli_num_rows($result) > 0) {
         $user = mysqli_fetch_assoc($result);
         // Tikrinama ar slaptažodis atitinka duomenų bazėje esantį slaptažodį
-        if (password_verify($password, $user['password'])) {
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['name'] = $user['name'];
-            $_SESSION['academic_group'] = $user['academic_group'];
-            $_SESSION['email'] = $user['email'];
-            $_SESSION['role'] = $user['role'];
-
-            // Inicijuojami reikalingi sesijos kintamieji
-            $_SESSION['success_message'] = "";
-            $_SESSION['error_message'] = "";
-
-            // Tikrinama ar vartotojas turi admin, employee ar student rolę
-            if ($user['role'] === 'admin') {
-                header("Location: ../php/admin/inventory.php");
-            } elseif ($user['role'] === 'employee') {
-                header("Location: ../php/employee/loans.php");
-            } elseif ($user['role'] === 'student') {
-                header("Location: ../php/student/student_loans.php");
+        if ($user['verification_token'] === NULL) {
+            if (password_verify($password, $user['password'])) {
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['name'] = $user['name'];
+                $_SESSION['academic_group'] = $user['academic_group'];
+                $_SESSION['email'] = $user['email'];
+                $_SESSION['role'] = $user['role'];
+    
+                // Inicijuojami reikalingi sesijos kintamieji
+                $_SESSION['success_message'] = "";
+                $_SESSION['error_message'] = "";
+    
+                // Tikrinama ar vartotojas turi admin, employee ar student rolę
+                if ($user['role'] === 'admin') {
+                    header("Location: ../php/admin/inventory.php");
+                } elseif ($user['role'] === 'employee') {
+                    header("Location: ../php/employee/loans.php");
+                } elseif ($user['role'] === 'student') {
+                    header("Location: ../php/student/student_loans.php");
+                }
+                exit();
             }
-            exit();
+        } else {
+            $_SESSION['login_error'] = 'Jūs dar nepatvirtinote savo el. pašto adreso! Patvirtinkite el. pašto adresą, kad galėtumėte prisijungti!';
+            $_SESSION['active_form'] = 'login';
         }
+    } else {
+        $_SESSION['login_error'] = 'Neteisingas el. pašto adresas arba slaptažodis!';
+        $_SESSION['active_form'] = 'login';
     }
 
-    $_SESSION['login_error'] = 'Neteisingas el. pašto adresas arba slaptažodis!';
-    $_SESSION['active_form'] = 'login';
     header("Location: ../index.php");
     exit();
 }
