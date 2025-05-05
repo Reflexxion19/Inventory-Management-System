@@ -65,7 +65,7 @@ $expanded_check = true;
     <script defer src="../../js/bootstrap.bundle.min.js"></script>
     <script defer src="../../js/mdb.umd.min.js"></script>
     <script defer src="../../js/header.js"></script>
-    <script defer src="../../js/search_accordion.js"></script>
+    <script defer src="../../js/search_accordion_multiple_tabs.js"></script>
     <script defer src="../../js/state.js"></script>
 </head>
 <body>
@@ -89,6 +89,52 @@ $expanded_check = true;
     <?php
     }
     ?>
+
+        <div class="modal fade" id="confirmation-modal" tabindex="-1" aria-labelledby="confirmation-modal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmation-modal-label"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label for="inventory" class="form-label">Pavadinimas</label>
+                            <input type="text" class="form-control" id="inventory" name="name" required disabled/>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label for="location" class="form-label">Vieta</label>
+                            <input type="text" class="form-control" id="location" name="location" required disabled/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label for="serial_number" class="form-label">Serijinis numeris</label>
+                            <input type="text" class="form-control" id="serial_number" name="serial_number" required disabled/>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label for="inventory_number" class="form-label">Inventoriaus numeris</label>
+                            <input type="text" class="form-control" id="inventory_number" name="inventory_number" required disabled/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Aprašymas</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" required disabled></textarea>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="confirmation_question"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" id="confirmation_btn">Taip</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ne</button>
+                </div>
+                </div>
+            </div>
+        </div>
+
         <div class="row <?php echo ($_SESSION['success_message'] === "" && $_SESSION['error_message'] === "") ? "mt-5" : "" ?> mb-3 d-flex justify-content-end">
             <div class="col-12">
                 <div class="input-group">
@@ -105,7 +151,7 @@ $expanded_check = true;
                 <li class="nav-item" role="presentation">
                     <button class="nav-link <?php echo ($_SESSION['loan_requests_tab_state'] === "submitted") ? "active" : "" ?> border-primary border-2" 
                     id="submitted-tab" data-bs-toggle="tab" data-bs-target="#submitted-tab-pane" type="button" role="tab" aria-controls="submitted-tab-pane" 
-                    aria-selected="true" onclick="saveState('loan_requests_tab_state', 'submitted')">Naujai Pteikti</button>
+                    aria-selected="true" onclick="saveState('loan_requests_tab_state', 'submitted')">Naujai Pateikti</button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link <?php echo ($_SESSION['loan_requests_tab_state'] === "corrected") ? "active" : "" ?> border-primary border-2" 
@@ -140,7 +186,7 @@ $expanded_check = true;
                         <div class="col-12 mb-3">
                             <h3 class="d-flex justify-content-center">Naujai pateikti prašymai</h3>
     
-                            <div class="accordion" id="accordion">
+                            <div class="accordion" id="accordion_submited">
                             <?php
                             while($row = mysqli_fetch_assoc($result_submitted)){
                             ?>
@@ -152,7 +198,7 @@ $expanded_check = true;
                                         <?= $row['student_name'] . " " . $row['student_group'] . " : " . $row['inventory_name'] ?></button> 
                                     </h2>
                                     <div id="collapse<?= $collapse_count++ ?>" class="accordion-collapse collapse 
-                                    <?php if($expanded_check){echo 'show';}?>" data-bs-parent="#accordion">
+                                    <?php if($expanded_check){echo 'show';}?>" data-bs-parent="#accordion_submited">
                                         <div class="accordion-body">
                                             <div class="row">
                                                 <div class="col-3 mb-3">
@@ -238,7 +284,7 @@ $expanded_check = true;
                         <div class="col-12 mb-3">
                             <h3 class="d-flex justify-content-center">Pakoreguoti prašymai</h3>
     
-                            <div class="accordion" id="accordion">
+                            <div class="accordion" id="accordion_corrected">
                             <?php
                             while($row = mysqli_fetch_assoc($result_corrected)){
                             ?>
@@ -250,7 +296,7 @@ $expanded_check = true;
                                         <?= $row['student_name'] . " " . $row['student_group'] . " : " . $row['inventory_name'] ?></button> 
                                     </h2>
                                     <div id="collapse<?= $collapse_count++ ?>" class="accordion-collapse collapse 
-                                    <?php if($expanded_check){echo 'show';}?>" data-bs-parent="#accordion">
+                                    <?php if($expanded_check){echo 'show';}?>" data-bs-parent="#accordion_corrected">
                                         <div class="accordion-body">
                                             <div class="row">
                                                 <div class="col-3 mb-3">
@@ -336,7 +382,7 @@ $expanded_check = true;
                         <div class="col-12 mb-3">
                             <h3 class="d-flex justify-content-center">Prašymai, kuriems reikalingas pataisymas</h3>
     
-                            <div class="accordion" id="accordion">
+                            <div class="accordion" id="accordion_needs_correction">
                             <?php
                             while($row = mysqli_fetch_assoc($result_needs_correction)){
                             ?>
@@ -348,7 +394,7 @@ $expanded_check = true;
                                         <?= $row['student_name'] . " " . $row['student_group'] . " : " . $row['inventory_name'] ?></button> 
                                     </h2>
                                     <div id="collapse<?= $collapse_count++ ?>" class="accordion-collapse collapse 
-                                    <?php if($expanded_check){echo 'show';}?>" data-bs-parent="#accordion">
+                                    <?php if($expanded_check){echo 'show';}?>" data-bs-parent="#accordion_needs_correction">
                                         <div class="accordion-body">
                                             <div class="row">
                                                 <div class="col-3 mb-3">
@@ -434,7 +480,7 @@ $expanded_check = true;
                         <div class="col-12 mb-3">
                             <h3 class="d-flex justify-content-center">Patvirtinti prašymai</h3>
     
-                            <div class="accordion" id="accordion">
+                            <div class="accordion" id="accordion_accepted">
                             <?php
                             while($row = mysqli_fetch_assoc($result_approved)){
                             ?>
@@ -446,7 +492,7 @@ $expanded_check = true;
                                         <?= $row['student_name'] . " " . $row['student_group'] . " : " . $row['inventory_name'] ?></button> 
                                     </h2>
                                     <div id="collapse<?= $collapse_count++ ?>" class="accordion-collapse collapse 
-                                    <?php if($expanded_check){echo 'show';}?>" data-bs-parent="#accordion">
+                                    <?php if($expanded_check){echo 'show';}?>" data-bs-parent="#accordion_accepted">
                                         <div class="accordion-body">
                                             <div class="row">
                                                 <div class="col-3 mb-3">
@@ -511,7 +557,7 @@ $expanded_check = true;
                                                 <?php
                                                     if($row['inventory_status'] === "Available"){
                                                 ?>
-                                                    <button type="button" class="btn btn-success mx-1" onclick="registerLoan()">UŽFIKSUOTI PASKOLĄ</button>
+                                                    <button type="button" class="btn btn-success mx-1" onclick="registerLoan()">UŽFIKSUOTI ATSIĖMIMĄ</button>
                                                 <?php
                                                     } else {
                                                 ?>
@@ -540,7 +586,7 @@ $expanded_check = true;
                         <div class="col-12 mb-3">
                             <h3 class="d-flex justify-content-center">Atmesti prašymai</h3>
     
-                            <div class="accordion" id="accordion">
+                            <div class="accordion" id="accordion_rejected">
                             <?php
                             while($row = mysqli_fetch_assoc($result_rejected)){
                             ?>
@@ -552,7 +598,7 @@ $expanded_check = true;
                                         <?= $row['student_name'] . " " . $row['student_group'] . " : " . $row['inventory_name'] ?></button> 
                                     </h2>
                                     <div id="collapse<?= $collapse_count++ ?>" class="accordion-collapse collapse 
-                                    <?php if($expanded_check){echo 'show';}?>" data-bs-parent="#accordion">
+                                    <?php if($expanded_check){echo 'show';}?>" data-bs-parent="#accordion_rejected">
                                         <div class="accordion-body">
                                             <div class="row">
                                                 <div class="col-3 mb-3">
@@ -631,7 +677,7 @@ $expanded_check = true;
                         <div class="col-12 mb-3">
                             <h3 class="d-flex justify-content-center">Užbaigti prašymai</h3>
     
-                            <div class="accordion" id="accordion">
+                            <div class="accordion" id="accordion_done">
                             <?php
                             while($row = mysqli_fetch_assoc($result_finished)){
                             ?>
@@ -643,7 +689,7 @@ $expanded_check = true;
                                         <?= $row['student_name'] . " " . $row['student_group'] . " : " . $row['inventory_name'] ?></button> 
                                     </h2>
                                     <div id="collapse<?= $collapse_count++ ?>" class="accordion-collapse collapse 
-                                    <?php if($expanded_check){echo 'show';}?>" data-bs-parent="#accordion">
+                                    <?php if($expanded_check){echo 'show';}?>" data-bs-parent="#accordion_done">
                                         <div class="accordion-body">
                                             <div class="row">
                                                 <div class="col-3 mb-3">
@@ -799,77 +845,165 @@ $expanded_check = true;
             document.body.appendChild(form);
             form.submit();
         }
-
+    </script>
+    <script>
         function registerLoan() {
-            const accordion_item = event.target.closest(".accordion-item");
+            let accordion_item;
+            let data = {};
 
-            form = document.createElement("form");
-            form.method = "POST";
-            form.action = "loan_requests.php";
+            accordion_item = event.target.closest(".accordion-item");
+            data = {
+                user_id: accordion_item.dataset.user_id,
+                inventory_id: accordion_item.dataset.inventory_id
+            };
 
-            input_register_loan = document.createElement("input");
-            input_register_loan.type = "hidden";
-            input_register_loan.name = "register_loan";
-            input_register_loan.value = "";
+            fetch(`../../config/functions.php?action=get_inventory&inventory_id=${data.inventory_id}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('inventory').value = data.name;
+                    document.getElementById('location').value = data.location_name;
+                    document.getElementById('serial_number').value = data.serial_number;
+                    document.getElementById('inventory_number').value = data.inventory_number;
+                    document.getElementById('description').value = data.description;
+                })
+                .catch(error => console.error('Error:', error));
 
-            input_user_id = document.createElement("input");
-            input_user_id.type = "hidden";
-            input_user_id.name = "user_id";
-            input_user_id.value = accordion_item.dataset.user_id;
+            showLoanConfirmationModal(data).then((confirmed) => {
+                if (confirmed) {
+                    form = document.createElement("form");
+                    form.method = "POST";
+                    form.action = "loan_requests.php";
 
-            input_inventory_id = document.createElement("input");
-            input_inventory_id.type = "hidden";
-            input_inventory_id.name = "inventory_id";
-            input_inventory_id.value = accordion_item.dataset.inventory_id;
+                    input_register_loan = document.createElement("input");
+                    input_register_loan.type = "hidden";
+                    input_register_loan.name = "register_loan";
+                    input_register_loan.value = "";
 
-            form.appendChild(input_register_loan);
-            form.appendChild(input_user_id);
-            form.appendChild(input_inventory_id);
+                    input_user_id = document.createElement("input");
+                    input_user_id.type = "hidden";
+                    input_user_id.name = "user_id";
+                    input_user_id.value = data.user_id;
 
-            document.body.appendChild(form);
+                    input_inventory_id = document.createElement("input");
+                    input_inventory_id.type = "hidden";
+                    input_inventory_id.name = "inventory_id";
+                    input_inventory_id.value = data.inventory_id;
 
-            if(confirm("Ar tikrai norite užregistruoti paskolą?")){
-                form.submit();
-            }
+                    form.appendChild(input_register_loan);
+                    form.appendChild(input_user_id);
+                    form.appendChild(input_inventory_id);
+
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
         }
 
         function registerReturn() {
-            const accordion_item = event.target.closest(".accordion-item");
+            let accordion_item;
+            let data = {};
 
-            form = document.createElement("form");
-            form.method = "POST";
-            form.action = "loan_requests.php";
+            accordion_item = event.target.closest(".accordion-item");
+            data = {
+                request_id: accordion_item.dataset.id,
+                user_id: accordion_item.dataset.user_id,
+                inventory_id: accordion_item.dataset.inventory_id
+            };
 
-            input_register_return = document.createElement("input");
-            input_register_return.type = "hidden";
-            input_register_return.name = "register_return";
-            input_register_return.value = "";
+            fetch(`../../config/functions.php?action=get_inventory&inventory_id=${data.inventory_id}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('inventory').value = data.name;
+                    document.getElementById('location').value = data.location_name;
+                    document.getElementById('serial_number').value = data.serial_number;
+                    document.getElementById('inventory_number').value = data.inventory_number;
+                    document.getElementById('description').value = data.description;
+                })
+                .catch(error => console.error('Error:', error));
 
-            input_id = document.createElement("input");
-            input_id.type = "hidden";
-            input_id.name = "request_id";
-            input_id.value = accordion_item.dataset.id;
+            showReturnConfirmationModal(data).then((confirmed) => {
+                if (confirmed) {
+                    form = document.createElement("form");
+                    form.method = "POST";
+                    form.action = "loan_requests.php";
 
-            input_user_id = document.createElement("input");
-            input_user_id.type = "hidden";
-            input_user_id.name = "user_id";
-            input_user_id.value = accordion_item.dataset.user_id;
+                    input_register_return = document.createElement("input");
+                    input_register_return.type = "hidden";
+                    input_register_return.name = "register_return";
+                    input_register_return.value = "";
 
-            input_inventory_id = document.createElement("input");
-            input_inventory_id.type = "hidden";
-            input_inventory_id.name = "inventory_id";
-            input_inventory_id.value = accordion_item.dataset.inventory_id;
+                    input_id = document.createElement("input");
+                    input_id.type = "hidden";
+                    input_id.name = "request_id";
+                    input_id.value = data.request_id;
 
-            form.appendChild(input_register_return);
-            form.appendChild(input_id);
-            form.appendChild(input_user_id);
-            form.appendChild(input_inventory_id);
+                    input_user_id = document.createElement("input");
+                    input_user_id.type = "hidden";
+                    input_user_id.name = "user_id";
+                    input_user_id.value = data.user_id;
 
-            document.body.appendChild(form);
-            
-            if(confirm("Ar tikrai norite užregistruoti grąžinimą?")){
-                form.submit();
-            }
+                    input_inventory_id = document.createElement("input");
+                    input_inventory_id.type = "hidden";
+                    input_inventory_id.name = "inventory_id";
+                    input_inventory_id.value = data.inventory_id;
+
+                    form.appendChild(input_register_return);
+                    form.appendChild(input_id);
+                    form.appendChild(input_user_id);
+                    form.appendChild(input_inventory_id);
+
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+
+        function showLoanConfirmationModal() {
+            return new Promise((resolve) => {
+                var confirmation_modal = document.getElementById('confirmation-modal');
+                confirmation_modal.querySelector('h5').textContent = "Duomenų atitikimo ir atsiėmimo užfiksavimo patvirtinimas";
+                confirmation_modal.querySelector('.confirmation_question').textContent = "Ar visi duomenys atitinka ir norite užfiksuoti atsiėmimą?";
+
+                const modal = new bootstrap.Modal(confirmation_modal);
+                modal.show();
+
+                const confirm_button = document.getElementById('confirmation_btn');
+
+                confirm_button.addEventListener('click', function() {
+                    modal.hide();
+                    resolve(true);
+                });
+
+                const cancel_button = document.querySelector('.btn-secondary');
+                cancel_button.addEventListener('click', function() {
+                    modal.hide();
+                    resolve(false);
+                });
+            });
+        }
+
+        function showReturnConfirmationModal() {
+            return new Promise((resolve) => {
+                var confirmation_modal = document.getElementById('confirmation-modal');
+                confirmation_modal.querySelector('h5').textContent = "Duomenų atitikimo ir grąžinimo užfiksavimo patvirtinimas";
+                confirmation_modal.querySelector('.confirmation_question').textContent = "Ar visi duomenys atitinka ir norite užfiksuoti grąžinimą?";
+
+                const modal = new bootstrap.Modal(confirmation_modal);
+                modal.show();
+
+                const confirm_button = document.getElementById('confirmation_btn');
+
+                confirm_button.addEventListener('click', function() {
+                    modal.hide();
+                    resolve(true);
+                });
+
+                const cancel_button = document.querySelector('.btn-secondary');
+                cancel_button.addEventListener('click', function() {
+                    modal.hide();
+                    resolve(false);
+                });
+            });
         }
     </script>
 </body>

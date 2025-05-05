@@ -37,6 +37,7 @@ $result = displayInventory();
     <title>Sukurti Panaudos Prašymą</title>
     <link rel="stylesheet" href="../../css/mdb.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <link rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/ui-lightness/jquery-ui.css'> 
     <link rel="stylesheet" href="../../css/dropdown_search.css">
     <script defer src="../../js/bootstrap.bundle.min.js"></script>
     <script defer src="../../js/mdb.umd.min.js"></script>
@@ -87,13 +88,13 @@ $result = displayInventory();
                         </div>
                         <div class="row">
                             <div class="col">
-                                <input type="date" id="start-date" class="form-control" name="start-date" min="2025-01-01"/>
+                                <input type="text" id="start-date" class="form-control" name="start-date" min="2025-01-01"/>
                             </div>
                             <div class="col-1 d-flex justify-content-center align-items-center">
                                 <i class="bi bi-dash"></i>
                             </div>
                             <div class="col">
-                                <input type="date" id="end-date" class="form-control" name="end-date" min="2025-01-01"/>
+                                <input type="text" id="end-date" class="form-control" name="end-date" min="2025-01-01"/>
                             </div>
                         </div>
                     </div>
@@ -129,6 +130,8 @@ $result = displayInventory();
             </form>
         </div>
     </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script> 
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="../../js/dselect.js"></script>
     <script>
         var select_box_element = document.querySelector('#inventory');
@@ -136,6 +139,49 @@ $result = displayInventory();
         dselect(select_box_element, {
             search: true
         });
+    </script>
+    <script>
+        $(document).ready(function() { 
+            $("#start-date").datepicker({
+                changeMonth: true, 
+                changeYear: true
+            });
+
+            $("#end-date").datepicker({
+                changeMonth: true, 
+                changeYear: true
+            });
+
+            $("#start-date").change(function() { 
+                startDate = $(this).datepicker('getDate'); 
+                $("#end-date").datepicker("option", "minDate", startDate); 
+            });
+
+            $("#end-date").change(function() { 
+                endDate = $(this).datepicker('getDate'); 
+                $("#start-date").datepicker("option", "maxDate", endDate); 
+            });
+
+            $.datepicker.regional['lt'] = {
+                closeText: 'Uždaryti',
+                prevText: '&#x3c;Atgal',
+                nextText: 'Pirmyn&#x3e;',
+                currentText: 'Šiandien',
+                monthNames: ['sausis', 'vasaris', 'kovas', 'balandis', 'gegužė', 'birželis', 'liepa', 'rugpjūtis', 'rugsėjis', 'spalis', 'lapkritis', 'gruodis'],
+                monthNamesShort: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'],
+                dayNames: ['sekmadienis', 'pirmadienis', 'antradienis', 'trečiadienis', 'ketvirtadienis', 'penktadienis', 'šeštadienis'],
+                dayNamesShort: ['s', 'pr', 'an', 'tr', 'kt', 'pn', 'š'],
+                dayNamesMin: ['s', 'pr', 'an', 'tr', 'kt', 'pn', 'š'],
+                weekHeader: 'Savaitė',
+                dateFormat: 'yy-mm-dd',
+                firstDay: 0,
+                isRTL: false,
+                showMonthAfterYear: true,
+                yearSuffix: ''
+            };
+
+            $.datepicker.setDefaults($.datepicker.regional['lt']);
+        })
     </script>
 </body>
 </html>

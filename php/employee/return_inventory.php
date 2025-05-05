@@ -18,6 +18,12 @@ if (!isset($_SESSION['return_inventory_tab_state'])) {
     $_SESSION['return_inventory_tab_state'] = "open_storage";
 }
 
+if(isset($_POST['unlock_storage'])){
+    $unlock_storage_id_code = $_POST['unlock_storage_id_code'];
+
+    unlockStorage($unlock_storage_id_code);
+}
+
 if(isset($_POST['return'])){
     $return_id_code = $_POST['return_id_code'];
     $user_id = $_SESSION['user_id'];
@@ -53,6 +59,16 @@ $input2 = "identification_code_return";
 <body>
     <div class="container-md min-vh-100">
     <?php 
+    if($_SESSION['success_message'] != ""){
+    ?>
+        <div class="mt-3 alert alert-success" role="alert">
+            <?= $_SESSION['success_message'] ?>
+        </div>
+    <?php
+    }
+    ?>
+    
+    <?php 
     if($_SESSION['error_message'] != ""){
     ?>
         <div class="mt-3 alert alert-danger" role="alert">
@@ -61,7 +77,7 @@ $input2 = "identification_code_return";
     <?php
     }
     ?>
-        <div class="row <?php echo ($_SESSION['error_message'] === "") ? "mt-5" : "" ?> mb-3 d-flex justify-content-end">
+        <div class="row <?php echo ($_SESSION['success_message'] === "" && $_SESSION['error_message'] === "") ? "mt-5" : "" ?> mb-3 d-flex justify-content-end">
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link <?php echo ($_SESSION['return_inventory_tab_state'] === "open_storage") ? "active" : "" ?> border-primary border-2" 
@@ -78,16 +94,18 @@ $input2 = "identification_code_return";
                 <div class="tab-pane fade <?php echo ($_SESSION['return_inventory_tab_state'] === "open_storage") ? "show active" : "" ?>" id="storage-tab-pane" role="tabpanel" aria-labelledby="storage-tab" tabindex="0">
                     <div class="row my-5 d-flex justify-content-center">
                         <div class="col-12 mb-3">
-                            <h3 class="d-flex justify-content-center">Atrakinti Talpyklą</h3>
+                            <form method="post">
+                                <h3 class="d-flex justify-content-center">Atrakinti Talpyklą</h3>
 
-                            <div class="my-3" id="reader-storage"></div>
+                                <div class="my-3" id="reader-storage"></div>
 
-                            <label for="identification_code_storage" class="form-label">Identifikacinis kodas</label>
-                            <input type="text" class="form-control mb-3" id="identification_code_storage" placeholder="Pvz.: 321654898798756654">
+                                <label for="identification_code_storage" class="form-label">Identifikacinis kodas</label>
+                                <input type="text" class="form-control mb-3" id="identification_code_storage" placeholder="Pvz.: 321654898798756654" name="unlock_storage_id_code"></input>
 
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-success">Atrakinti</button>
-                            </div>
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-success" name="unlock_storage">Atrakinti</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -100,8 +118,7 @@ $input2 = "identification_code_return";
                                 <div class="my-3" id="reader-ret"></div>
 
                                 <label for="identification_code_return" class="form-label">Identifikacinis kodas</label>
-                                <input type="text" class="form-control mb-3" id="identification_code_return" placeholder="Pvz.: 321654898798756654" 
-                                name="return_id_code">
+                                <input type="text" class="form-control mb-3" id="identification_code_return" placeholder="Pvz.: 321654898798756654" name="return_id_code">
 
                                 <div class="d-grid gap-2">
                                     <button type="submit" class="btn btn-success" name="return">Grąžinti</button>
@@ -112,7 +129,10 @@ $input2 = "identification_code_return";
                 </div>
             </div>
         </div>
-        <?php $_SESSION['error_message'] = ""; ?>
+        <?php
+            $_SESSION['success_message'] = "";
+            $_SESSION['error_message'] = "";
+        ?>
     </div>
     <script>
         const tab1 = <?php echo json_encode($tab1); ?>;

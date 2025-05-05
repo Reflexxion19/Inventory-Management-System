@@ -55,7 +55,6 @@ $result = display_users();
             <?= $_SESSION['success_message'] ?>
         </div>
     <?php
-    $_SESSION['success_message'] = "";
     }
     ?>
 
@@ -66,9 +65,26 @@ $result = display_users();
         <?= $_SESSION['error_message'] ?>
         </div>
     <?php
-    $_SESSION['error_message'] = "";
     }
     ?>
+
+        <div class="modal fade" id="card-data-modal" tabindex="-1" aria-labelledby="card-data-modal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="card-data-modal-label">Sugeneruoti kortelės duomenys</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modal_body" style="word-wrap: break-word; overflow-wrap: break-word; white-space: pre-wrap;">
+                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" id="confirmation_btn">Uždaryti</button>
+                </div>
+                </div>
+            </div>
+        </div>
+
         <div class="row <?php echo ($_SESSION['success_message'] === "" && $_SESSION['error_message'] === "") ? "mt-5" : "" ?> mb-3 d-flex justify-content-end">
             <div class="col-12">
                 <div class="input-group">
@@ -127,7 +143,7 @@ $result = display_users();
                                     <?php
                                         if($row['role'] == 'admin'){
                                     ?>
-                                        <button type="button" class="btn btn-danger" name="change_role" onclick="generateKeypair()">Generuoti v/p raktų porą</button>
+                                        <button type="button" class="btn btn-danger" name="change_role" data-id="<?= $row['id'] ?>" data-name="<?= $row['name'] ?>" onclick="generateKecardData()">Generuoti koretelės duomenis</button>
                                     <?php
                                         }
                                     ?>
@@ -137,6 +153,8 @@ $result = display_users();
                         </tr>
                     <?php
                     }
+                    $_SESSION['success_message'] = "";
+                    $_SESSION['error_message'] = "";
                     ?>
                     </tbody>
                 </table>
@@ -169,34 +187,49 @@ $result = display_users();
             form.submit();
         }
 
-        function generateKeypair() {
-            if(confirm("Ar tikrai norite generuoti naujus privatųjį/viešąjį raktus?")) {
-                const row = event.target.closest("tr");
-                const cells = row.getElementsByTagName("td");
+        function generateKecardData() {
+            let button;
+            let data = {};
 
-                form = document.createElement("form");
-                form.method = "POST";
-                form.action = "users.php";
+            button = event.target;
+            data = {
+                request_id: button.dataset.id,
+                user_name: button.dataset.name
+            };
 
-                input_id = document.createElement("input");
-                input_id.type = "hidden";
-                input_id.name = "user_id";
-                input_id.value = row.dataset.id;
-
-                form.appendChild(input_id);
-
-                document.body.appendChild(form);
-                form.submit();
-            }
+            fetch('../../config/functions.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'action=generate_admin_card_data&user_id=' + data.request_id + '&user_name=' + data.user_name
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('modal_body').innerText = "Sugeneruoti kortelės duomenys: " + data['data'];
+                showModal();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showModal();
+            });
         }
 
-        var private_key = <?php echo json_encode($keypair['private_key'], JSON_HEX_TAG); ?>;
-        var public_key = <?php echo json_encode($keypair['public_key'], JSON_HEX_TAG); ?>;
+        function showModal() {
+            return new Promise((resolve) => {
+                var card_data_modal = document.getElementById('card-data-modal');
 
-        if(private_key != "" && public_key != ""){
-            alert("Privatusis raktas: " + private_key + "\nViešasis raktas: " + public_key);
+                const modal = new bootstrap.Modal(card_data_modal);
+                modal.show();
+
+                const confirm_button = document.getElementById('confirmation_btn');
+
+                confirm_button.addEventListener('click', function() {
+                    modal.hide();
+                    resolve(true);
+                });
+            });
         }
-
     </script>
 </body>
 </html>

@@ -25,8 +25,11 @@ if (isset($_GET['storage_id'])) {
 if (isset($_POST['update_storage'])) {
     $name = $_POST['name'];
     $description = $_POST['description'];
+    $lock_name = $_POST['lock_name'];
+    $lock_public_key = $_POST['lock_public_key'];
+    $lock_address = $_POST['lock_address'];
 
-    updateStorage($name, $description, $storage_id);
+    updateStorage($name, $description, $lock_name, $lock_public_key, $lock_address, $storage_id);
 }
 
 if (isset($_POST['delete_storage'])) {
@@ -65,8 +68,22 @@ $path = "../../images/qr_codes/";
             <form id="form" method="post">
                 <div class="row">
                     <div class="col mb-3">
-                        <label for="storage" class="form-label">Pavadinimas</label>
+                        <label for="storage" class="form-label">Talpyklos pavadinimas</label>
                         <input type="text" class="form-control" id="storage" name="name" placeholder="Pvz.: Arduino UNO R3" value="<?= $row['name'] ?>" required disabled>
+                    </div>
+                    <div class="col mb-3">
+                        <label for="lock_name" class="form-label">Elektroninio užrakto pavadinimas</label>
+                        <input type="text" class="form-control" id="lock_name" name="lock_name" placeholder="Pvz.: Mk1" value="<?= $row['device_name'] ?>" disabled>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <label for="lock_public_key" class="form-label">Elektroninio užrakto viešasis raktas</label>
+                        <input type="text" class="form-control" id="lock_public_key" name="lock_public_key" value="<?= $row['public_key'] ?>" disabled>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label for="lock_address" class="form-label">Elektroninio užrakto adresas</label>
+                        <input type="text" class="form-control" id="lock_address" name="lock_address" value="<?= $row['address'] ?>" disabled>
                     </div>
                 </div>
                 <div class="row">
@@ -88,10 +105,13 @@ $path = "../../images/qr_codes/";
     </div>
     <script>
         function enableFields(option) {
-            input = document.getElementById("storage");
+            inputs = document.getElementsByTagName("input");
             textArea = document.getElementById("description");
 
-            input.disabled = !option;
+            for (i = 0; i < inputs.length; i++) {
+                inputs[i].disabled = !option
+            }
+
             textArea.disabled = !option;
 
             if(option) {
@@ -102,6 +122,10 @@ $path = "../../images/qr_codes/";
                 document.getElementsByName("edit_storage")[0].style.display = "unset";
                 document.getElementsByName("update_storage")[0].style.display = "none";
                 document.getElementsByName("cancel_storage")[0].style.display = "none";
+            }
+
+            if(!option) {
+                location.reload(); 
             }
         }
     </script>

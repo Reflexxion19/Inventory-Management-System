@@ -59,6 +59,16 @@ $input2 = "identification_code_loan";
 <body>
     <div class="container-md min-vh-100">
     <?php 
+    if($_SESSION['success_message'] != ""){
+    ?>
+        <div class="mt-3 alert alert-success" role="alert">
+            <?= $_SESSION['success_message'] ?>
+        </div>
+    <?php
+    }
+    ?>
+
+    <?php 
     if($_SESSION['error_message'] != ""){
     ?>
         <div class="mt-3 alert alert-danger" role="alert">
@@ -67,7 +77,7 @@ $input2 = "identification_code_loan";
     <?php
     }
     ?>
-        <div class="row <?php echo ($_SESSION['error_message'] === "") ? "mt-5" : "" ?> mb-3 d-flex justify-content-end">
+         <div class="row <?php echo ($_SESSION['success_message'] === "" && $_SESSION['error_message'] === "") ? "mt-5" : "" ?> mb-3 d-flex justify-content-end">
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link <?php echo ($_SESSION['loan_inventory_tab_state'] === "open_storage") ? "active" : "" ?> border-primary border-2" 
@@ -90,8 +100,7 @@ $input2 = "identification_code_loan";
                                 <div class="my-3" id="reader-storage"></div>
 
                                 <label for="identification_code_storage" class="form-label">Identifikacinis kodas</label>
-                                <input type="text" class="form-control mb-3" id="identification_code_storage" placeholder="Pvz.: 321654898798756654"
-                                name="unlock_storage_id_code"></input>
+                                <input type="text" class="form-control mb-3" id="identification_code_storage" placeholder="Pvz.: 321654898798756654" name="unlock_storage_id_code"></input>
 
                                 <div class="d-grid gap-2">
                                     <button type="submit" class="btn btn-success" name="unlock_storage">Atrakinti</button>
@@ -109,8 +118,7 @@ $input2 = "identification_code_loan";
                                 <div class="my-3" id="reader-loan"></div>
 
                                 <label for="identification_code_loan" class="form-label">Identifikacinis kodas</label>
-                                <input type="text" class="form-control mb-3" id="identification_code_loan" placeholder="Pvz.: 321654898798756654" 
-                                name="loan_id_code"></input>
+                                <input type="text" class="form-control mb-3" id="identification_code_loan" placeholder="Pvz.: 321654898798756654" name="loan_id_code"></input>
 
                                 <div class="d-grid gap-2">
                                     <button type="submit" class="btn btn-success" name="loan">Pasiskolinti</button>
@@ -121,7 +129,10 @@ $input2 = "identification_code_loan";
                 </div>
             </div>
         </div>
-        <?php $_SESSION['error_message'] = ""; ?>
+        <?php
+            $_SESSION['success_message'] = "";
+            $_SESSION['error_message'] = "";
+        ?>
     </div>
     <script>
         const tab1 = <?php echo json_encode($tab1); ?>;

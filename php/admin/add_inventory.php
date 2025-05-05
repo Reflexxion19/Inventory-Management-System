@@ -98,6 +98,54 @@ $result = getLocations();
             </form>
         </div>
     </div>
+    <script>
+        const input_inventory_name = document.getElementById('inventory');
+        const input_location_select = document.getElementById('location_select');
+        const input_serial_number = document.getElementById('serial_number');
+        const input_inventory_number = document.getElementById('inventory_number');
+        const textarea_description = document.getElementById('description');
+
+        input_inventory_name.setCustomValidity('Įveskite duomenis!');
+        input_location_select.setCustomValidity('Įveskite duomenis!');
+        input_serial_number.setCustomValidity('Įveskite duomenis!');
+        input_inventory_number.setCustomValidity('Įveskite duomenis!');
+        textarea_description.setCustomValidity('Įveskite duomenis!');
+
+        input_inventory_name.addEventListener('input', function() {
+            this.setCustomValidity('');
+            if (!this.validity.valid) {
+                this.setCustomValidity('Įveskite duomenis!');
+            }
+        });
+
+        input_location_select.addEventListener('input', function() {
+            this.setCustomValidity('');
+            if (!this.validity.valid) {
+                this.setCustomValidity('Įveskite duomenis!');
+            }
+        });
+
+        input_serial_number.addEventListener('input', function() {
+            this.setCustomValidity('');
+            if (!this.validity.valid) {
+                this.setCustomValidity('Įveskite duomenis!');
+            }
+        });
+
+        input_inventory_number.addEventListener('input', function() {
+            this.setCustomValidity('');
+            if (!this.validity.valid) {
+                this.setCustomValidity('Įveskite duomenis!');
+            }
+        });
+
+        textarea_description.addEventListener('input', function() {
+            this.setCustomValidity('');
+            if (!this.validity.valid) {
+                this.setCustomValidity('Įveskite duomenis!');
+            }
+        });
+    </script>
 </body>
 </html>
 

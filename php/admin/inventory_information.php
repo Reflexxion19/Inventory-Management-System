@@ -136,6 +136,10 @@ $path = "../../images/qr_codes/";
                 document.getElementsByName("update_inventory")[0].style.display = "none";
                 document.getElementsByName("cancel_inventory")[0].style.display = "none";
             }
+
+            if(!option) {
+                location.reload(); 
+            }
         }
     </script>
 </body>

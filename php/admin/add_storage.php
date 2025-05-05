@@ -17,8 +17,11 @@ if($_SESSION['role'] != 'admin'){
 if (isset($_POST['add_storage'])) {
     $name = $_POST['name'];
     $description = $_POST['description'];
+    $lock_name = $_POST['lock_name'];
+    $lock_public_key = $_POST['lock_public_key'];
+    $lock_address = $_POST['lock_address'];
 
-    addStorage($name, $description);
+    addStorage($name, $description, $lock_name, $lock_public_key, $lock_address);
 }
 
 ?>
@@ -51,8 +54,22 @@ if (isset($_POST['add_storage'])) {
             <form method="post">
                 <div class="row">
                     <div class="col mb-3">
-                        <label for="inventory" class="form-label">Pavadinimas</label>
-                        <input type="text" class="form-control" id="inventory" name="name" placeholder="Pvz.: 208-1" required>
+                        <label for="storage" class="form-label">Talpyklos pavadinimas</label>
+                        <input type="text" class="form-control" id="storage" name="name" placeholder="Pvz.: 208-1" required>
+                    </div>
+                    <div class="col mb-3">
+                        <label for="lock_name" class="form-label">Elektroninio užrakto pavadinimas</label>
+                        <input type="text" class="form-control" id="lock_name" name="lock_name" placeholder="Pvz.: Mk1">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <label for="lock_public_key" class="form-label">Elektroninio užrakto viešasis raktas</label>
+                        <input type="text" class="form-control" id="lock_public_key" name="lock_public_key">
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label for="lock_address" class="form-label">Elektroninio užrakto adresas</label>
+                        <input type="text" class="form-control" id="lock_address" name="lock_address">
                     </div>
                 </div>
                 <div class="row">
@@ -69,6 +86,27 @@ if (isset($_POST['add_storage'])) {
             </form>
         </div>
     </div>
+    <script>
+        const input_storage_name = document.getElementById('storage');
+        const textarea_description = document.getElementById('description');
+
+        input_storage_name.setCustomValidity('Įveskite duomenis!');
+        textarea_description.setCustomValidity('Įveskite duomenis!');
+
+        input_storage_name.addEventListener('input', function() {
+            this.setCustomValidity('');
+            if (!this.validity.valid) {
+                this.setCustomValidity('Įveskite duomenis!');
+            }
+        });
+
+        textarea_description.addEventListener('input', function() {
+            this.setCustomValidity('');
+            if (!this.validity.valid) {
+                this.setCustomValidity('Įveskite duomenis!');
+            }
+        });
+    </script>
 </body>
 </html>
 

@@ -3,18 +3,6 @@
 require_once 'config.php';
 require_once __DIR__ . '/../phpqrcode/qrlib.php';
 
-$url = "https://3d2e-88-119-21-228.ngrok-free.app";
-
-$server_base64_private_key = "A9W3gD35zDgBQ82cjKggeQKhGRMmanNxbxKk4AsTrV0=";
-$server_base64_public_key = "PGpRqXf8riutWHtYgQyxxj2FvHTvTioHPbjIxrCevhw=";
-
-$microcontroller_base64_public_key = "u+AdOsd/h5hciL74wRpUNsyMw3tWw1ZhcQh090Dq0Ew=";
-
-function getURL(){
-    global $url;
-    return $url;
-}
-
 #region Inventory
     #region Locations
 function getLocations(){
@@ -84,10 +72,12 @@ function addInventory($name, $location, $serial_number, $inventory_number, $desc
     $affected_rows = mysqli_stmt_affected_rows($stmt);
 
     if($affected_rows > 0){
-        header("Location: generated_sticker.php");
+        $_SESSION['success_message'] = "Inventorius pridėtas sėkmingai!";
+        header("Location: inventory.php");
         exit();
     } else{
         $_SESSION['error_message'] = "Inventoriaus pridėti nepavyko! Bandykite dar kartą!";
+        header("Location: inventory.php");
         exit();
     }
 }
@@ -223,14 +213,45 @@ function generateStorageSticker($name){
     return $file;
 }
 
-function addStorage($name, $description){
+function addStorage($name, $description, $lock_name, $lock_public_key, $lock_address){
     global $conn;
+
+    if(($lock_name !== "" || $lock_public_key !== "" || $lock_address !== "") && ($lock_name === "" || $lock_public_key === "" || $lock_address === "")){
+        $_SESSION['error_message'] = "Norint pridėti talpyklos elektroninio užrakto informaciją būtina užpildyti visus su elektroniniu užraktu susijusius laukus!";
+        header("Location: add_storage.php");
+        exit();
+    }
+
+    if(empty($lock_name)){
+        $lock_name = NULL;
+    }
+    if(empty($lock_public_key)){
+        $lock_public_key = NULL;
+    }
+    if(empty($lock_address)){
+        $lock_address = NULL;
+    }
+
+    $stmt = mysqli_prepare($conn, "SELECT * 
+                                    FROM inventory_locations
+                                    WHERE `name` = ?");
+    mysqli_stmt_bind_param($stmt, "s", $name);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_store_result($stmt);
+    $affected_rows = mysqli_stmt_affected_rows($stmt);
+    mysqli_stmt_free_result($stmt);
+
+    if($affected_rows > 0){
+        $_SESSION['error_message'] = "Talpykla su tokiu pavadinimu jau egzistuoja! Prašome pasirinkti kitą pavadinimą!";
+        header("Location: add_storage.php");
+        exit();
+    }
 
     $sticker_path = generateStorageSticker($name);
 
-    $stmt = mysqli_prepare($conn, "INSERT INTO inventory_locations(`name`, `description`, sticker_path)
-                                    VALUES(?, ?, ?)");
-    mysqli_stmt_bind_param($stmt, "sss", $name, $description, $sticker_path);
+    $stmt = mysqli_prepare($conn, "INSERT INTO inventory_locations(`name`, `description`, sticker_path, device_name, public_key, `address`)
+                                    VALUES(?, ?, ?, ?, ?, ?)");
+    mysqli_stmt_bind_param($stmt, "ssssss", $name, $description, $sticker_path, $lock_name, $lock_public_key, $lock_address);
     mysqli_stmt_execute($stmt);
     $affected_rows = mysqli_stmt_affected_rows($stmt);
 
@@ -240,6 +261,7 @@ function addStorage($name, $description){
         exit();
     } else{
         $_SESSION['error_message'] = "Talpyklos pridėti nepavyko! Bandykite dar kartą!";
+        header("Location: inventory.php");
         exit();
     }
 }
@@ -280,16 +302,49 @@ function deleteStorageSticker($storage_id){
     return true;
 }
 
-function updateStorage($name, $description, $storage_id){
+function updateStorage($name, $description, $lock_name, $lock_public_key, $lock_address, $storage_id){
     global $conn;
+
+    if(($lock_name !== "" || $lock_public_key !== "" || $lock_address !== "") && ($lock_name === "" || $lock_public_key === "" || $lock_address === "")){
+        $_SESSION['error_message'] = "Norint atnaujinti talpyklos elektroninio užrakto informaciją būtina užpildyti visus su elektroniniu užraktu susijusius laukus!";
+        return;
+    }
+
+    if(empty($lock_name)){
+        $lock_name = NULL;
+    }
+    if(empty($lock_public_key)){
+        $lock_public_key = NULL;
+    }
+    if(empty($lock_address)){
+        $lock_address = NULL;
+    }
+
+    $row = getStorageById($storage_id);
+
+    if($row['name'] !== $name){
+        $stmt = mysqli_prepare($conn, "SELECT * 
+                                        FROM inventory_locations
+                                        WHERE `name` = ?");
+        mysqli_stmt_bind_param($stmt, "s", $name);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_store_result($stmt);
+        $affected_rows = mysqli_stmt_affected_rows($stmt);
+        mysqli_stmt_free_result($stmt);
+
+        if($affected_rows > 0){
+            $_SESSION['error_message'] = "Talpykla su tokiu pavadinimu jau egzistuoja! Prašome pasirinkti kitą pavadinimą!";
+            return;
+        }
+    }
 
     if(deleteStorageSticker($storage_id)){
         $sticker_path = generateStorageSticker($name);
 
         $stmt = mysqli_prepare($conn, "UPDATE inventory_locations
-                                        SET `name`= ?, `description` = ?, sticker_path = ?
+                                        SET `name`= ?, `description` = ?, sticker_path = ?, device_name = ?, public_key = ?, `address` = ?
                                         WHERE id = ?");
-        mysqli_stmt_bind_param($stmt, "sssi", $name, $description, $sticker_path, $storage_id);
+        mysqli_stmt_bind_param($stmt, "ssssssi", $name, $description, $sticker_path, $lock_name, $lock_public_key, $lock_address, $storage_id);
         mysqli_stmt_execute($stmt);
         $affected_rows = mysqli_stmt_affected_rows($stmt);
 
@@ -298,9 +353,7 @@ function updateStorage($name, $description, $storage_id){
             header("Location: inventory.php");
             exit();
         } else{
-            $row = getStorageById($storage_id);
-
-            if($row['name'] === $name && $row['description'] === $description){
+            if($row['name'] === $name && $row['description'] === $description && $row['device_name'] === $lock_name && $row['public_key'] === $lock_public_key && $row['address'] === $lock_address){
                 $_SESSION['error_message'] = "Įrašyti duomenys atitinka jau esamus duomenis!";
                 return;
             }
@@ -399,28 +452,53 @@ function unlockStorage($storage_id_code){
         $row = selectStorageByIdCodeParams($name);
 
         if($row){
-            global $url;
+            if($row['device_name'] === NULL || $row['public_key'] === NULL || $row['address'] === NULL){
+                $_SESSION['error_message'] = "Talpykla neturi elektroninio užrakto! Pereikite prie inventoriaus pasiskolinimo!";
+                header("Location: loan_inventory.php");
+                exit();
+            }
+
+            $base64_encrypted_message = encryptMessage($row['public_key'], "unlock");
 
             $data_array = [
                 'type' => "auth_confirmation",
-                'message' => "unlock"
+                'message' => $base64_encrypted_message
             ];
 
-            $output = send_data($data_array);
+            $output = send_data($data_array, $row['address']);
 
-            // echo "<script>
-            //         window.addEventListener('load', (event) => {
-            //             if(document.getElementById('loan-tab')){
-            //                 document.getElementById('loan-tab').click();
-            //             } else if (document.getElementById('return-tab')){
-            //                 document.getElementById('return-tab').click();
-            //             }
-            //         });
-            //     </script>";
+            if($output === "Success"){
+                $_SESSION['success_message'] = "Talpykla sėkmingai atidaryta!";
+
+                echo "<script>
+                    window.addEventListener('load', (event) => {
+                        if(document.getElementById('loan-tab')){
+                            document.getElementById('loan-tab').click();
+                        } else if (document.getElementById('return-tab')){
+                            document.getElementById('return-tab').click();
+                        }
+                    });
+                    </script>";
+
+                return;
+            } elseif($output === "Failed"){
+                $_SESSION['error_message'] = "Talpyklos atidaryti nepavyko! Bandykite dar kartą!";
+                header("Location: loan_inventory.php");
+                exit();
+            } else{
+                $_SESSION['error_message'] = "Nepavyko užmegzti ryšio su elektroniniu užraktu!";
+                header("Location: loan_inventory.php");
+                exit();
+            }
+        } else{
+            $_SESSION['error_message'] = "Identifikacinis kodas neteisingas!";
+            header("Location: loan_inventory.php");
+            exit();
         }
     } else{
-       $_SESSION['error_message'] = "Identifikacinis kodas neteisingas!";
-       return; 
+        $_SESSION['error_message'] = "Identifikacinis kodas neteisingas!";
+        header("Location: loan_inventory.php");
+        exit(); 
     }
 }
         #endregion
@@ -472,21 +550,24 @@ function loanInventory($loan_id_code, $user_id){
                 $affected_rows = mysqli_stmt_affected_rows($stmt);
 
                 if($affected_rows > 0){
-                    $_SESSION['success_message'] = "Inventoriaus paskola užregistruota!";
+                    $_SESSION['success_message'] = "Inventoriaus panauda užregistruota!";
                     header("Location: loans.php");
                     exit();
                 } else{
-                    $_SESSION['error_message'] = "Inventoriaus paskolos užregistruoti nepavyko! Bandykite dar kartą!";
-                    return;
+                    $_SESSION['error_message'] = "Inventoriaus panaudos užregistruoti nepavyko! Bandykite dar kartą!";
+                    header("Location: loan_inventory.php");
+                    exit();
                 }
             }
         } else{
             $_SESSION['error_message'] = "Identifikacinis kodas neteisingas!";
-            return;
+            header("Location: loan_inventory.php");
+            exit();
         }
     } else{
         $_SESSION['error_message'] = "Identifikacinis kodas neteisingas!";
-        return;
+        header("Location: loan_inventory.php");
+        exit();
     }
 }
         #endregion
@@ -502,33 +583,41 @@ function returnInventory($return_id_code, $user_id){
         $serial_number = $parsed[1];
         $inventory_number = $parsed[2];
 
+        $date = date("Y-m-d");
+
         $row = selectInventoryByIdCodeParams($name, $serial_number, $inventory_number);
 
         if($row){
-            $date = date("Y-m-d");
-
-            $stmt = mysqli_prepare($conn, "UPDATE inventory_loans
-                                            SET `status` = 'Returned', return_date = ?
-                                            WHERE fk_user_id = ? AND fk_inventory_id = ? AND `status` = 'Borrowed'");
-            mysqli_stmt_bind_param($stmt, "sii", $date, $user_id, $row['id']);
-            mysqli_stmt_execute($stmt);
-            $affected_rows = mysqli_stmt_affected_rows($stmt);
-
-            if($affected_rows > 0){
-                $_SESSION['success_message'] = "Inventoriaus grąžinimas užregistruotas!";
-                header("Location: loans.php");
-                exit();
-            } else{
-                $_SESSION['error_message'] = "Inventoriaus grąžinimo užregistruoti nepavyko! Bandykite dar kartą!";
+            if(!checkIfInventoryLoaned($row['id'])){
+                $_SESSION['error_message'] = "Inventorius dar nepasiskolintas!";
                 return;
+            } else{
+                $stmt = mysqli_prepare($conn, "UPDATE inventory_loans
+                                                SET `status` = 'Returned', return_date = ?
+                                                WHERE fk_user_id = ? AND fk_inventory_id = ? AND `status` = 'Borrowed'");
+                mysqli_stmt_bind_param($stmt, "sii", $date, $user_id, $row['id']);
+                mysqli_stmt_execute($stmt);
+                $affected_rows = mysqli_stmt_affected_rows($stmt);
+
+                if($affected_rows > 0){
+                    $_SESSION['success_message'] = "Inventoriaus grąžinimas užregistruotas!";
+                    header("Location: loans.php");
+                    exit();
+                } else{
+                    $_SESSION['error_message'] = "Inventoriaus grąžinimo užregistruoti nepavyko! Bandykite dar kartą!";
+                    header("Location: return_inventory.php");
+                    exit();
+                }
             }
         } else{
             $_SESSION['error_message'] = "Identifikacinis kodas neteisingas!";
-            return;
+            header("Location: return_inventory.php");
+            exit();
         }
     } else{
         $_SESSION['error_message'] = "Identifikacinis kodas neteisingas!";
-        return;
+        header("Location: return_inventory.php");
+        exit();
     }
 }
         #endregion
@@ -728,8 +817,38 @@ function display_loan_requests_finished(){
     #endregion
 
     #region Request Actions
+function getInventoryDataForModal($inventory_id){
+    global $conn;
+
+    $stmt = mysqli_prepare($conn, "SELECT inventory.*, inventory_locations.name AS location_name
+                                    FROM inventory
+                                    INNER JOIN inventory_locations ON inventory.fk_inventory_location_id = inventory_locations.id
+                                    WHERE inventory.id = ?");
+    mysqli_stmt_bind_param($stmt, "i", $inventory_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($result);
+
+    return $row;
+}
+
+if (isset($_GET['action']) && $_GET['action'] === 'get_inventory') {
+    if (!isset($_GET['inventory_id']) || !is_numeric($_GET['inventory_id'])) {
+        http_response_code(400);
+        exit();
+    }
+
+    header('Content-Type: application/json');
+    echo json_encode(getInventoryDataForModal($_GET['inventory_id']));
+    exit();
+}
+
 function approveRequest($request_id){
     global $conn;
+
+    mysqli_begin_transaction($conn);
+
+    try{
 
     $stmt = mysqli_prepare($conn, "UPDATE loan_applications
                                     SET `status` = 'approved'
@@ -739,33 +858,71 @@ function approveRequest($request_id){
     $affected_rows = mysqli_stmt_affected_rows($stmt);
 
     if($affected_rows > 0){
-        $_SESSION['success_message'] = "Prašymas patvirtintas sėkmingai!";
-    } else{
-        $_SESSION['error_message'] = "Prašymo patvirtinti nepavyko! Bandykite dar kartą!";
+        $row = getLoanRequestByID($request_id);
+        $mail_sent = sendFeedbackMail($row['user_email'], $row['inventory_name']);
+
+        if($mail_sent){
+            $_SESSION['success_message'] = "Prašymas patvirtintas sėkmingai!";
+            mysqli_commit($conn);
+            
+            header("Location: loan_requests.php");
+            exit();
+        }
     }
+    
+    $_SESSION['error_message'] = "Prašymo patvirtinti nepavyko! Bandykite dar kartą!";
+    mysqli_rollback($conn);
 
     header("Location: loan_requests.php");
     exit();
+    
+    } catch(Exception $e){
+        $_SESSION['error_message'] = "Prašymo patvirtinti nepavyko! Bandykite dar kartą!";
+        mysqli_rollback($conn);
+
+        header("Location: loan_requests.php");
+        exit();
+    }
 }
 
 function rejectRequest($request_id){
     global $conn;
 
-    $stmt = mysqli_prepare($conn, "UPDATE loan_applications
-                                    SET `status` = 'rejected'
-                                    WHERE id = ?");
-    mysqli_stmt_bind_param($stmt, "i", $request_id);
-    mysqli_stmt_execute($stmt);
-    $affected_rows = mysqli_stmt_affected_rows($stmt);
+    mysqli_begin_transaction($conn);
 
-    if($affected_rows > 0){
-        $_SESSION['success_message'] = "Prašymas atmestas sėkmingai!";
-    } else{
+    try{
+        $stmt = mysqli_prepare($conn, "UPDATE loan_applications
+                                        SET `status` = 'rejected'
+                                        WHERE id = ?");
+        mysqli_stmt_bind_param($stmt, "i", $request_id);
+        mysqli_stmt_execute($stmt);
+        $affected_rows = mysqli_stmt_affected_rows($stmt);
+
+        if($affected_rows > 0){
+            $row = getLoanRequestByID($request_id);
+            $mail_sent = sendFeedbackMail($row['user_email'], $row['inventory_name']);
+
+            if($mail_sent){
+                $_SESSION['success_message'] = "Prašymas atmestas sėkmingai!";
+                mysqli_commit($conn);
+                
+                header("Location: loan_requests.php");
+                exit();
+            }
+        }
+        
         $_SESSION['error_message'] = "Prašymo atmesti nepavyko! Bandykite dar kartą!";
-    }
+        mysqli_rollback($conn);
 
-    header("Location: loan_requests.php");
-    exit();
+        header("Location: loan_requests.php");
+        exit();
+    } catch(Exception $e){
+        $_SESSION['error_message'] = "Prašymo atmesti nepavyko! Bandykite dar kartą!";
+        mysqli_rollback($conn);
+
+        header("Location: loan_requests.php");
+        exit();
+    }
 }
 
 function getLoanRequestByID($request_id){
@@ -787,6 +944,13 @@ function getLoanRequestByID($request_id){
 function addFeedback($request_id, $feedback){
     global $conn;
 
+    $stmt = mysqli_prepare($conn, "SELECT feedback FROM loan_applications
+                                    WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "i", $request_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $original_data = mysqli_fetch_assoc($result);
+
     mysqli_begin_transaction($conn);
 
     try{
@@ -798,6 +962,12 @@ function addFeedback($request_id, $feedback){
         $affected_rows = mysqli_stmt_affected_rows($stmt);
 
         if($affected_rows > 0){
+            if($original_data['feedback'] === $feedback){
+                $_SESSION['error_message'] = "Įrašyti duomenys atitinka jau esamus duomenis!";
+                header("Location: loan_requests.php");
+                exit();
+            }
+
             $row = getLoanRequestByID($request_id);
             $mail_sent = sendFeedbackMail($row['user_email'], $row['inventory_name']);
 
@@ -837,9 +1007,9 @@ function registerLoan($user_id, $inventory_id){
     $affected_rows = mysqli_stmt_affected_rows($stmt);
 
     if($affected_rows > 0){
-        $_SESSION['success_message'] = "Inventoriaus paskola užregistruota!";
+        $_SESSION['success_message'] = "Inventoriaus atsiėmimas užfiksuotas!";
     } else{
-        $_SESSION['error_message'] = "Inventoriaus paskolos užregistruoti nepavyko! Bandykite dar kartą!";
+        $_SESSION['error_message'] = "Inventoriaus atsiėmimo užfiksuoti nepavyko! Bandykite dar kartą!";
     }
 
     header("Location: loan_requests.php");
@@ -870,13 +1040,13 @@ function registerReturn($id, $inventory_id){
 
         if($affected_rows > 0){
             mysqli_commit($conn);
-            $_SESSION['success_message'] = "Inventoriaus grąžinimas užregistruotas!";
+            $_SESSION['success_message'] = "Inventoriaus grąžinimas užfiksuotas!";
         } else{
             mysqli_rollback($conn);
-            $_SESSION['error_message'] = "Inventoriaus grąžinimo užregistruoti nepavyko! Bandykite dar kartą!";
+            $_SESSION['error_message'] = "Inventoriaus grąžinimo užfiksuoti nepavyko! Bandykite dar kartą!";
         }
     } else{
-        $_SESSION['error_message'] = "Inventoriaus grąžinimo užregistruoti nepavyko! Bandykite dar kartą!";
+        $_SESSION['error_message'] = "Inventoriaus grąžinimo užfiksuoti nepavyko! Bandykite dar kartą!";
     }
 
     header("Location: loan_requests.php");
@@ -1179,9 +1349,18 @@ function getPublicKey(){
     return $server_base64_public_key;
 }
 
-function getPublicKeyMc(){
-    global $microcontroller_base64_public_key;
-    return $microcontroller_base64_public_key;
+function getStorageByDeviceName($device_name){
+    global $conn;
+
+    $stmt = mysqli_prepare($conn, "SELECT *
+                                    FROM inventory_locations
+                                    WHERE device_name = ?");
+    mysqli_stmt_bind_param($stmt, "s", $device_name);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($result);
+
+    return $row;
 }
 
 function generateRandomKeyPair() {
@@ -1260,12 +1439,12 @@ function encryptMessage($recipient_base64_public_key, $message) {
     return $encrypted_message;
 }
 
-function decryptMessage($sender_base64_private_key, $sender_base64_public_key, $base64_encrypted_message) {
-    $sender_private_key = base64_decode($sender_base64_private_key);
-    $sender_public_key = base64_decode($sender_base64_public_key);
+function decryptMessage($base64_private_key, $base64_public_key, $base64_encrypted_message) {
+    $private_key = base64_decode($base64_private_key);
+    $public_key = base64_decode($base64_public_key);
     $encrypted_message = base64_decode($base64_encrypted_message);
 
-    $keypair = sodium_crypto_box_keypair_from_secretkey_and_publickey($sender_private_key, $sender_public_key);
+    $keypair = sodium_crypto_box_keypair_from_secretkey_and_publickey($private_key, $public_key);
 
     $decrypted = sodium_crypto_box_seal_open($encrypted_message, $keypair);
 
@@ -1279,13 +1458,11 @@ function decryptMessage($sender_base64_private_key, $sender_base64_public_key, $
     return $decrypted;
 }
 
-function send_data($data_array) {
-    global $url;
-
+function send_data($data_array, $addr) {
     $data = http_build_query($data_array);
 
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url . "/post");
+    curl_setopt($ch, CURLOPT_URL, $addr . "/post");
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
     curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
@@ -1298,26 +1475,6 @@ function send_data($data_array) {
     curl_close($ch);
 
     return $output;
-}
-
-function adminCardData(){
-    global $sender_base64_private_key;
-    $sender_private_key = base64_decode($sender_base64_private_key);
-
-    $message = "admin";
-
-    $keypair = generateRandomKeyPair();
-    $public_key_admin = $keypair['public_key'];
-    $private_key_admin = $keypair['private_key'];
-
-    $keypair = sodium_crypto_box_keypair_from_secretkey_and_publickey($sender_private_key, $public_key_admin);
-
-    $nonce = random_bytes(SODIUM_CRYPTO_BOX_NONCEBYTES);
-
-    $ciphertext = sodium_crypto_box($message, $nonce, $keypair);
-    $encrypted_message = base64_encode($nonce . $ciphertext);
-
-    return $encrypted_message;
 }
 
 function removeRandomStringRecord($device_name){
@@ -1360,6 +1517,48 @@ function getRandomStringFromDB($device_name) {
     removeRandomStringRecord($device_name);
 
     return $message;
+}
+
+function adminCardData($data){
+    global $server_base64_public_key;
+
+    $recipient_public_key = base64_decode($server_base64_public_key);
+
+    $ciphertext = sodium_crypto_box_seal($data, $recipient_public_key);
+
+    $encrypted_message = base64_encode($ciphertext);
+
+    return $encrypted_message;
+}
+
+if((isset($_POST['action']) && $_POST['action'] === 'generate_admin_card_data')) {
+    $data = $_POST['user_id'] . "__" . $_POST['user_name'];
+    $result['data'] = adminCardData($data);
+
+    header('Content-Type: application/json');
+    echo json_encode($result);
+    exit();
+}
+
+function authenticateUser($decrypted_card_data){
+    global $conn;
+
+    $card_data_array = explode("__", $decrypted_card_data);
+    $user_id = $card_data_array[0];
+    $user_name = $card_data_array[1];
+
+    $stmt = mysqli_prepare($conn, "SELECT * FROM users
+                                    WHERE id = ?
+                                    AND `name` = ?");
+    mysqli_stmt_bind_param($stmt, "is", $user_id, $user_name);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    if ($row = mysqli_fetch_assoc($result)) {
+        return true;
+    } else {
+        return false;
+    }
 }
 #endregion
 ?>

@@ -46,13 +46,14 @@ $expanded_check = true;
 <?php include '../../includes/header_student.php'; ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="lt" class="notranslate" translate="no">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panaudos Prašymai</title>
     <link rel="stylesheet" href="../../css/mdb.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <link rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/ui-lightness/jquery-ui.css'> 
     <link rel="stylesheet" href="../../css/dropdown_search.css">
     <script defer src="../../js/bootstrap.bundle.min.js"></script>
     <script defer src="../../js/mdb.umd.min.js"></script>
@@ -129,13 +130,13 @@ $expanded_check = true;
                                     </div>
                                     <div class="row">
                                         <div class="col">
-                                            <input type="date" class="form-control start-date" id="date_start<?= $date_input_count1++ ?>" min="2025-01-01" value="<?= $row['start_date'] ?>"/>
+                                            <input type="text" class="form-control start-date" id="date_start<?= $date_input_count1++ ?>" min="2025-01-01" value="<?= $row['start_date'] ?>"/>
                                         </div>
                                         <div class="col-1 d-flex justify-content-center align-items-center">
                                             <i class="bi bi-dash"></i>
                                         </div>
                                         <div class="col">
-                                            <input type="date" class="form-control end-date" id="date_end<?= $date_input_count2++ ?>" min="2025-01-01" value="<?= $row['end_date'] ?>"/>
+                                            <input type="text" class="form-control end-date" id="date_end<?= $date_input_count2++ ?>" min="2025-01-01" value="<?= $row['end_date'] ?>"/>
                                         </div>
                                     </div>
                                 </div>
@@ -189,6 +190,8 @@ $expanded_check = true;
             </div>
         </div>
     </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script> 
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="../../js/dselect.js"></script>
     <script>
         var select_box_element = document.querySelectorAll('.inventory');
@@ -198,6 +201,53 @@ $expanded_check = true;
                 search: true
             });
         });
+    </script>
+    <script>
+        var date_input_count = <?php echo json_encode($date_input_count1); ?>;
+
+        $(document).ready(function() { 
+            for (i = 0; i < date_input_count; i++) {
+                $('#date_start' + i).datepicker({
+                    changeMonth: true, 
+                    changeYear: true
+                });
+
+                $("#date_end" + i).datepicker({
+                    changeMonth: true, 
+                    changeYear: true
+                });
+
+                $('#date_start' + i).change(function() { 
+                    start_date = $(this).datepicker('getDate'); 
+                    $("#date_end" + i).datepicker("option", "minDate", start_date); 
+                });
+
+                $("#date_end" + i).change(function() { 
+                    end_date = $(this).datepicker('getDate'); 
+                    $('#date_start' + i).datepicker("option", "maxDate", end_date); 
+                });
+
+                $.datepicker.regional['lt'] = {
+                    closeText: 'Uždaryti',
+                    prevText: '&#x3c;Atgal',
+                    nextText: 'Pirmyn&#x3e;',
+                    currentText: 'Šiandien',
+                    monthNames: ['sausis', 'vasaris', 'kovas', 'balandis', 'gegužė', 'birželis', 'liepa', 'rugpjūtis', 'rugsėjis', 'spalis', 'lapkritis', 'gruodis'],
+                    monthNamesShort: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'],
+                    dayNames: ['sekmadienis', 'pirmadienis', 'antradienis', 'trečiadienis', 'ketvirtadienis', 'penktadienis', 'šeštadienis'],
+                    dayNamesShort: ['s', 'pr', 'an', 'tr', 'kt', 'pn', 'š'],
+                    dayNamesMin: ['s', 'pr', 'an', 'tr', 'kt', 'pn', 'š'],
+                    weekHeader: 'Savaitė',
+                    dateFormat: 'yy-mm-dd',
+                    firstDay: 0,
+                    isRTL: false,
+                    showMonthAfterYear: true,
+                    yearSuffix: ''
+                };
+
+                $.datepicker.setDefaults($.datepicker.regional['lt']);
+            }
+        }) 
     </script>
     <script>
         function update() {
