@@ -61,7 +61,8 @@ $result = display_loans();
                         <input type="search" id="search-box" class="form-control" onkeyup="search()"/>
                         <label class="form-label" for="search-box">Ieškoti</label>
                     </div>
-                    <button type="button" class="btn btn-success mx-1" onClick="document.location.href='loan_inventory.php'">PASISKOLINTI INVENTORIŲ</button>
+                    <button type="button" class="btn btn-success ms-1" onClick="document.location.href='loan_inventory.php'">PASISKOLINTI INVENTORIŲ</button>
+                    <button type="button" class="btn btn-success ms-1" onClick="document.location.href='return_inventory.php'">GRĄŽINTI INVENTORIŲ</button>
                 </div>
             </div>
         </div>
@@ -72,7 +73,6 @@ $result = display_loans();
                     <thead>
                         <tr>
                             <th scope="col"><b>Pavadinimas</b></th>
-                            <th scope="col" class="col-1"><b>Veiksmai</b></th>
                         </tr>
                     </thead>
                     <tbody class="table-group-divider">
@@ -81,7 +81,6 @@ $result = display_loans();
                     ?>
                         <tr>
                             <td><?= $row['name']; ?></td>
-                            <td><button type="button" onClick="document.location.href='return_inventory.php'" class="btn btn-danger">GRĄŽINTI</button></td>
                         </tr>
                     <?php
                     }
