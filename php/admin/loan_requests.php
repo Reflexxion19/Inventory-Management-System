@@ -866,7 +866,13 @@ $expanded_check = true;
                     document.getElementById('inventory_number').value = data.inventory_number;
                     document.getElementById('description').value = data.description;
                 })
-                .catch(error => console.error('Error:', error));
+                .catch(error => {
+                    document.getElementById('inventory').value = "Informacija nerasta";
+                    document.getElementById('location').value = "Informacija nerasta";
+                    document.getElementById('serial_number').value = "Informacija nerasta";
+                    document.getElementById('inventory_number').value = "Informacija nerasta";
+                    document.getElementById('description').value = "Informacija nerasta";
+                });
 
             showLoanConfirmationModal(data).then((confirmed) => {
                 if (confirmed) {
@@ -919,7 +925,13 @@ $expanded_check = true;
                     document.getElementById('inventory_number').value = data.inventory_number;
                     document.getElementById('description').value = data.description;
                 })
-                .catch(error => console.error('Error:', error));
+                .catch(error => {
+                    document.getElementById('inventory').value = "Informacija nerasta";
+                    document.getElementById('location').value = "Informacija nerasta";
+                    document.getElementById('serial_number').value = "Informacija nerasta";
+                    document.getElementById('inventory_number').value = "Informacija nerasta";
+                    document.getElementById('description').value = "Informacija nerasta";
+                });
 
             showReturnConfirmationModal(data).then((confirmed) => {
                 if (confirmed) {
