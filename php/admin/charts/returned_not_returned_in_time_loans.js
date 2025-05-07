@@ -16,12 +16,7 @@
           labels: data.map(row => row.state),
           datasets: [
             {
-              label: [
-                'Dar negrąžintas inventorius (vnt.)',
-                'Nelaiku grąžintas inventorius (vnt.)',
-                'Laiku grąžintas inventorius (vnt.)',
-                'Pasiskolintas inventorius (vnt.)'
-              ],
+              label: 'Inventorius (vnt.)',
               data: data.map(row => row.count),
               backgroundColor: [
                 'rgba(54, 162, 235, 0.2)',
@@ -34,7 +29,8 @@
                 'rgb(75, 192, 192)',
                 'rgb(255, 159, 64)',
                 'rgb(255, 99, 132)'
-              ]
+              ],
+              borderWidth: 1
             }
           ]
         },

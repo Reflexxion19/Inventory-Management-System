@@ -71,12 +71,12 @@ $loanYears = loan_years();
                 <li class="nav-item" role="presentation">
                     <button class="nav-link <?php echo ($_SESSION['analysis_tab_state'] === "loans_by_month") ? "active" : "" ?> border-primary border-2" 
                     id="loans_by_month-tab" data-bs-toggle="tab" data-bs-target="#loans_by_month-tab-pane" type="button" role="tab" aria-controls="loans_by_month-tab-pane" 
-                    aria-selected="true" onclick="saveState('analysis_tab_state', 'loans_by_month')">Įrenginiai</button>
+                    aria-selected="true" onclick="saveState('analysis_tab_state', 'loans_by_month')">Kiekvieno mėnesio panaudos</button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link <?php echo ($_SESSION['analysis_tab_state'] === "returned_not_returned_in_time_loans") ? "active" : "" ?> border-primary border-2" 
                     id="returned_not_returned_in_time_loans-tab" data-bs-toggle="tab" data-bs-target="#returned_not_returned_in_time_loans-tab-pane" type="button" role="tab" aria-controls="returned_not_returned_in_time_loans-tab-pane" 
-                    aria-selected="false" onclick="saveState('analysis_tab_state', 'returned_not_returned_in_time_loans')">Talpyklos</button>
+                    aria-selected="false" onclick="saveState('analysis_tab_state', 'returned_not_returned_in_time_loans')">Grąžintas/negrąžintas inventorius</button>
                 </li>
             </ul>
             <div class="tab-content border border-2 rounded-bottom border-primary" id="myTabContent">

@@ -25,7 +25,14 @@
         datasets: [
           {
             label: 'Inventoriaus panaudos (vnt.)',
-            data: data.map(row => row.count)
+            data: data.map(row => row.count),
+            backgroundColor: [
+              'rgba(54, 162, 235, 0.2)'
+            ],
+            borderColor: [
+              'rgb(54, 162, 235)'
+            ],
+            borderWidth: 1
           }
         ]
       },
