@@ -1,23 +1,23 @@
 (async function() {
   const data = [
-    { month: 'Sausis', count: monthlyLoans[0] },
-    { month: 'Vasaris', count: monthlyLoans[1] },
-    { month: 'Kovas', count: monthlyLoans[2] },
-    { month: 'Balandis', count: monthlyLoans[3] },
-    { month: 'Gegužė', count: monthlyLoans[4] },
-    { month: 'Birželis', count: monthlyLoans[5] },
-    { month: 'Liepa', count: monthlyLoans[6] },
-    { month: 'Rugpjūtis', count: monthlyLoans[7] },
-    { month: 'Rugsėjis', count: monthlyLoans[8] },
-    { month: 'Spalis', count: monthlyLoans[9] },
-    { month: 'Lapkritis', count: monthlyLoans[10] },
-    { month: 'Gruodis', count: monthlyLoans[11] }
+    { month: 'Sausis', count: loans_by_month[0] },
+    { month: 'Vasaris', count: loans_by_month[1] },
+    { month: 'Kovas', count: loans_by_month[2] },
+    { month: 'Balandis', count: loans_by_month[3] },
+    { month: 'Gegužė', count: loans_by_month[4] },
+    { month: 'Birželis', count: loans_by_month[5] },
+    { month: 'Liepa', count: loans_by_month[6] },
+    { month: 'Rugpjūtis', count: loans_by_month[7] },
+    { month: 'Rugsėjis', count: loans_by_month[8] },
+    { month: 'Spalis', count: loans_by_month[9] },
+    { month: 'Lapkritis', count: loans_by_month[10] },
+    { month: 'Gruodis', count: loans_by_month[11] }
   ];
 
-  let title = "Inventoriaus panaudos".concat(" ", year, " ", "m.");
+  let title = "Inventoriaus panaudos".concat(" ", loans_by_month_year, " ", "m.");
 
   new Chart(
-    document.getElementById('acquisitions'),
+    document.getElementById('loans_by_month'),
     {
       type: 'bar',
       data: {
@@ -32,7 +32,7 @@
       options: {
         plugins: {
           legend: {
-            display: false // This hides the legend
+            display: false
           },
           title: {
             display: true,

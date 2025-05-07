@@ -1183,9 +1183,11 @@ function cancelRequest($application_id){
 #endregion
 
 #region Analysis
+
+    #region Yearly loans by month
 function loan_years(){
     global $conn;
-    $year = array_fill(0, 2, 0); // 12 reikšmių mąsyvas pripildytas nuliais
+    $year = array_fill(0, 2, 0);
 
     $current_date_parsed = explode("-", date("Y-m-d"));
     $current_year = (int)$current_date_parsed[0];
@@ -1229,7 +1231,7 @@ function loan_years(){
 
 function calculate_year_loans_by_month($year){
     global $conn;
-    $month = array_fill(0, 12, 0); // 12 reikšmių mąsyvas pripildytas nuliais
+    $month = array_fill(0, 12, 0);
 
     $stmt = mysqli_prepare($conn, "SELECT * 
                                     FROM inventory_loans");
@@ -1296,6 +1298,57 @@ function calculate_year_loans_by_month($year){
 
     return $month;
 }
+    #endregion
+
+    #region Ana
+function calculate_year_returned_and_not_returned_in_time_loans($year){
+    global $conn;
+    $data = array_fill(0, 4, 0);
+
+    $stmt = mysqli_prepare($conn, "SELECT *
+                                    FROM inventory_loans");
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    while($row = mysqli_fetch_assoc($result)){
+        $start_date = $row['loan_date'];
+        $end_date = $row['return_until_date'];
+        $return_date = $row['return_date'];
+
+        $start_date_parsed = explode("-", $start_date);
+        $end_date_parsed = explode("-", $end_date);
+        $return_date_parsed = explode("-", $return_date);
+
+        $start_year = (int)$start_date_parsed[0];
+        $end_year = (int)$end_date_parsed[0];
+
+        $end_month = (int)$end_date_parsed[1];
+
+        $end_day = (int)$end_date_parsed[2];
+
+        if($return_date){
+            $return_year = (int)$return_date_parsed[0];
+            $return_month = (int)$return_date_parsed[1];
+            $return_day = (int)$return_date_parsed[2];
+
+            if($return_year === $year && $return_year === $end_year && ($return_month < $end_month || ($return_month === $end_month && $return_day <= $end_day))){
+                $data[0]++;
+                $data[1]++;
+            } elseif($start_year === $year && $return_year === $end_year && ($return_month < $end_month || ($return_month === $end_month && $return_day <= $end_day))){
+                $data[0]++;
+                $data[1]++;
+            } elseif($start_year === $year && ($return_year > $end_year || ($return_year === $end_year && $return_month > $end_month) || ($return_year === $end_year && $return_month === $end_month && $return_day > $end_day))){
+                $data[0]++;
+                $data[2]++;
+            }
+        } elseif (!$return_date && $start_year === $year) {
+            $data[0]++;
+            $data[3]++;
+        }
+    }
+
+    return $data;
+}
+    #endregion
 #endregion
 
 #region Mail

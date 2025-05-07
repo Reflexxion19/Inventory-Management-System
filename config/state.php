@@ -19,4 +19,8 @@ if(isset($_POST['loan_requests_tab_state'])) {
     $_SESSION['loan_requests_tab_state'] = $_POST['loan_requests_tab_state'];
 }
 
+if (isset($_POST['analysis_tab_state'])) {
+    $_SESSION['analysis_tab_state'] = $_POST['analysis_tab_state'];
+}
+
 ?>

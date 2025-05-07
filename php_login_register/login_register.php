@@ -92,7 +92,7 @@ if (isset($_POST['register'])) {
 
                                 if ($affected_rows > 0) {
                                     if(sendEmailVerificationMail($email, $verification_token)){
-                                        $_SESSION['register_success'] = 'Paskyra sėkmingai sukurta! Elektroniniu paštu išsiųstas patvirtinimo laiškas!';
+                                        $_SESSION['registration_success'] = 'Paskyra sėkmingai sukurta! Elektroniniu paštu išsiųstas patvirtinimo laiškas!';
                                         $_SESSION['active_form'] ='login';
                                     } else {
                                         $_SESSION['register_error'] = 'Nepavyko išsiųsti el. pašto patvirtinimo laiško! Bandykite dar kartą arba susisiekite su sistemos administratoriumi!';
