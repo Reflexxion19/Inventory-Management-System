@@ -1,6 +1,17 @@
 <?php
 
+header("X-XSS-Protection: 1; mode=block");
+header("X-Content-Type-Options: nosniff");
+
 session_save_path("/tmp");
+session_set_cookie_params([
+    'lifetime' => 3600,
+    'path' => '/',
+    'domain' => $_SERVER['HTTP_HOST'],
+    'secure' => true,
+    'httponly' => true,
+    'samesite' => 'Strict'
+]);
 session_start();
 
 if(isset($_SESSION['email']) && isset($_SESSION['role']) && $_SESSION['role'] == 'admin') {
@@ -29,11 +40,11 @@ $verification_success = $_SESSION['verification_success'] ?? '';
 session_unset();
 
 function showError($error) {
-    return !empty($error) ? "<p class='error-message'>$error</p>" : '';
+    return !empty($error) ? "<p class='error-message'>" . htmlspecialchars($error, ENT_QUOTES, 'UTF-8') . "</p>" : '';
 }
 
 function showSuccess($success) {
-    return !empty($success) ? "<p class='success-message'>$success</p>" : '';
+    return !empty($success) ? "<p class='success-message'>" . htmlspecialchars($success, ENT_QUOTES, 'UTF-8') . "</p>" : '';
 }
 
 function isActiveForm($formName, $activeForm) {
@@ -84,7 +95,6 @@ function isActiveForm($formName, $activeForm) {
         </div>
     </div>
 
-    <script src="https://kit.fontawesome.com/8c063c95d3.js" crossorigin="anonymous"></script>
     <script src="js/script.js"></script>
     <script src="js/validation.js"></script>
 </body>

@@ -1,6 +1,17 @@
 <?php
 
+header("X-XSS-Protection: 1; mode=block");
+header("X-Content-Type-Options: nosniff");
+
 session_save_path("/tmp");
+session_set_cookie_params([
+    'lifetime' => 3600,
+    'path' => '/',
+    'domain' => $_SERVER['HTTP_HOST'],
+    'secure' => true,
+    'httponly' => true,
+    'samesite' => 'Strict'
+]);
 session_start();
 require_once '../../config/functions.php';
 
@@ -30,7 +41,7 @@ $result_inventory = displayInventory();
 $inventory_array = [];
 $j = 0;
 while($row_inventory = mysqli_fetch_assoc($result_inventory)){
-    $inventory_array[$j++] = ['id' => $row_inventory['id'], 'name' => $row_inventory['name']];
+    $inventory_array[$j++] = ['id' => htmlspecialchars($row_inventory['id'], ENT_QUOTES, 'UTF-8'), 'name' => htmlspecialchars($row_inventory['name'], ENT_QUOTES, 'UTF-8')];
 }
 $inventory_count = count($inventory_array);
 $result_requests = display_student_loan_requests();
@@ -66,7 +77,7 @@ $expanded_check = true;
     if($_SESSION['success_message'] != ""){
     ?>
         <div class="mt-3 alert alert-success" role="alert">
-            <?= $_SESSION['success_message'] ?>
+            <?= htmlspecialchars($_SESSION['success_message'], ENT_QUOTES, 'UTF-8') ?>
         </div>
     <?php
     }
@@ -76,7 +87,7 @@ $expanded_check = true;
     if($_SESSION['error_message'] != ""){
     ?>
         <div class="mt-3 alert alert-danger" role="alert">
-        <?= $_SESSION['error_message'] ?>
+        <?= htmlspecialchars($_SESSION['error_message'], ENT_QUOTES, 'UTF-8') ?>
         </div>
     <?php
     }
@@ -103,7 +114,7 @@ $expanded_check = true;
                         <button class="accordion-button <?php if(!$expanded_check){echo 'collapsed';}?>" type="button" 
                         data-bs-toggle="collapse" data-bs-target="#collapse<?= $collapse_count ?>" 
                         aria-expanded="<?= $expanded_check ?>" aria-controls="collapse<?= $collapse_count ?>">
-                        <?= $row['student_name'] . " " . $row['student_group'] . " : " . $row['inventory_name'] ?></button> 
+                        <?= htmlspecialchars($row['student_name'], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($row['student_group'], ENT_QUOTES, 'UTF-8') . " : " . htmlspecialchars($row['inventory_name'], ENT_QUOTES, 'UTF-8') ?></button> 
                     </h2>
                     <div id="collapse<?= $collapse_count++ ?>" class="accordion-collapse collapse 
                     <?php if($expanded_check){echo 'show';}?>" data-bs-parent="#accordion">
@@ -111,11 +122,11 @@ $expanded_check = true;
                             <div class="row">
                                 <div class="col-3 mb-3">
                                     <label for="text<?= $input_count ?>" class="form-label">Vardas Pavardė</label>
-                                    <input type="text" class="form-control" id="text<?= $input_count++ ?>" value="<?= $row['student_name'] ?>" disabled/>
+                                    <input type="text" class="form-control" id="text<?= $input_count++ ?>" value="<?= htmlspecialchars($row['student_name'], ENT_QUOTES, 'UTF-8') ?>" disabled/>
                                 </div>
                                 <div class="col-3 mb-3">
                                     <label for="text<?= $input_count ?>" class="form-label">Akademinė grupė</label>
-                                    <input type="text" class="form-control" id="text<?= $input_count++ ?>" value="<?= $row['student_group'] ?>" disabled/>
+                                    <input type="text" class="form-control" id="text<?= $input_count++ ?>" value="<?= htmlspecialchars($row['student_group'], ENT_QUOTES, 'UTF-8') ?>" disabled/>
                                 </div>
                                 <div class="col-6 mb-3">
                                     <div class="row">
@@ -130,13 +141,13 @@ $expanded_check = true;
                                     </div>
                                     <div class="row">
                                         <div class="col">
-                                            <input type="text" class="form-control start-date" id="date_start<?= $date_input_count1++ ?>" min="2025-01-01" value="<?= $row['start_date'] ?>"/>
+                                            <input type="text" class="form-control start-date" id="date_start<?= $date_input_count1++ ?>" min="2025-01-01" value="<?= htmlspecialchars($row['start_date'], ENT_QUOTES, 'UTF-8') ?>"/>
                                         </div>
                                         <div class="col-1 d-flex justify-content-center align-items-center">
                                             <i class="bi bi-dash"></i>
                                         </div>
                                         <div class="col">
-                                            <input type="text" class="form-control end-date" id="date_end<?= $date_input_count2++ ?>" min="2025-01-01" value="<?= $row['end_date'] ?>"/>
+                                            <input type="text" class="form-control end-date" id="date_end<?= $date_input_count2++ ?>" min="2025-01-01" value="<?= htmlspecialchars($row['end_date'], ENT_QUOTES, 'UTF-8') ?>"/>
                                         </div>
                                     </div>
                                 </div>
@@ -150,7 +161,7 @@ $expanded_check = true;
                                     $result_inventory = displayInventory();
                                     foreach($inventory_array as $inventory){
                                     ?>
-                                        <option <?php echo ($row['fk_inventory_id'] === $inventory['id']) ? "selected" : "" ?> 
+                                        <option <?php echo (htmlspecialchars($row['fk_inventory_id'], ENT_QUOTES, 'UTF-8') === $inventory['id']) ? "selected" : "" ?> 
                                         value="<?= $inventory['id'] ?>"><?= $inventory['name'] ?></option>
                                     <?php
                                     }
@@ -162,14 +173,14 @@ $expanded_check = true;
                                 <div class="mb-3">
                                     <label for="textArea<?= $input_count ?>" class="form-label">Papildomi komentarai</label>
                                     <textarea class="form-control" id="textArea<?= $input_count++ ?>" rows="3" 
-                                    ><?= $row['additional_comments'] ?></textarea>
+                                    ><?= htmlspecialchars($row['additional_comments'], ENT_QUOTES, 'UTF-8') ?></textarea>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="mb-3">
                                     <label for="textArea<?= $input_count ?>" class="form-label">Pastabos</label>
                                     <textarea class="form-control" id="textArea<?= $input_count++ ?>" style="color: #776F6F;" rows="3" 
-                                    disabled><?= $row['feedback'] ?></textarea>
+                                    disabled><?= htmlspecialchars($row['feedback'], ENT_QUOTES, 'UTF-8') ?></textarea>
                                 </div>
                             </div>
                             <div class="row">

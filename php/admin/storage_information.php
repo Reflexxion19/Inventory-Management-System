@@ -1,6 +1,17 @@
 <?php
 
+header("X-XSS-Protection: 1; mode=block");
+header("X-Content-Type-Options: nosniff");
+
 session_save_path("/tmp");
+session_set_cookie_params([
+    'lifetime' => 3600,
+    'path' => '/',
+    'domain' => $_SERVER['HTTP_HOST'],
+    'secure' => true,
+    'httponly' => true,
+    'samesite' => 'Strict'
+]);
 session_start();
 require_once '../../config/functions.php';
 
@@ -56,10 +67,10 @@ $path = "../../images/qr_codes/";
 <body>
     <div class="container-md min-vh-100">
     <?php 
-    if($_SESSION['error_message'] !== ""){
+    if($_SESSION['error_message'] != ""){
     ?>
         <div class="mt-3 alert alert-danger" role="alert">
-        <?= $_SESSION['error_message'] ?>
+        <?= htmlspecialchars($_SESSION['error_message'], ENT_QUOTES, 'UTF-8') ?>
         </div>
     <?php
     }
@@ -69,27 +80,27 @@ $path = "../../images/qr_codes/";
                 <div class="row">
                     <div class="col mb-3">
                         <label for="storage" class="form-label">Talpyklos pavadinimas</label>
-                        <input type="text" class="form-control" id="storage" name="name" placeholder="Pvz.: Arduino UNO R3" value="<?= $row['name'] ?>" required disabled>
+                        <input type="text" class="form-control" id="storage" name="name" placeholder="Pvz.: Arduino UNO R3" value="<?= htmlspecialchars($row['name'], ENT_QUOTES, 'UTF-8') ?>" required disabled>
                     </div>
                     <div class="col mb-3">
                         <label for="lock_name" class="form-label">Elektroninio užrakto pavadinimas</label>
-                        <input type="text" class="form-control" id="lock_name" name="lock_name" placeholder="Pvz.: Mk1" value="<?= $row['device_name'] ?>" disabled>
+                        <input type="text" class="form-control" id="lock_name" name="lock_name" placeholder="Pvz.: Mk1" value="<?= htmlspecialchars($row['device_name'], ENT_QUOTES, 'UTF-8') ?>" disabled>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-6 mb-3">
                         <label for="lock_public_key" class="form-label">Elektroninio užrakto viešasis raktas</label>
-                        <input type="text" class="form-control" id="lock_public_key" name="lock_public_key" value="<?= $row['public_key'] ?>" disabled>
+                        <input type="text" class="form-control" id="lock_public_key" name="lock_public_key" value="<?= htmlspecialchars($row['public_key'], ENT_QUOTES, 'UTF-8') ?>" disabled>
                     </div>
                     <div class="col-6 mb-3">
                         <label for="lock_address" class="form-label">Elektroninio užrakto adresas</label>
-                        <input type="text" class="form-control" id="lock_address" name="lock_address" value="<?= $row['address'] ?>" disabled>
+                        <input type="text" class="form-control" id="lock_address" name="lock_address" value="<?= htmlspecialchars($row['address'], ENT_QUOTES, 'UTF-8') ?>" disabled>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col mb-3">
                         <label for="description" class="form-label">Aprašymas</label>
-                        <textarea class="form-control" id="description" name="description" rows="5" required disabled><?= $row['description'] ?></textarea>
+                        <textarea class="form-control" id="description" name="description" rows="5" required disabled><?= htmlspecialchars($row['description'], ENT_QUOTES, 'UTF-8') ?></textarea>
                     </div>
                 </div>
                 <div class="row">

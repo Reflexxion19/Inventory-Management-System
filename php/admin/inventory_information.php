@@ -1,6 +1,17 @@
 <?php
 
+header("X-XSS-Protection: 1; mode=block");
+header("X-Content-Type-Options: nosniff");
+
 session_save_path("/tmp");
+session_set_cookie_params([
+    'lifetime' => 3600,
+    'path' => '/',
+    'domain' => $_SERVER['HTTP_HOST'],
+    'secure' => true,
+    'httponly' => true,
+    'samesite' => 'Strict'
+]);
 session_start();
 require_once '../../config/functions.php';
 
@@ -61,7 +72,7 @@ $path = "../../images/qr_codes/";
     if($_SESSION['error_message'] !== ""){
     ?>
         <div class="mt-3 alert alert-danger" role="alert">
-        <?= $_SESSION['error_message'] ?>
+        <?= htmlspecialchars($_SESSION['error_message'], ENT_QUOTES, 'UTF-8') ?>
         </div>
     <?php
     }
@@ -71,7 +82,7 @@ $path = "../../images/qr_codes/";
                 <div class="row">
                     <div class="col-6 mb-3">
                         <label for="inventory" class="form-label">Pavadinimas</label>
-                        <input type="text" class="form-control" id="inventory" name="name" placeholder="Pvz.: Arduino UNO R3" value="<?= $row_inventory['name'] ?>" required disabled>
+                        <input type="text" class="form-control" id="inventory" name="name" placeholder="Pvz.: Arduino UNO R3" value="<?= htmlspecialchars($row_inventory['name'], ENT_QUOTES, 'UTF-8') ?>" required disabled>
                     </div>
                     <div class="col-6 mb-3">
                         <label for="location_select" class="form-label">Vieta</label>
@@ -79,7 +90,8 @@ $path = "../../images/qr_codes/";
                         <?php
                         while($row_locations = mysqli_fetch_assoc($result_locations)){
                         ?>
-                            <option <?php echo ($row_inventory['fk_inventory_location_id'] === $row_locations['id']) ? "selected" : "" ?> value="<?= $row_locations['id']?>"><?= $row_locations['name']?></option>
+                            <option <?php echo (htmlspecialchars($row_inventory['fk_inventory_location_id'], ENT_QUOTES, 'UTF-8') === htmlspecialchars($row_locations['id'], ENT_QUOTES, 'UTF-8')) ? "selected" : "" ?> 
+                                value="<?= htmlspecialchars($row_locations['id'], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($row_locations['name'], ENT_QUOTES, 'UTF-8')?></option>
                         <?php
                         }
                         ?>
@@ -89,17 +101,17 @@ $path = "../../images/qr_codes/";
                 <div class="row">
                     <div class="col-6 mb-3">
                         <label for="serial_number" class="form-label">Serijinis numeris</label>
-                        <input type="text" class="form-control" id="serial_number" name="serial_number" placeholder="Pvz.: 6489878" value="<?= $row_inventory['serial_number'] ?>" required disabled>
+                        <input type="text" class="form-control" id="serial_number" name="serial_number" placeholder="Pvz.: 6489878" value="<?= htmlspecialchars($row_inventory['serial_number'], ENT_QUOTES, 'UTF-8') ?>" required disabled>
                     </div>
                     <div class="col-6 mb-3">
                         <label for="inventory_number" class="form-label">Inventoriaus numeris</label>
-                        <input type="text" class="form-control" id="inventory_number" name="inventory_number" placeholder="Pvz.: 1232165" value="<?= $row_inventory['inventory_number'] ?>" required disabled>
+                        <input type="text" class="form-control" id="inventory_number" name="inventory_number" placeholder="Pvz.: 1232165" value="<?= htmlspecialchars($row_inventory['inventory_number'], ENT_QUOTES, 'UTF-8') ?>" required disabled>
                     </div>
                 </div>
                 <div class="row">
                     <div class="mb-3">
                         <label for="description" class="form-label">Aprašymas</label>
-                        <textarea class="form-control" id="description" name="description" rows="5" required disabled><?= $row_inventory['description'] ?></textarea>
+                        <textarea class="form-control" id="description" name="description" rows="5" required disabled><?= htmlspecialchars($row_inventory['description'], ENT_QUOTES, 'UTF-8') ?></textarea>
                     </div>
                 </div>
                 <div class="row">

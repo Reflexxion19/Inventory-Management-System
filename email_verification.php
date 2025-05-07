@@ -1,11 +1,22 @@
 <?php
 
+header("X-XSS-Protection: 1; mode=block");
+header("X-Content-Type-Options: nosniff");
+
 session_save_path("/tmp");
+session_set_cookie_params([
+    'lifetime' => 3600,
+    'path' => '/',
+    'domain' => $_SERVER['HTTP_HOST'],
+    'secure' => true,
+    'httponly' => true,
+    'samesite' => 'Strict'
+]);
 session_start();
 require_once 'config/config.php';
 require_once 'config/functions.php';
 
-if(isset($_GET['token'])) {
+if(isset($_GET['token']) && preg_match('/^[a-f0-9]{32}$/', $_GET['token'])) {
     $token = $_GET['token'];
 
     $stmt = mysqli_prepare($conn, "SELECT id 

@@ -19,8 +19,8 @@ if (!isset($_SERVER["CONTENT_TYPE"]) || $_SERVER["CONTENT_TYPE"] !== "applicatio
         
         echo '<div>';
         echo '<h2>Generated Key Pair</h2>';
-        echo '<p>Public Key (Base64): '. $base64_public_key . '</p>';
-        echo '<p>Private Key (Base64): '. $base64_private_key . '</p>';
+        echo '<p>Public Key (Base64): '. htmlspecialchars($base64_public_key, ENT_QUOTES, 'UTF-8') . '</p>';
+        echo '<p>Private Key (Base64): '. htmlspecialchars($base64_private_key, ENT_QUOTES, 'UTF-8') . '</p>';
         echo '</div>';
         exit();
     }
@@ -73,10 +73,10 @@ if (!isset($_SERVER["CONTENT_TYPE"]) || $_SERVER["CONTENT_TYPE"] !== "applicatio
                 
                             send_data($data_array, $device_data['address']);
                         } else{
-                            echo "Naudotojo autentifikacijos klaida";
+                            echo htmlspecialchars("Naudotojo autentifikacijos klaida", ENT_QUOTES, 'UTF-8');
                         }
                     } else{
-                        echo "Įrenginio autentifikacijos klaida";
+                        echo htmlspecialchars("Įrenginio autentifikacijos klaida", ENT_QUOTES, 'UTF-8');
                     }
                 }
             }

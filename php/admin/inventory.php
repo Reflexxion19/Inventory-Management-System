@@ -1,6 +1,17 @@
 <?php
 
+header("X-XSS-Protection: 1; mode=block");
+header("X-Content-Type-Options: nosniff");
+
 session_save_path("/tmp");
+session_set_cookie_params([
+    'lifetime' => 3600,
+    'path' => '/',
+    'domain' => $_SERVER['HTTP_HOST'],
+    'secure' => true,
+    'httponly' => true,
+    'samesite' => 'Strict'
+]);
 session_start();
 require_once '../../config/functions.php';
 
@@ -54,7 +65,7 @@ $path = "../../images/qr_codes/";
     if($_SESSION['success_message'] != ""){
     ?>
         <div class="mt-3 alert alert-success" role="alert">
-            <?= $_SESSION['success_message'] ?>
+            <?= htmlspecialchars($_SESSION['success_message'], ENT_QUOTES, 'UTF-8') ?>
         </div>
     <?php
     }
@@ -64,7 +75,7 @@ $path = "../../images/qr_codes/";
     if($_SESSION['error_message'] != ""){
     ?>
         <div class="mt-3 alert alert-danger" role="alert">
-        <?= $_SESSION['error_message'] ?>
+        <?= htmlspecialchars($_SESSION['error_message'], ENT_QUOTES, 'UTF-8') ?>
         </div>
     <?php
     }
@@ -134,9 +145,9 @@ $path = "../../images/qr_codes/";
                                     while($row = mysqli_fetch_assoc($result_inventory)){
                                     ?>
                                         <tr style="cursor: pointer;" data-id="<?= $row['id'] ?>" onclick="redirect(event)">
-                                            <td><?= $row['name'] ?></td>
-                                            <td><?= $row['serial_number'] ?></td>
-                                            <td><?= $row['inventory_number'] ?></td>
+                                            <td><?= htmlspecialchars($row['name'], ENT_QUOTES, 'UTF-8') ?></td>
+                                            <td><?= htmlspecialchars($row['serial_number'], ENT_QUOTES, 'UTF-8') ?></td>
+                                            <td><?= htmlspecialchars($row['inventory_number'], ENT_QUOTES, 'UTF-8') ?></td>
                                     <?php
                                         if(checkInventoryAvailability($row['id'])){
                                     ?>
@@ -193,7 +204,7 @@ $path = "../../images/qr_codes/";
                                     while($row = mysqli_fetch_assoc($result_storage)){
                                     ?>
                                         <tr style="cursor: pointer;" data-id="<?= $row['id'] ?>" onclick="redirect(event)">
-                                            <td><?= $row['name'] ?></td>
+                                            <td><?= htmlspecialchars($row['name'], ENT_QUOTES, 'UTF-8') ?></td>
                                             <td><a class="d-flex justify-content-center" id="download_storage" href="<?= $path . $row['sticker_path'] ?>" 
                                             download="<?= $row['sticker_path'] ?>"><?php echo '<img style="width: 50%;" src="' . $path . $row['sticker_path'] . '" />' ?></a></td>
                                             <td><button type="button" class="btn btn-danger" id="btn-storage"><i class="bi bi-trash"></i></button></td>

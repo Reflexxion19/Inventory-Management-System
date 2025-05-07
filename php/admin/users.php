@@ -1,6 +1,17 @@
 <?php
 
+header("X-XSS-Protection: 1; mode=block");
+header("X-Content-Type-Options: nosniff");
+
 session_save_path("/tmp");
+session_set_cookie_params([
+    'lifetime' => 3600,
+    'path' => '/',
+    'domain' => $_SERVER['HTTP_HOST'],
+    'secure' => true,
+    'httponly' => true,
+    'samesite' => 'Strict'
+]);
 session_start();
 require_once '../../config/functions.php';
 
@@ -52,7 +63,7 @@ $result = display_users();
     if($_SESSION['success_message'] != ""){
     ?>
         <div class="mt-3 alert alert-success" role="alert">
-            <?= $_SESSION['success_message'] ?>
+            <?= htmlspecialchars($_SESSION['success_message'], ENT_QUOTES, 'UTF-8') ?>
         </div>
     <?php
     }
@@ -62,12 +73,11 @@ $result = display_users();
     if($_SESSION['error_message'] != ""){
     ?>
         <div class="mt-3 alert alert-danger" role="alert">
-        <?= $_SESSION['error_message'] ?>
+        <?= htmlspecialchars($_SESSION['error_message'], ENT_QUOTES, 'UTF-8') ?>
         </div>
     <?php
     }
     ?>
-
         <div class="modal fade" id="card-data-modal" tabindex="-1" aria-labelledby="card-data-modal" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -109,8 +119,8 @@ $result = display_users();
                     <?php
                     while($row = mysqli_fetch_assoc($result)){
                     ?>
-                        <tr data-id="<?= $row['id'] ?>">
-                            <td><?= $row['name']; ?></td>
+                        <tr data-id="<?= htmlspecialchars($row['id'], ENT_QUOTES, 'UTF-8') ?>">
+                            <td><?= htmlspecialchars($row['name'], ENT_QUOTES, 'UTF-8') ?></td>
                             <td>
                                 <div class="row">
                                     <div class="col-7">
@@ -143,7 +153,7 @@ $result = display_users();
                                     <?php
                                         if($row['role'] == 'admin'){
                                     ?>
-                                        <button type="button" class="btn btn-danger" name="change_role" data-id="<?= $row['id'] ?>" data-name="<?= $row['name'] ?>" onclick="generateKecardData()">Generuoti koretelės duomenis</button>
+                                        <button type="button" class="btn btn-danger" name="change_role" data-id="<?= htmlspecialchars($row['id'], ENT_QUOTES, 'UTF-8') ?>" data-name="<?= htmlspecialchars($row['name'], ENT_QUOTES, 'UTF-8') ?>" onclick="generateKecardData()">Generuoti koretelės duomenis</button>
                                     <?php
                                         }
                                     ?>

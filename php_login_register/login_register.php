@@ -1,6 +1,17 @@
 <?php
 
+header("X-XSS-Protection: 1; mode=block");
+header("X-Content-Type-Options: nosniff");
+
 session_save_path("/tmp");
+session_set_cookie_params([
+    'lifetime' => 3600,
+    'path' => '/',
+    'domain' => $_SERVER['HTTP_HOST'],
+    'secure' => true,
+    'httponly' => true,
+    'samesite' => 'Strict'
+]);
 session_start();
 require_once '../config/config.php';
 require_once '../config/functions.php';
@@ -126,7 +137,8 @@ if (isset($_POST['login'])) {
 
     $stmt = mysqli_prepare($conn, "SELECT * 
                                     FROM users 
-                                    WHERE email = '$email'");
+                                    WHERE email = ?");
+    mysqli_stmt_bind_param($stmt, "s", $email);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
 
