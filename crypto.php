@@ -30,13 +30,13 @@ if (!isset($_SERVER["CONTENT_TYPE"]) || $_SERVER["CONTENT_TYPE"] !== "applicatio
 } else {
     $data = json_decode($rawData, true);
 
-    if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
+    if ($data === NULL && json_last_error() !== JSON_ERROR_NONE) {
         header("HTTP/1.1 400 Bad Request");
         exit();
     } else {
-        $device_name = $data['device_name']?? null;
-        $type = $data['type'] ?? null;
-        $message = $data['message']?? null;
+        $device_name = $data['device_name']?? NULL;
+        $type = $data['type'] ?? NULL;
+        $message = $data['message']?? NULL;
 
         if ($device_name && $type && $message) {
             $device_data = getStorageByDeviceName($device_name);
@@ -54,7 +54,7 @@ if (!isset($_SERVER["CONTENT_TYPE"]) || $_SERVER["CONTENT_TYPE"] !== "applicatio
     
                 send_data($data_array, $device_data['address']);
             } elseif ($type === "auth_response") {
-                $card_data = $data['card_data'] ?? null;
+                $card_data = $data['card_data'] ?? NULL;
 
                 if($card_data){
                     $rand_str = getRandomStringFromDB($device_name);
@@ -63,21 +63,37 @@ if (!isset($_SERVER["CONTENT_TYPE"]) || $_SERVER["CONTENT_TYPE"] !== "applicatio
                     if($rand_str === $base64_decrypted_message){
                         $decrypted_card_data = decryptMessage($server_base64_private_key, $server_base64_public_key, $card_data);
 
-                        if(authenticateUser($decrypted_card_data)){
-                            $base64_encrypted_message = encryptMessage($device_data['public_key'], "unlock");
+                        if($decrypted_card_data){
+                            $card_data_array = explode("__", $decrypted_card_data);
+                            $user_id = $card_data_array[0];
+                            $user_name = $card_data_array[1];
 
-                            $data_array = [
-                                'type' => "auth_confirmation",
-                                'message' => $base64_encrypted_message
-                            ];
-                
-                            send_data($data_array, $device_data['address']);
+                            if(authenticateUser($user_id, $user_name, $device_name)){
+                                registerStorageUnlockAttempt($device_name, $user_id, 'Sėkmingas bandymas');
+
+                                $base64_encrypted_message = encryptMessage($device_data['public_key'], "unlock");
+    
+                                $data_array = [
+                                    'type' => "auth_confirmation",
+                                    'message' => $base64_encrypted_message
+                                ];
+                    
+                                send_data($data_array, $device_data['address']);
+                            } else{
+                                registerStorageUnlockAttempt($device_name, $user_id, 'Nepavykęs bandymas');
+                                echo htmlspecialchars("Naudotojo autentifikacijos klaida", ENT_QUOTES, 'UTF-8');
+                            }
                         } else{
-                            echo htmlspecialchars("Naudotojo autentifikacijos klaida", ENT_QUOTES, 'UTF-8');
+                            registerStorageUnlockAttempt($device_name, NULL, 'Nepavykęs bandymas');
+                            echo htmlspecialchars("Duomenų iššifravimo klaida", ENT_QUOTES, 'UTF-8');
                         }
                     } else{
+                        registerStorageUnlockAttempt($device_name, NULL, 'Nepavykęs bandymas');
                         echo htmlspecialchars("Įrenginio autentifikacijos klaida", ENT_QUOTES, 'UTF-8');
                     }
+                } else{
+                    registerStorageUnlockAttempt($device_name, NULL, 'Nepavykęs bandymas');
+                    echo htmlspecialchars("Klaida", ENT_QUOTES, 'UTF-8');
                 }
             }
         } else {

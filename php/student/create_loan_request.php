@@ -78,15 +78,15 @@ $result = displayInventory();
         <div class="row <?php echo ($_SESSION['success_message'] === "" && $_SESSION['error_message'] === "") ? "mt-5" : "" ?> mb-3 d-flex justify-content-end">
             <form method="post">
                 <div class="row">
-                    <div class="col-3 mb-3">
+                    <div class="col-lg-3 col-md-6 mb-3">
                         <label for="full-name" class="form-label">Vardas Pavardė</label>
                         <input type="text" class="form-control" id="full-name" name="full-name" value="<?= $_SESSION['name'] ?>" disabled/>
                     </div>
-                    <div class="col-3 mb-3">
+                    <div class="col-lg-3 col-md-6 mb-3">
                         <label for="academic-group" class="form-label">Akademinė grupė</label>
                         <input type="text" class="form-control" id="academic-group" name="academic-group" value="<?= $_SESSION['academic_group'] ?>" disabled/>
                     </div>
-                    <div class="col-6 mb-3">
+                    <div class="col-lg-6 col-12 mb-3">
                         <div class="row">
                             <div class="col d-flex">
                                 <label class="form-label" for="start-date">Pradžios data</label>
@@ -99,13 +99,13 @@ $result = displayInventory();
                         </div>
                         <div class="row">
                             <div class="col">
-                                <input type="text" id="start-date" class="form-control" name="start-date" min="2025-01-01"/>
+                                <input type="text" id="start-date" class="form-control" name="start-date" min="2025-01-01" required/>
                             </div>
                             <div class="col-1 d-flex justify-content-center align-items-center">
                                 <i class="bi bi-dash"></i>
                             </div>
                             <div class="col">
-                                <input type="text" id="end-date" class="form-control" name="end-date" min="2025-01-01"/>
+                                <input type="text" id="end-date" class="form-control" name="end-date" min="2025-01-01" required/>
                             </div>
                         </div>
                     </div>
@@ -113,7 +113,7 @@ $result = displayInventory();
                 <div class="row">
                     <div class="mb-3">
                         <label for="inventory" class="form-label">Inventoriaus vienetas</label>
-                        <select class="form-select" id="inventory" name="inventory">
+                        <select class="form-select" id="inventory" name="inventory" required>
                             <option value="">Pasirinkite inventorių</option>
                         <?php
                         while($row = mysqli_fetch_assoc($result)){
@@ -133,6 +133,12 @@ $result = displayInventory();
                         <textarea class="form-control" id="textArea" name="additional-comments" rows="3"></textarea>
                     </div>
                 </div>
+                <div class="row mb-2">
+                    <div class="col d-flex justify-content-end">
+                        <label class="form-check-label me-2" for="check">Sutinku, jog negrąžinus įrenginio per numatytą laiką turėsiu sumokėti numatytą sumą (0,1 € / dieną)</label>
+                        <input class="form-check-input" type="checkbox" id="check" required>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col d-flex justify-content-end">
                         <button type="submit" class="btn btn-success mx-1" name="submit">PATEIKTI</button>
@@ -149,6 +155,20 @@ $result = displayInventory();
 
         dselect(select_box_element, {
             search: true
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var select_box_element = document.querySelector('#inventory');
+            
+            dselect(select_box_element, {
+                search: true
+            });
+
+            select_box_element.style.display = 'flex';
+            select_box_element.style.opacity = '0';
+            select_box_element.style.position = 'absolute';
+            select_box_element.style.height = select_box_element.height;
+            select_box_element.style.width = '20%';
         });
     </script>
     <script>

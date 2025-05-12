@@ -42,7 +42,7 @@ if (isset($_POST['request_feedback'])) {
 }
 
 if (isset($_POST['register_loan'])) {
-    registerLoan($_POST['user_id'], $_POST['inventory_id']);
+    registerLoan($_POST['user_id'], $_POST['inventory_id'], $_POST['start_date'], $_POST['end_date']);
 }
 
 if (isset($_POST['register_return'])) {
@@ -59,7 +59,12 @@ $collapse_count = 0;
 $input_count = 0;
 $date_input_count1 = 0;
 $date_input_count2 = 0;
-$expanded_check = true;
+$expanded_check_submitted = true;
+$expanded_check_corrected = true;
+$expanded_check_needs_correction = true;
+$expanded_check_approved = true;
+$expanded_check_rejected = true;
+$expanded_check_finished = true;
 
 ?>
 
@@ -135,6 +140,7 @@ $expanded_check = true;
                             <textarea class="form-control" id="description" name="description" rows="3" required disabled></textarea>
                         </div>
                     </div>
+                    <label class="text-danger" id="fee"></label>
                     <hr>
                     <div class="confirmation_question"></div>
                 </div>
@@ -203,13 +209,13 @@ $expanded_check = true;
                             ?>
                                 <div class="accordion-item" data-id="<?= $row['id'] ?>">
                                     <h2 class="accordion-header">
-                                        <button class="accordion-button <?php if(!$expanded_check){echo 'collapsed';}?>" type="button" 
+                                        <button class="accordion-button <?php if(!$expanded_check_submitted){echo 'collapsed';}?>" type="button" 
                                         data-bs-toggle="collapse" data-bs-target="#collapse<?= $collapse_count ?>" 
-                                        aria-expanded="<?= $expanded_check ?>" aria-controls="collapse<?= $collapse_count ?>">
+                                        aria-expanded="<?= $expanded_check_submitted ?>" aria-controls="collapse<?= $collapse_count ?>">
                                         <?= htmlspecialchars($row['student_name'], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($row['student_group'], ENT_QUOTES, 'UTF-8') . " : " . htmlspecialchars($row['inventory_name'], ENT_QUOTES, 'UTF-8') ?></button> 
                                     </h2>
                                     <div id="collapse<?= $collapse_count++ ?>" class="accordion-collapse collapse 
-                                    <?php if($expanded_check){echo 'show';}?>" data-bs-parent="#accordion_submited">
+                                    <?php if($expanded_check_submitted){echo 'show';}?>" data-bs-parent="#accordion_submited">
                                         <div class="accordion-body">
                                             <div class="row">
                                                 <div class="col-3 mb-3">
@@ -280,7 +286,7 @@ $expanded_check = true;
                                     </div>
                                 </div>
                             <?php
-                                $expanded_check = false;
+                                $expanded_check_submitted = false;
                             }
                             $_SESSION['success_message'] = "";
                             $_SESSION['error_message'] = "";
@@ -301,13 +307,13 @@ $expanded_check = true;
                             ?>
                                 <div class="accordion-item" data-id="<?= $row['id'] ?>">
                                     <h2 class="accordion-header">
-                                        <button class="accordion-button <?php if(!$expanded_check){echo 'collapsed';}?>" type="button" 
+                                        <button class="accordion-button <?php if(!$expanded_check_corrected){echo 'collapsed';}?>" type="button" 
                                         data-bs-toggle="collapse" data-bs-target="#collapse<?= $collapse_count ?>" 
-                                        aria-expanded="<?= $expanded_check ?>" aria-controls="collapse<?= $collapse_count ?>">
+                                        aria-expanded="<?= $expanded_check_corrected ?>" aria-controls="collapse<?= $collapse_count ?>">
                                         <?= htmlspecialchars($row['student_name'], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($row['student_group'], ENT_QUOTES, 'UTF-8') . " : " . htmlspecialchars($row['inventory_name'], ENT_QUOTES, 'UTF-8') ?></button> 
                                     </h2>
                                     <div id="collapse<?= $collapse_count++ ?>" class="accordion-collapse collapse 
-                                    <?php if($expanded_check){echo 'show';}?>" data-bs-parent="#accordion_corrected">
+                                    <?php if($expanded_check_corrected){echo 'show';}?>" data-bs-parent="#accordion_corrected">
                                         <div class="accordion-body">
                                             <div class="row">
                                                 <div class="col-3 mb-3">
@@ -378,7 +384,7 @@ $expanded_check = true;
                                     </div>
                                 </div>
                             <?php
-                                $expanded_check = false;
+                                $expanded_check_corrected = false;
                             }
                             $_SESSION['success_message'] = "";
                             $_SESSION['error_message'] = "";
@@ -399,13 +405,13 @@ $expanded_check = true;
                             ?>
                                 <div class="accordion-item" data-id="<?= $row['id'] ?>">
                                     <h2 class="accordion-header">
-                                        <button class="accordion-button <?php if(!$expanded_check){echo 'collapsed';}?>" type="button" 
+                                        <button class="accordion-button <?php if(!$expanded_check_needs_correction){echo 'collapsed';}?>" type="button" 
                                         data-bs-toggle="collapse" data-bs-target="#collapse<?= $collapse_count ?>" 
-                                        aria-expanded="<?= $expanded_check ?>" aria-controls="collapse<?= $collapse_count ?>">
+                                        aria-expanded="<?= $expanded_check_needs_correction ?>" aria-controls="collapse<?= $collapse_count ?>">
                                         <?= htmlspecialchars($row['student_name'], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($row['student_group'], ENT_QUOTES, 'UTF-8') . " : " . htmlspecialchars($row['inventory_name'], ENT_QUOTES, 'UTF-8') ?></button> 
                                     </h2>
                                     <div id="collapse<?= $collapse_count++ ?>" class="accordion-collapse collapse 
-                                    <?php if($expanded_check){echo 'show';}?>" data-bs-parent="#accordion_needs_correction">
+                                    <?php if($expanded_check_needs_correction){echo 'show';}?>" data-bs-parent="#accordion_needs_correction">
                                         <div class="accordion-body">
                                             <div class="row">
                                                 <div class="col-3 mb-3">
@@ -476,7 +482,7 @@ $expanded_check = true;
                                     </div>
                                 </div>
                             <?php
-                                $expanded_check = false;
+                                $expanded_check_needs_correction = false;
                             }
                             $_SESSION['success_message'] = "";
                             $_SESSION['error_message'] = "";
@@ -497,13 +503,13 @@ $expanded_check = true;
                             ?>
                                 <div class="accordion-item" data-id="<?= $row['id'] ?>" data-user_id="<?= $row['fk_user_id'] ?>" data-inventory_id="<?= $row['fk_inventory_id'] ?>">
                                     <h2 class="accordion-header">
-                                        <button class="accordion-button <?php if(!$expanded_check){echo 'collapsed';}?>" type="button" 
+                                        <button class="accordion-button <?php if(!$expanded_check_approved){echo 'collapsed';}?>" type="button" 
                                         data-bs-toggle="collapse" data-bs-target="#collapse<?= $collapse_count ?>" 
-                                        aria-expanded="<?= $expanded_check ?>" aria-controls="collapse<?= $collapse_count ?>">
+                                        aria-expanded="<?= $expanded_check_approved ?>" aria-controls="collapse<?= $collapse_count ?>">
                                         <?= htmlspecialchars($row['student_name'], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($row['student_group'], ENT_QUOTES, 'UTF-8') . " : " . htmlspecialchars($row['inventory_name'], ENT_QUOTES, 'UTF-8') ?></button> 
                                     </h2>
                                     <div id="collapse<?= $collapse_count++ ?>" class="accordion-collapse collapse 
-                                    <?php if($expanded_check){echo 'show';}?>" data-bs-parent="#accordion_accepted">
+                                    <?php if($expanded_check_approved){echo 'show';}?>" data-bs-parent="#accordion_accepted">
                                         <div class="accordion-body">
                                             <div class="row">
                                                 <div class="col-3 mb-3">
@@ -529,14 +535,14 @@ $expanded_check = true;
                                                     </div>
                                                     <div class="row">
                                                         <div class="col">
-                                                            <input type="text" class="form-control" id="date_start<?= $date_input_count1++ ?>" 
+                                                            <input type="text" class="form-control" name="date_start" id="date_start<?= $date_input_count1++ ?>" 
                                                             value="<?= htmlspecialchars($row['start_date'], ENT_QUOTES, 'UTF-8') ?>" disabled>
                                                         </div>
                                                         <div class="col-1 d-flex justify-content-center align-items-center">
                                                             <i class="bi bi-dash"></i>
                                                         </div>
                                                         <div class="col">
-                                                            <input type="text" class="form-control" id="date_end<?= $date_input_count2++ ?>" 
+                                                            <input type="text" class="form-control" name="date_end" id="date_end<?= $date_input_count2++ ?>" 
                                                             value="<?= htmlspecialchars($row['end_date'], ENT_QUOTES, 'UTF-8') ?>" disabled>
                                                         </div>
                                                     </div>
@@ -582,7 +588,7 @@ $expanded_check = true;
                                     </div>
                                 </div>
                             <?php
-                                $expanded_check = false;
+                                $expanded_check_approved = false;
                             }
                             $_SESSION['success_message'] = "";
                             $_SESSION['error_message'] = "";
@@ -603,13 +609,13 @@ $expanded_check = true;
                             ?>
                                 <div class="accordion-item" data-id="<?= $row['id'] ?>">
                                     <h2 class="accordion-header">
-                                        <button class="accordion-button <?php if(!$expanded_check){echo 'collapsed';}?>" type="button" 
+                                        <button class="accordion-button <?php if(!$expanded_check_rejected){echo 'collapsed';}?>" type="button" 
                                         data-bs-toggle="collapse" data-bs-target="#collapse<?= $collapse_count ?>" 
-                                        aria-expanded="<?= $expanded_check ?>" aria-controls="collapse<?= $collapse_count ?>">
+                                        aria-expanded="<?= $expanded_check_rejected ?>" aria-controls="collapse<?= $collapse_count ?>">
                                         <?= htmlspecialchars($row['student_name'], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($row['student_group'], ENT_QUOTES, 'UTF-8') . " : " . htmlspecialchars($row['inventory_name'], ENT_QUOTES, 'UTF-8') ?></button> 
                                     </h2>
                                     <div id="collapse<?= $collapse_count++ ?>" class="accordion-collapse collapse 
-                                    <?php if($expanded_check){echo 'show';}?>" data-bs-parent="#accordion_rejected">
+                                    <?php if($expanded_check_rejected){echo 'show';}?>" data-bs-parent="#accordion_rejected">
                                         <div class="accordion-body">
                                             <div class="row">
                                                 <div class="col-3 mb-3">
@@ -673,7 +679,7 @@ $expanded_check = true;
                                     </div>
                                 </div>
                             <?php
-                                $expanded_check = false;
+                                $expanded_check_rejected = false;
                             }
                             $_SESSION['success_message'] = "";
                             $_SESSION['error_message'] = "";
@@ -694,13 +700,13 @@ $expanded_check = true;
                             ?>
                                 <div class="accordion-item" data-id="<?= $row['id'] ?>">
                                     <h2 class="accordion-header">
-                                        <button class="accordion-button <?php if(!$expanded_check){echo 'collapsed';}?>" type="button" 
+                                        <button class="accordion-button <?php if(!$expanded_check_finished){echo 'collapsed';}?>" type="button" 
                                         data-bs-toggle="collapse" data-bs-target="#collapse<?= $collapse_count ?>" 
-                                        aria-expanded="<?= $expanded_check ?>" aria-controls="collapse<?= $collapse_count ?>">
+                                        aria-expanded="<?= $expanded_check_finished ?>" aria-controls="collapse<?= $collapse_count ?>">
                                         <?= htmlspecialchars($row['student_name'], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($row['student_group'], ENT_QUOTES, 'UTF-8') . " : " . htmlspecialchars($row['inventory_name'], ENT_QUOTES, 'UTF-8') ?></button> 
                                     </h2>
                                     <div id="collapse<?= $collapse_count++ ?>" class="accordion-collapse collapse 
-                                    <?php if($expanded_check){echo 'show';}?>" data-bs-parent="#accordion_done">
+                                    <?php if($expanded_check_finished){echo 'show';}?>" data-bs-parent="#accordion_done">
                                         <div class="accordion-body">
                                             <div class="row">
                                                 <div class="col-3 mb-3">
@@ -764,7 +770,7 @@ $expanded_check = true;
                                     </div>
                                 </div>
                             <?php
-                                $expanded_check = false;
+                                $expanded_check_finished = false;
                             }
                             $_SESSION['success_message'] = "";
                             $_SESSION['error_message'] = "";
@@ -863,7 +869,10 @@ $expanded_check = true;
             let data = {};
 
             accordion_item = event.target.closest(".accordion-item");
+            const inputs = accordion_item.getElementsByTagName("input");
             data = {
+                start_date: inputs[2].value,
+                end_date: inputs[3].value,
                 user_id: accordion_item.dataset.user_id,
                 inventory_id: accordion_item.dataset.inventory_id
             };
@@ -876,6 +885,7 @@ $expanded_check = true;
                     document.getElementById('serial_number').value = data.serial_number;
                     document.getElementById('inventory_number').value = data.inventory_number;
                     document.getElementById('description').value = data.description;
+                    document.getElementById('fee').innerText = "";
                 })
                 .catch(error => {
                     document.getElementById('inventory').value = "Informacija nerasta";
@@ -883,6 +893,7 @@ $expanded_check = true;
                     document.getElementById('serial_number').value = "Informacija nerasta";
                     document.getElementById('inventory_number').value = "Informacija nerasta";
                     document.getElementById('description').value = "Informacija nerasta";
+                    document.getElementById('fee').innerText = "";
                 });
 
             showLoanConfirmationModal(data).then((confirmed) => {
@@ -901,6 +912,16 @@ $expanded_check = true;
                     input_user_id.name = "user_id";
                     input_user_id.value = data.user_id;
 
+                    start_date = document.createElement("input");
+                    start_date.type = "hidden";
+                    start_date.name = "start_date";
+                    start_date.value = data.start_date;
+
+                    end_date = document.createElement("input");
+                    end_date.type = "hidden";
+                    end_date.name = "end_date";
+                    end_date.value = data.end_date;
+
                     input_inventory_id = document.createElement("input");
                     input_inventory_id.type = "hidden";
                     input_inventory_id.name = "inventory_id";
@@ -908,6 +929,8 @@ $expanded_check = true;
 
                     form.appendChild(input_register_loan);
                     form.appendChild(input_user_id);
+                    form.appendChild(start_date);
+                    form.appendChild(end_date);
                     form.appendChild(input_inventory_id);
 
                     document.body.appendChild(form);
@@ -935,6 +958,9 @@ $expanded_check = true;
                     document.getElementById('serial_number').value = data.serial_number;
                     document.getElementById('inventory_number').value = data.inventory_number;
                     document.getElementById('description').value = data.description;
+                    if(data.fee > 0){
+                        document.getElementById('fee').innerText = 'Mokėtina suma dėl grąžinimo pasibaigus terminui: ' + data.fee + ' €';
+                    }
                 })
                 .catch(error => {
                     document.getElementById('inventory').value = "Informacija nerasta";
@@ -942,6 +968,7 @@ $expanded_check = true;
                     document.getElementById('serial_number').value = "Informacija nerasta";
                     document.getElementById('inventory_number').value = "Informacija nerasta";
                     document.getElementById('description').value = "Informacija nerasta";
+                    document.getElementById('fee').innerText = "";
                 });
 
             showReturnConfirmationModal(data).then((confirmed) => {

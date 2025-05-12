@@ -99,7 +99,7 @@ function clean($string) {
     $string = str_replace(' ', '_', $string); // Replaces all spaces with hyphens.
  
     return preg_replace('/[^A-Za-z0-9\-]/', '-', $string); // Removes special chars.
- }
+}
     #endregion
 
     #region Edit Inventory
@@ -832,14 +832,46 @@ function getInventoryDataForModal($inventory_id){
     return $row;
 }
 
+function calculateFee($inventory_id){
+    global $conn;
+    $fee = 0;
+
+    $stmt = mysqli_prepare($conn, "SELECT *
+                                    FROM inventory_loans
+                                    WHERE fk_inventory_id = ? AND `status` = 'Borrowed'");
+    mysqli_stmt_bind_param($stmt, "i", $inventory_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    if($row = mysqli_fetch_assoc($result)){
+        $return_date = new DateTime($row['return_until_date']);
+        $current_date = new DateTime();
+        $return_date = date_time_set($return_date, 0, 0, 0);
+        $current_date = date_time_set($current_date, 0, 0, 0);
+        
+        $interval = date_diff($return_date, $current_date);
+        $days = date_interval_format($interval, '%r%a');
+
+        if($days > 0){
+            $fee = round($days * 0.1, 2);
+        }
+    }
+
+    return $fee;
+}
+
 if (isset($_GET['action']) && $_GET['action'] === 'get_inventory') {
     if (!isset($_GET['inventory_id']) || !is_numeric($_GET['inventory_id'])) {
         http_response_code(400);
         exit();
     }
 
+    $data = getInventoryDataForModal($_GET['inventory_id']);
+
+    $data['fee'] = calculateFee($_GET['inventory_id']);
+
     header('Content-Type: application/json');
-    echo json_encode(getInventoryDataForModal($_GET['inventory_id']));
+    echo json_encode($data);
     exit();
 }
 
@@ -994,15 +1026,12 @@ function addFeedback($request_id, $feedback){
     }
 }
 
-function registerLoan($user_id, $inventory_id){
+function registerLoan($user_id, $inventory_id, $start_date, $end_date){
     global $conn;
-
-    $date = date("Y-m-d");
-    $return_until_date = date("Y-m-d", strtotime("+1 month"));
 
     $stmt = mysqli_prepare($conn, "INSERT INTO inventory_loans(fk_user_id, fk_inventory_id, loan_date, return_until_date, `status`)
                                     VALUES(?, ?, ?, ?, 'Borrowed')");
-    mysqli_stmt_bind_param($stmt, "iiss", $user_id, $inventory_id, $date, $return_until_date);
+    mysqli_stmt_bind_param($stmt, "iiss", $user_id, $inventory_id, $start_date, $end_date);
     mysqli_stmt_execute($stmt);
     $affected_rows = mysqli_stmt_affected_rows($stmt);
 
@@ -1441,47 +1470,6 @@ function generateRandomString() {
     return $randomString;
 }
 
-// function encryptMessage($microcontroller_public_key, $server_private_key, $message) {
-//     // echo "Public Key (Base64):" . base64_encode($microcontroller_public_key) . "|||";
-//     // echo "Private Key (Base64):" . base64_encode($server_private_key) . "|||";
-
-//     $microcontroller_public_key = base64_decode($microcontroller_public_key);
-//     $server_private_key = base64_decode($server_private_key);
-
-//     $keypair = sodium_crypto_box_keypair_from_secretkey_and_publickey($server_private_key, $microcontroller_public_key);
-
-//     $nonce = random_bytes(SODIUM_CRYPTO_BOX_NONCEBYTES);
-
-//     $ciphertext = sodium_crypto_box($message, $nonce, $keypair);
-//     $encrypted_message = base64_encode($nonce . $ciphertext);
-
-//     // echo "Encrypted Message (Base64):" . $encrypted_message . "|||";
-
-//     return $encrypted_message;
-// }
-
-// function decryptMessage($microcontroller_base64_public_key, $server_base64_private_key, $base64_encrypted_message) {
-//     $microcontroller_public_key = base64_decode($microcontroller_base64_public_key);
-//     $server_private_key = base64_decode($server_base64_private_key);
-//     $encrypted_message = base64_decode($base64_encrypted_message);
-
-//     $keypair = sodium_crypto_box_keypair_from_secretkey_and_publickey($server_private_key, $microcontroller_public_key);
-
-//     $nonce = substr($encrypted_message, 0, SODIUM_CRYPTO_BOX_NONCEBYTES);
-//     $ciphertext = substr($encrypted_message, SODIUM_CRYPTO_BOX_NONCEBYTES);
-
-//     $decrypted = sodium_crypto_box_open($ciphertext, $nonce, $keypair);
-
-//     if ($decrypted === false) {
-//         echo "Decryption failed! Possible reasons:\n";
-//         echo "- Message was tampered with\n";
-//         echo "- Wrong keys used\n";
-//         echo "- Corrupted message\n";
-//     }
-
-//     return $decrypted;
-// }
-
 function encryptMessage($recipient_base64_public_key, $message) {
     $recipient_public_key = base64_decode($recipient_base64_public_key);
 
@@ -1493,22 +1481,26 @@ function encryptMessage($recipient_base64_public_key, $message) {
 }
 
 function decryptMessage($base64_private_key, $base64_public_key, $base64_encrypted_message) {
-    $private_key = base64_decode($base64_private_key);
-    $public_key = base64_decode($base64_public_key);
-    $encrypted_message = base64_decode($base64_encrypted_message);
+    try{
+        $private_key = base64_decode($base64_private_key);
+        $public_key = base64_decode($base64_public_key);
+        $encrypted_message = base64_decode($base64_encrypted_message);
 
-    $keypair = sodium_crypto_box_keypair_from_secretkey_and_publickey($private_key, $public_key);
+        $keypair = sodium_crypto_box_keypair_from_secretkey_and_publickey($private_key, $public_key);
 
-    $decrypted = sodium_crypto_box_seal_open($encrypted_message, $keypair);
+        $decrypted = sodium_crypto_box_seal_open($encrypted_message, $keypair);
 
-    if ($decrypted === false) {
-        echo "Decryption failed! Possible reasons:\n";
-        echo "- Message was tampered with\n";
-        echo "- Wrong keys used\n";
-        echo "- Corrupted message\n";
+        if ($decrypted === false) {
+            echo "Decryption failed! Possible reasons:\n";
+            echo "- Message was tampered with\n";
+            echo "- Wrong keys used\n";
+            echo "- Corrupted message\n";
+        }
+
+        return $decrypted;
+    } catch (Exception $e) {
+        return false;
     }
-
-    return $decrypted;
 }
 
 function send_data($data_array, $addr) {
@@ -1593,12 +1585,19 @@ if((isset($_POST['action']) && $_POST['action'] === 'generate_admin_card_data'))
     exit();
 }
 
-function authenticateUser($decrypted_card_data){
+function registerStorageUnlockAttempt($device_name, $user_id, $result){
     global $conn;
 
-    $card_data_array = explode("__", $decrypted_card_data);
-    $user_id = $card_data_array[0];
-    $user_name = $card_data_array[1];
+    $device_id = getStorageByDeviceName($device_name)['id']; 
+
+    $stmt = mysqli_prepare($conn, "INSERT INTO storage_unlock_attempts (fk_user_id, fk_inventory_location_id, result)
+                                    VALUES (?, ?, ?)");
+    mysqli_stmt_bind_param($stmt, "iis", $user_id, $device_id, $result);
+    mysqli_stmt_execute($stmt);
+}
+
+function authenticateUser($user_id, $user_name, $device_name){
+    global $conn;
 
     $stmt = mysqli_prepare($conn, "SELECT * FROM users
                                     WHERE id = ?
