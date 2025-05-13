@@ -123,7 +123,7 @@ $result = display_users();
                             <td><?= htmlspecialchars($row['name'], ENT_QUOTES, 'UTF-8') ?></td>
                             <td>
                                 <div class="row">
-                                    <div class="col-7">
+                                    <div class="col-6">
                                         <select class="form-select" aria-label="Role select" name="role_select">
                     <?php
                         if($row['role'] == 'admin'){
@@ -148,7 +148,7 @@ $result = display_users();
                     ?>
                                         </select>
                                     </div>
-                                    <div class="col-5">
+                                    <div class="col-6">
                                         <button type="button" class="btn btn-success" name="change_role" onclick="changeRole()">Keisti rolę</button>
                                     <?php
                                         if($row['role'] == 'admin'){

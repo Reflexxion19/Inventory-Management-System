@@ -1117,6 +1117,10 @@ function inventoryCount(){
 function createApplication($inventory_id, $start_date, $end_date, $additional_comments){
     global $conn;
 
+    if($additional_comments === ""){
+        $additional_comments = NULL;
+    }
+
     if($start_date !== "" && $end_date !== ""){
         $stmt = mysqli_prepare($conn, "INSERT INTO loan_applications(fk_user_id, fk_inventory_id, `start_date`, end_date,
                                                                 additional_comments, `status`)

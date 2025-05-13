@@ -124,7 +124,7 @@ $path = "../../images/qr_codes/";
                                         <input type="search" id="search-box" class="form-control" onkeyup="search()"/>
                                         <label class="form-label" for="search-box">Ieškoti</label>
                                     </div>
-                                    <button type="button" class="btn btn-success ms-1" onClick="document.location.href='add_inventory.php'">PRIDĖTI INVENTORIŲ</button>
+                                    <button type="button" class="btn btn-success ms-1" onClick="document.location.href='add_inventory.php'">PRIDĖTI ĮRENGINĮ</button>
                                 </div>
                             </div>
 

@@ -103,7 +103,7 @@ $result = getLocations();
                 </div>
                 <div class="row">
                     <div class="col d-flex justify-content-end">
-                        <button type="submit" class="btn btn-success" name="add_inventory">Pridėti inventorių</button>
+                        <button type="submit" class="btn btn-success" name="add_inventory">Pridėti įrenginį</button>
                     </div>
                 </div>
             </form>
