@@ -1093,7 +1093,7 @@ function display_student_loan_requests(){
                                     FROM loan_applications
                                     INNER JOIN users ON loan_applications.fk_user_id = users.id
                                     INNER JOIN inventory ON loan_applications.fk_inventory_id = inventory.id
-                                    WHERE fk_user_id = ? ");
+                                    WHERE fk_user_id = ? AND (status = 'submitted' OR status = 'needs_correction' OR status = 'corrected' OR status = 'approved')");
     mysqli_stmt_bind_param($stmt, "i", $user_id);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
@@ -1384,6 +1384,25 @@ function calculate_year_returned_and_not_returned_in_time_loans($year){
 #endregion
 
 #region Mail
+function sendPasswordResetMail($recipient, $token){
+    $headers = "From: KTUIVS <reflexxion.usage@gmail.com>";
+    $to = $recipient;
+    $subject = "Slaptažodžio atstatymas KTUIVS";
+
+    $message = "Sveiki,\n\n";
+    $message .= "Paspauskite ant nuorodos, jog atstatytumėte savo KTUIVS paskyros slaptažodį: https://ktuivs.reflexxion.lt/new_password.php?token=$token\n";
+    $message .= "Jeigu nebandėte atstatyti KTUIVS paskyros slaptažodžio, ignoruokite šį laišką.\n\n";
+    $message .= "Nebandykite atsakyti į šią žinutę. Tai yra automatinis pranešimas.\n\n";
+    $message .= "Pagarbiai,\n";
+    $message .= "KTUIVS";
+
+    if(mail($to, $subject, $message, $headers)){
+        return true;
+    } else{
+        return false;
+    }
+}
+
 function sendEmailVerificationMail($recipient, $verification_token){
     $headers = "From: KTUIVS <reflexxion.usage@gmail.com>";
     $to = $recipient;

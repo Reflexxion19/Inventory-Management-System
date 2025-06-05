@@ -11,7 +11,7 @@ loan_tab.addEventListener("click", loanTabFunction);
 if(!check && storage_tab.classList.contains("active")){
     html5QrcodeScanner1 = new Html5QrcodeScanner(
         reader1,
-        { fps: 20, qrbox: {width: 250, height: 250} },
+        { fps: 20, qrbox: {width: 400, height: 400} },
         false
     );
     html5QrcodeScanner1.render(onScanSuccess1, onScanFailure1);
@@ -20,7 +20,7 @@ if(!check && storage_tab.classList.contains("active")){
 } else if(!check1 && loan_tab.classList.contains("active")){
     html5QrcodeScanner2 = new Html5QrcodeScanner(
         reader2,
-        { fps: 20, qrbox: {width: 250, height: 250} },
+        { fps: 20, qrbox: {width: 400, height: 400} },
         false
     );
     html5QrcodeScanner2.render(onScanSuccess2, onScanFailure2);
@@ -47,7 +47,7 @@ function storageTabFunction() {
 
     html5QrcodeScanner1 = new Html5QrcodeScanner(
         reader1,
-        { fps: 20, qrbox: {width: 250, height: 250} },
+        { fps: 20, qrbox: {width: 400, height: 400} },
         false
     );
     html5QrcodeScanner1.render(onScanSuccess1, onScanFailure1);
@@ -62,7 +62,7 @@ function loanTabFunction() {
 
     html5QrcodeScanner2 = new Html5QrcodeScanner(
         reader2,
-        { fps: 20, qrbox: {width: 250, height: 250} },
+        { fps: 20, qrbox: {width: 400, height: 400} },
         false
     );
     html5QrcodeScanner2.render(onScanSuccess2, onScanFailure2);
